@@ -1,0 +1,15 @@
+data/*
+output/*
+Tracking-Anything-with-DEVA/
+output_seg/*
+output_seg-dataset_gs_teste/*
+output_seg-figurines/*
+output_seg-ramen/*
+GAT/*
+gaussian_renderer/*
+scene/*
+submodules/*
+utils/*
+arguments/*
+*.mp4
+*.drawio

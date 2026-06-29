@@ -1,12 +1,10 @@
 #!/bin/bash
 
-
 # Check if the user provided an argument
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <dataset_name>"
+    echo "Usage: $0 <dataset_name> <scale>"
     exit 1
 fi
-
 
 dataset_name="$1"
 scale="$2"
@@ -17,8 +15,6 @@ if [ ! -d "$dataset_folder" ]; then
     exit 2
 fi
 
-
-
 # 1. DEVA anything mask
 cd Tracking-Anything-with-DEVA/
 
@@ -28,32 +24,63 @@ else
     img_path="../data/${dataset_name}/images_${scale}"
 fi
 
-# colored mask for visualization check
+echo "Using images from: $img_path"
+
+############################################
+# CONFIG OTIMIZADA PRA RTX 4060 (8GB)
+############################################
+
+COMMON_ARGS="
+  --chunk_size 1
+  --amp
+  --temporal_setting semionline
+  --size 320
+  --suppress_small_objects
+  --SAM_PRED_IOU_THRESHOLD 0.7
+  --sam_variant mobile
+  --SAM_NUM_POINTS_PER_SIDE 32
+  --SAM_NUM_POINTS_PER_BATCH 32
+  --disable_long_term
+"
+
+############################################
+# 1️⃣ COLORED MASK (visualização)
+############################################
+
 python demo/demo_automatic.py \
-  --chunk_size 4 \
   --img_path "$img_path" \
-  --amp \
-  --temporal_setting semionline \
-  --size 480 \
   --output "./example/output_gaussian_dataset/${dataset_name}" \
-  --suppress_small_objects  \
-  --SAM_PRED_IOU_THRESHOLD 0.7 \
+  $COMMON_ARGS
 
+# rename se existir
+if [ -d "./example/output_gaussian_dataset/${dataset_name}/Annotations" ]; then
+    mv ./example/output_gaussian_dataset/${dataset_name}/Annotations \
+       ./example/output_gaussian_dataset/${dataset_name}/Annotations_color
+fi
 
-mv ./example/output_gaussian_dataset/${dataset_name}/Annotations ./example/output_gaussian_dataset/${dataset_name}/Annotations_color
+############################################
+# 2️⃣ GRAY MASK (treino)
+############################################
 
-# gray mask for training
 python demo/demo_automatic.py \
-  --chunk_size 4 \
   --img_path "$img_path" \
-  --amp \
-  --temporal_setting semionline \
-  --size 480 \
   --output "./example/output_gaussian_dataset/${dataset_name}" \
-  --use_short_id  \
-  --suppress_small_objects  \
-  --SAM_PRED_IOU_THRESHOLD 0.7 \
-  
-# 2. copy gray mask to the correponding data path
-cp -r ./example/output_gaussian_dataset/${dataset_name}/Annotations ../data/${dataset_name}/object_mask
+  --use_short_id \
+  $COMMON_ARGS
+
+############################################
+# 3️⃣ COPIAR PARA DATASET
+############################################
+
+mkdir -p ../data/${dataset_name}/object_mask
+
+if [ -d "./example/output_gaussian_dataset/${dataset_name}/Annotations" ]; then
+    cp -r ./example/output_gaussian_dataset/${dataset_name}/Annotations \
+          ../data/${dataset_name}/object_mask
+else
+    echo "⚠️ Warning: Annotations not generated"
+fi
+
 cd ..
+
+echo "✅ Finished pseudo label generation"
