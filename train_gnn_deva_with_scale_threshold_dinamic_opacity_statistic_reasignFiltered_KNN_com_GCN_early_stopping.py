@@ -5,11 +5,13 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from collections import defaultdict
+from scipy.stats import mode
+from scipy.stats import mode as scipy_mode
 
 from argparse import ArgumentParser
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
-from scipy.stats import mode  # [ADICIONADO] Para o voto majoritário rápido
 import hdbscan  
 
 from torch_geometric.nn import GCNConv
@@ -107,34 +109,41 @@ class ContrastiveLoss(torch.nn.Module):
 class GaussianGCN(torch.nn.Module):
     def __init__(self, in_channels, hidden_dim=64, out_dim=32, dropout=0.1):
         super().__init__()
-        # Camada 1: Projeta de in_channels para hidden_dim
-        self.gcn1 = GCNConv(in_channels, hidden_dim)
-        self.bn1 = torch.nn.BatchNorm1d(hidden_dim)
+        # add_self_loops=True garante a preservação do próprio nó
+        self.gcn1 = GCNConv(in_channels, hidden_dim, add_self_loops=True)
+        self.norm1 = torch.nn.LayerNorm(hidden_dim)
         
-        # Camada 2: Processa dentro do espaço oculto
-        self.gcn2 = GCNConv(hidden_dim, hidden_dim * 2)
-        self.bn2 = torch.nn.BatchNorm1d(hidden_dim * 2)
-        
-        # Projeção final para os embeddings do contraste/HDBSCAN
+        self.gcn2 = GCNConv(hidden_dim, hidden_dim * 2, add_self_loops=True)
+        self.norm2 = torch.nn.LayerNorm(hidden_dim * 2)
+
+        # Projeção de atalho (Residual) para ajustar dimensões (in_channels -> hidden_dim * 2)
+        self.proj_res = torch.nn.Linear(in_channels, hidden_dim * 2)
+
         self.linear = torch.nn.Linear(hidden_dim * 2, out_dim)
         self.dropout = torch.nn.Dropout(dropout)
-        
+
     def forward(self, x, edge_index, edge_weight=None):
-        # Primeira convolução em grafo
-        x = self.gcn1(x, edge_index, edge_weight=edge_weight)
-        x = self.bn1(x)
-        x = F.elu(x)
-        x = self.dropout(x)
-        
-        # Segunda convolução em grafo
-        x = self.gcn2(x, edge_index, edge_weight=edge_weight)
-        x = self.bn2(x)
-        x = F.elu(x)
-        x = self.dropout(x)
-        
-        # Mapeamento final de dimensão (embeddings de tamanho 32)
-        x = self.linear(x)
-        return x
+        # Mapeamento do caminho residual direto
+        identity = self.proj_res(x)
+
+        # Bloco 1
+        h = self.gcn1(x, edge_index, edge_weight=edge_weight)
+        h = self.norm1(h)
+        h = F.elu(h)
+        h = self.dropout(h)
+
+        # Bloco 2
+        h = self.gcn2(h, edge_index, edge_weight=edge_weight)
+        h = self.norm2(h)
+
+        # Conexão Residual Crítica (impede o colapso de labels)
+        h = h + identity
+        h = F.elu(h)
+        h = self.dropout(h)
+
+        # Projeção de Saída
+        x_out = self.linear(h)
+        return x_out
     
 class GaussianGAT(torch.nn.Module):
     def __init__(self, in_channels, heads=2):
@@ -167,7 +176,7 @@ class GaussianGAT(torch.nn.Module):
 def compute_dynamic_filters(opacity, scaling, target_count=220000):
     """
     Calcula thresholds dinâmicos para atingir aproximadamente target_count gaussianas.
-    Prioriza o ajuste de opacidade.
+    Prioriza o ajuste de opacidade e GARANTE que count >= target_count.
     """
     n_total = len(opacity)
     print(f"\n🎯 Calculando filtros dinâmicos para ~{target_count:,} gaussianas...")
@@ -176,51 +185,54 @@ def compute_dynamic_filters(opacity, scaling, target_count=220000):
     if n_total <= target_count:
         print(f"   ⚠️ Total ({n_total:,}) já é menor que o target ({target_count:,})")
         print(f"   Usando threshold mínimo (0.01) para manter todas as gaussianas")
-        return 0, 1, n_total
+        return 0.01, 1.0, n_total
     
     best_op_thresh = None
+    best_sc_thresh = 0.7
     best_count = 0
     best_diff = float('inf')
     
-    for op_thresh in np.linspace(0.01, 0.5, 50):
-        mask = (opacity > op_thresh) & (scaling < 10.0)
-        count = np.sum(mask)
-        diff = abs(count - target_count)
-        
-        if diff < best_diff:
-            best_diff = diff
-            best_count = count
-            best_op_thresh = op_thresh
+    # 🔥 PRIORIDADE 1: Encontrar combinação com count >= target_count
+    for op_thresh in np.linspace(0.0001, 0.5, 50):
+        for sc_thresh in np.linspace(0.3, 50.0, 50):
+            mask = (opacity > op_thresh) & (scaling < sc_thresh)
+            count = np.sum(mask)
             
-            if diff < 500:
-                break
-    
-    if best_op_thresh is not None:
-        for op_offset in np.linspace(-0.02, 0.02, 10):
-            op_test = max(0.01, best_op_thresh + op_offset)
-            for sc_thresh in np.linspace(0.3, 2.0, 10):
-                mask = (opacity > op_test) & (scaling < sc_thresh)
-                count = np.sum(mask)
-                diff = abs(count - target_count)
-                
+            # 🔥 Só considera se count >= target_count
+            if count >= target_count:
+                diff = count - target_count  # Queremos o mais próximo de target
                 if diff < best_diff:
                     best_diff = diff
                     best_count = count
-                    best_op_thresh = op_test
+                    best_op_thresh = op_thresh
                     best_sc_thresh = sc_thresh
                     
-                    if diff < 200:
+                    # Se estiver muito próximo, para a busca
+                    if diff < 500:
                         break
-            if best_diff < 200:
-                break
+        if best_diff < 500:
+            break
     
-    if 'best_sc_thresh' not in locals():
-        best_sc_thresh = 0.7
+    # 🔥 PRIORIDADE 2: Se nenhuma combinação >= target, usa a mais próxima
+    if best_op_thresh is None:
+        print("   ⚠️ Nenhuma combinação atingiu o target. Usando a mais próxima...")
+        best_diff = float('inf')
+        for op_thresh in np.linspace(0.01, 0.5, 50):
+            for sc_thresh in np.linspace(0.3, 2.0, 20):
+                mask = (opacity > op_thresh) & (scaling < sc_thresh)
+                count = np.sum(mask)
+                diff = abs(count - target_count)
+                if diff < best_diff:
+                    best_diff = diff
+                    best_count = count
+                    best_op_thresh = op_thresh
+                    best_sc_thresh = sc_thresh
     
     print(f"   ✅ Melhor combinação encontrada:")
     print(f"      Opacity threshold: {best_op_thresh:.3f}")
     print(f"      Scale threshold: {best_sc_thresh:.3f}")
     print(f"      Gaussianas resultantes: {best_count:,}")
+    print(f"      {'✅ Target atingido!' if best_count >= target_count else f'⚠️ Faltam {target_count - best_count:,} para o target'}")
     
     return best_op_thresh, best_sc_thresh, best_count
 
@@ -236,21 +248,6 @@ def project_points(xyz, view):
     u = ((proj[:,0]*0.5+0.5)*view.image_width).astype(int)
     v = ((proj[:,1]*0.5+0.5)*view.image_height).astype(int)
     return u, v
-
-def load_deva(json_path):
-    with open(json_path, "r") as f:
-        data = json.load(f)
-    ann_map = {}
-    for ann in data["annotations"]:
-        name = os.path.splitext(ann["file_name"])[0]
-        ann_map[name] = ann["segments_info"]
-    return ann_map
-
-import os
-import cv2
-import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from scipy.stats import mode
 
 def project_points_with_depth(xyz, view, out_width=None, out_height=None):
     """
@@ -283,112 +280,206 @@ def project_points_with_depth(xyz, view, out_width=None, out_height=None):
     return u, v, z_cam
 
 
-def build_labels(
+def smooth_labels_spatially(xyz, labels, k=12, min_agreement=0.6, n_passes=2):
+    """
+    Suaviza labels via votação de maioria entre vizinhos espaciais (k-NN).
+    Só troca o label da gaussiana se uma fração >= min_agreement dos
+    vizinhos concordar em outro label diferente do atual.
+    """
+    labels = labels.copy()
+    valid_mask = labels != -1
+    if valid_mask.sum() == 0:
+        return labels
+
+    for p in range(n_passes):
+        valid_idx = np.where(labels != -1)[0]
+        nbrs = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(xyz[valid_idx])
+        _, nn_idx = nbrs.kneighbors(xyz[valid_idx])
+        nn_idx = nn_idx[:, 1:]  # remove o próprio ponto (primeiro vizinho = ele mesmo)
+
+        neighbor_labels = labels[valid_idx[nn_idx]]  # (M, k)
+        new_labels = labels[valid_idx].copy()
+
+        for i in range(len(valid_idx)):
+            vals, counts = np.unique(neighbor_labels[i], return_counts=True)
+            top = vals[np.argmax(counts)]
+            top_frac = counts.max() / k
+            if top != new_labels[i] and top_frac >= min_agreement:
+                new_labels[i] = top
+
+        changed = np.sum(new_labels != labels[valid_idx])
+        labels[valid_idx] = new_labels
+        print(f"  Passe {p+1}/{n_passes} de suavização: {changed:,} gaussianas trocaram de label")
+
+    return labels
+
+def build_labels_with_deva_json(
     scene,
     xyz,
     masks_path,
-    propagate_to_neighbors=False,
-    depth_tolerance=0.03,   # Tolerância relativa de z-buffer por frame (3cm)
-    k_propagate=3,         # Aumentado para 3 para suavizar KNN no final
+    deva_json_path,
+    min_score=0.3,
+    min_area=20,
+    max_area=10000,
+    depth_tolerance=0.02,  # Mantido para compatibilidade, mas não será usado
+    color_tolerance=0.25,
+    use_color_validation=False,
+    propagate_to_neighbors=True,
+    k_propagate=1,
 ):
     N = xyz.shape[0]
-    labels = np.full(N, -1, dtype=np.int64)
-    best_z = np.full(N, np.inf, dtype=np.float32) # Guarda a menor profundidade em que a gaussiana foi vista
 
-    cameras = scene.getTrainCameras()
-    total_frames = len(cameras)
+    # -------------------------------------------------------------------------
+    # 1. Carregamento do JSON do DEVA e indexação
+    # -------------------------------------------------------------------------
+    print(f"📖 Carregando anotações do DEVA em: {deva_json_path}")
+    with open(deva_json_path, "r") as f:
+        deva_data = json.load(f)
 
-    print(f"\n🔍 Montando labels com Z-Buffer Global a partir de {masks_path}...")
+    deva_meta = {}
+    total_segments_raw = 0
+    total_segments_kept = 0
 
-    for idx, view in enumerate(cameras):
+    for ann in deva_data.get("annotations", []):
+        fname = ann["file_name"]
+        deva_meta[fname] = {}
+        for seg in ann.get("segments_info", []):
+            total_segments_raw += 1
+            sid = seg["id"]
+            score = seg.get("score", 1.0)
+            area = seg.get("area", 0)
+
+            # Filtro por limiares e área máxima (descarta fundo gigante)
+            if score >= min_score and min_area <= area <= max_area:
+                total_segments_kept += 1
+                deva_meta[fname][sid] = {
+                    "score": score,
+                    "area": area,
+                    "category_id": seg.get("category_id"),
+                }
+
+    print(f"  └─ Segmentos no JSON: {total_segments_raw} total | {total_segments_kept} mantidos (score>={min_score}, {min_area}<=area<={max_area})")
+
+    # -------------------------------------------------------------------------
+    # 2. Estruturas para Acumulação Ponderada e Média
+    # -------------------------------------------------------------------------
+    train_cameras = scene.getTrainCameras()
+    total_cameras = len(train_cameras)
+
+    # gi -> {sid: acumulado_dos_pesos}
+    votes_weight = [defaultdict(float) for _ in range(N)]
+    # gi -> {sid: contagem_de_observacoes}
+    votes_count = [defaultdict(int) for _ in range(N)]
+
+    processed = 0
+    frames_com_mascara_lida = 0
+
+    print(f"🔍 Montando labels (votação normalizada e por distância) em {masks_path}...")
+
+    for view in train_cameras:
         name = view.image_name
-        mask_path = os.path.join(masks_path, f"{name}.png")
-        if not os.path.exists(mask_path):
+        json_frame_key = f"{name}.jpg" if not name.endswith((".jpg", ".png")) else name
+
+        frame_seg_info = deva_meta.get(json_frame_key, {})
+        if not frame_seg_info:
             continue
 
+        mask_path = os.path.join(masks_path, f"{name}.png")
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
         if mask is None:
             continue
         if mask.ndim == 3:
             mask = mask[..., 0]
 
+        frames_com_mascara_lida += 1
+        processed += 1
+        if processed % 50 == 0:
+            print(f"  Processando frame {processed}/{total_cameras}...")
+
         H, W = mask.shape
 
-        # 1. Projeta TODOS os pontos no frame atual para montar um Z-Buffer real da cena
+        # Projeta TODOS os pontos
         u, v, z_cam = project_points_with_depth(xyz, view, out_width=W, out_height=H)
 
-        # Filtro de frustum básico
-        valid_frustum = (z_cam > 0.1) & (u >= 0) & (u < W) & (v >= 0) & (v < H)
-        valid_idx = np.where(valid_frustum)[0]
-
-        if valid_idx.size == 0:
+        valid = (z_cam > 0.1) & (u >= 0) & (u < W) & (v >= 0) & (v < H)
+        idx = np.where(valid)[0]
+        if idx.size == 0:
             continue
 
-        # 2. Z-buffer do frame atual (para tratar oclusão entre as próprias gaussianas)
-        u_v = u[valid_idx]
-        v_v = v[valid_idx]
-        z_v = z_cam[valid_idx]
-
-        flat_pixel_idx = v_v * W + u_v
-        frame_depth_buffer = np.full(H * W, np.inf, dtype=np.float32)
-        np.minimum.at(frame_depth_buffer, flat_pixel_idx, z_v.astype(np.float32))
-
-        # 3. Pega só as gaussianas na superfície visível deste frame
-        min_z_in_frame = frame_depth_buffer[flat_pixel_idx]
-        is_front = z_v <= (min_z_in_frame + depth_tolerance)
-        front_idx = valid_idx[is_front]
-
-        if front_idx.size == 0:
-            continue
-
-        # 4. Amostra a máscara para as gaussianas da frente
-        sids = mask[v[front_idx], u[front_idx]].astype(np.int64)
+        # ════════════════════════════════════════════════════════════════════
+        # 🔥 MODIFICAÇÃO PRINCIPAL: REMOVER O Z-BUFFER
+        # Agora usamos TODOS os pontos projetados, sem filtrar por profundidade
+        # ════════════════════════════════════════════════════════════════════
         
-        # Filtra apenas pixels com rótulos válidos (assumindo 0 como background/sem máscara)
-        valid_mask = sids > 0
-        front_idx = front_idx[valid_mask]
-        sids = sids[valid_mask]
-        z_front = z_cam[front_idx]
+        # Obtém os IDs das máscaras para TODOS os pontos projetados
+        sids = mask[v[idx], u[idx]].astype(np.int64)
 
-        # 5. ATUALIZAÇÃO INTELIGENTE:
-        # Atualiza o label SE a gaussiana estiver mais perto da câmera do que nas vistas anteriores
-        closer_than_before = z_front < best_z[front_idx]
-        target_idx = front_idx[closer_than_before]
-        
-        labels[target_idx] = sids[closer_than_before]
-        best_z[target_idx] = z_front[closer_than_before]
+        # Matriz de posições da câmera para ponderação por distância 3D
+        cam_center = view.camera_center.detach().cpu().numpy() if hasattr(view, 'camera_center') else None
 
-        if (idx + 1) % 50 == 0 or (idx + 1) == total_frames:
-            assigned_so_far = np.sum(labels != -1)
-            print(f"  Frame {idx+1}/{total_frames} | Gaussianas com label até agora: {assigned_so_far:,}/{N:,}")
+        for gi, sid in zip(idx, sids):
+            if sid in frame_seg_info:
+                score = frame_seg_info[sid]["score"]
+                area = frame_seg_info[sid]["area"]
+
+                # 1. Fator de distância: Visão de perto ganha mais peso
+                if cam_center is not None:
+                    dist = np.linalg.norm(xyz[gi] - cam_center) + 1e-5
+                    dist_weight = 1.0 / dist
+                else:
+                    dist_weight = 1.0
+
+                # 2. Fator de área: Ponderação inversamente proporcional ao tamanho
+                area_weight = 1.0 / np.log1p(area)
+
+                # Peso combinado para este frame
+                weight = score * dist_weight * area_weight
+
+                votes_weight[gi][sid] += weight
+                votes_count[gi][sid] += 1
+
+    # -------------------------------------------------------------------------
+    # 3. Atribuição por Pontuação Média (Média Ponderada por Frame)
+    # -------------------------------------------------------------------------
+    labels = np.full(N, -1, dtype=np.int64)
+
+    for i in range(N):
+        if votes_weight[i]:
+            # Calcula a média ponderada para cada SID em que esta gaussiana participou
+            avg_scores = {
+                sid: votes_weight[i][sid] / votes_count[i][sid]
+                for sid in votes_weight[i]
+            }
+            # O label vencedor é o que teve maior score médio
+            labels[i] = max(avg_scores, key=avg_scores.get)
 
     assigned = np.sum(labels != -1)
-    print(f"\n  Gaussianas rotuladas por projeção direta: {assigned}/{N} ({100*assigned/N:.1f}%)")
+    print(f"\n✅ Concluído:")
+    print(f"  • Frames com máscara lida: {frames_com_mascara_lida}/{total_cameras}")
+    print(f"  • Gaussianas rotuladas (votação média/normalizada): {assigned}/{N} ({100 * assigned / N:.1f}%)")
 
-    # --- PROPAGAÇÃO KNN PARA PONTOS NÃO VISTOS ---
+    # --- suaviza ruído sal-e-pimenta antes de propagar pros -1 ---
+    print(f"\n🧹 Suavizando labels espacialmente...")
+    #labels = smooth_labels_spatially(xyz, labels, k=24, min_agreement=0.7, n_passes=2)
+    
+    # -------------------------------------------------------------------------
+    # 4. Propagação KNN Opcional
+    # -------------------------------------------------------------------------
     if propagate_to_neighbors:
         valid_idx = np.where(labels != -1)[0]
         invalid_idx = np.where(labels == -1)[0]
-
         if len(valid_idx) > 0 and len(invalid_idx) > 0:
-            print(f"  🔄 Propagando {len(invalid_idx):,} gaussianas sem label via KNN (k={k_propagate})...")
-            
-            nbrs = NearestNeighbors(n_neighbors=k_propagate, algorithm="kd_tree", n_jobs=-1).fit(xyz[valid_idx])
+            print(f"  🔄 Propagando {len(invalid_idx):,} gaussianas via KNN (k={k_propagate})...")
+            nbrs = NearestNeighbors(n_neighbors=k_propagate, algorithm="auto").fit(xyz[valid_idx])
             _, nn_idx = nbrs.kneighbors(xyz[invalid_idx])
-
             if k_propagate == 1:
                 labels[invalid_idx] = labels[valid_idx[nn_idx.flatten()]]
             else:
                 neigh_labels = labels[valid_idx[nn_idx]]
-                # scipy mode retorna array de modos
-                modes, _ = mode(neigh_labels, axis=1, keepdims=False)
-                labels[invalid_idx] = modes
+                labels[invalid_idx] = mode(neigh_labels, axis=1, keepdims=False).mode
 
-    final_valid = np.sum(labels != -1)
-    n_clusters = len(np.unique(labels[labels != -1]))
-    print(f"\n📊 RESUMO FINAL:")
-    print(f"  Total com label: {final_valid}/{N} ({100*final_valid/N:.1f}%)")
-    print(f"  Número de clusters/instâncias: {n_clusters}")
+            final_assigned = np.sum(labels != -1)
+            print(f"  • Total após KNN: {final_assigned}/{N} ({100 * final_assigned / N:.1f}%)")
 
     return labels
 
@@ -624,7 +715,78 @@ class EarlyStopping:
             model.load_state_dict(self.best_model_state)
             if self.verbose:
                 print(f"   ✅ [EarlyStopping] Melhores pesos restaurados com sucesso (Melhor Loss: {self.best_loss:.4f}).")
+
+
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from scipy.stats import mode
+
+def clean_micro_clusters_spatial_voting(
+    xyz, 
+    labels, 
+    k_neighbors=20, 
+    min_cluster_size=100, 
+    iterations=2
+):
+    """
+    Filtra pequenas manchas/micro-clusters isolados no espaço 3D, 
+    fazendo com que o label dominante da vizinhança absorva as partes menores.
+    
+    Args:
+        xyz: Posições (N, 3) das gaussianas filtradas.
+        labels: Array de labels gerados pelo HDBSCAN/KNN.
+        k_neighbors: Número de vizinhos 3D considerados para definir a maioria local.
+        min_cluster_size: Clusters com total de gaussianas abaixo deste tamanho são absorvidos.
+        iterations: Quantas passadas de suavização espacial aplicar.
+    """
+    print(f"\n🧹 Limpando micro-clusters (< {min_cluster_size} gaussianas) via Votação Espacial 3D...")
+    cleaned_labels = labels.copy()
+    
+    # 1. Identifica os clusters que são "pequenos demais" para existirem sozinhos
+    unique_labels, counts = np.unique(cleaned_labels, return_counts=True)
+    small_clusters = set(unique_labels[counts < min_cluster_size])
+    
+    # O label -1 (ruído) também deve ser absorvido pela vizinhança
+    small_clusters.add(-1)
+    
+    if not small_clusters:
+        print("  └─ Nenhum micro-cluster para limpar.")
+        return cleaned_labels
+
+    # 2. Constrói a busca por vizinhos espaciais 3D
+    nbrs = NearestNeighbors(n_neighbors=k_neighbors + 1, algorithm="auto").fit(xyz)
+    _, indices = nbrs.kneighbors(xyz)
+    
+    # 3. Iterações de Votação por Maioria Local
+    for it in range(iterations):
+        changed_count = 0
+        for i in range(len(cleaned_labels)):
+            current_label = cleaned_labels[i]
+            
+            # Se a gaussiana pertence a um micro-cluster ou é ruído (-1)
+            if current_label in small_clusters:
+                # Pega os labels dos k vizinhos 3D (excluindo a própria gaussiana)
+                neighbor_indices = indices[i, 1:]
+                neighbor_labels = cleaned_labels[neighbor_indices]
                 
+                # Filtra os vizinhos que também pertencem a micro-clusters para evitar contaminação
+                valid_neighbor_labels = [l for l in neighbor_labels if l not in small_clusters]
+                
+                if valid_neighbor_labels:
+                    # O label mais frequente na vizinhança "come" a gaussiana
+                    most_frequent_label = mode(valid_neighbor_labels, keepdims=False).mode
+                    cleaned_labels[i] = most_frequent_label
+                    changed_count += 1
+                    
+        print(f"  └─ Passada {it + 1}/{iterations}: {changed_count:,} gaussianas reatribuídas ao label majoritário.")
+        
+        # Atualiza a contagem dos small_clusters para a próxima iteração
+        u_lab, c_lab = np.unique(cleaned_labels, return_counts=True)
+        small_clusters = set(u_lab[c_lab < min_cluster_size])
+        small_clusters.add(-1)
+
+    return cleaned_labels
+
 def main():
     parser = ArgumentParser()
     model_params = ModelParams(parser, sentinel=True)
@@ -636,20 +798,21 @@ def main():
     parser.add_argument("--output", default="output_seg")
     parser.add_argument("--visualize_3d", action="store_false")
     parser.add_argument("--save_pointclouds", action="store_false")
-    
-    parser.add_argument("--model_type", default="gat", choices=["gat"])
+
+    # consolidado num único argumento (antes havia --model_type e
+    # --model_type_choice conflitando; --model_type tinha choices=["gat"]
+    # e por isso o branch "gcn" no código nunca era alcançado)
+    parser.add_argument("--model_type_choice", default="gcn", choices=["gat", "gcn"])
     parser.add_argument("--gat_heads", default=2, type=int)
     parser.add_argument("--opacity_threshold", default=0.05, type=float)
     parser.add_argument("--max_scale_threshold", default=0.7, type=float, help="Filtro de escala contra elipsoides gigantes")
     parser.add_argument("--min_cluster_size", default=25, type=int)
-    parser.add_argument("--use_or_condition", action="store_true", default=True)
     parser.add_argument("--target_gaussians", default=230000, type=int, help="Número alvo de gaussianas após filtragem")
 
     parser.add_argument("--render_full_pointcloud", action="store_true", default=True,
                          help="Propaga os labels para TODAS as gaussianas antes de renderizar (elimina buracos brancos)")
-    parser.add_argument("--knn_reassign_k", default=7, type=int,
+    parser.add_argument("--knn_reassign_k", default=25, type=int,
                          help="Número de vizinhos K nos embeddings para reatribuição rápida de ruído")
-    parser.add_argument("--model_type_choice", default="gcn", choices=["gat", "gcn"])
 
     args = get_combined_args(parser)
     os.makedirs(args.output, exist_ok=True)
@@ -661,136 +824,156 @@ def main():
     gaussians = GaussianModel(model_params.extract(args).sh_degree)
     scene = Scene(model_params.extract(args), gaussians, load_iteration=args.iteration, shuffle=False)
 
-    xyz_full_original = gaussians._xyz.detach().cpu().numpy()  
+    xyz_full_original = gaussians._xyz.detach().cpu().numpy()
     xyz = gaussians._xyz.detach().cpu().numpy()
     rgb = gaussians._features_dc.detach().cpu().squeeze(1).numpy()
-    
+
     # FILTRAGEM GEOMÉTRICA (OPACIDADE + ESCALA)
     opacity = torch.sigmoid(gaussians._opacity).detach().cpu().numpy().squeeze()
     scaling = torch.exp(gaussians._scaling).detach().cpu().numpy()
     max_scaling = np.max(scaling, axis=1)
 
     dyn_op_thresh, dyn_sc_thresh, final_count = compute_dynamic_filters(
-        opacity, 
-        max_scaling, 
-        target_count=args.target_gaussians
+        opacity,
+        max_scaling,
+        target_count=180000
     )
-    
+
     args.opacity_threshold = dyn_op_thresh
     args.max_scale_threshold = dyn_sc_thresh
-    
-    mask_filter = (opacity > args.opacity_threshold) & (max_scaling < args.max_scale_threshold)
 
+    mask_filter = (opacity > args.opacity_threshold) & (max_scaling < args.max_scale_threshold)
+    #mask_filter = None
     xyz = xyz[mask_filter]
     rgb = rgb[mask_filter]
     opacity_filtered = opacity[mask_filter]
 
     print(f"\n⚙️ Geometria Filtrada: {len(xyz):,} de {len(opacity):,} Gaussianas restantes.")
 
-    ann_map = load_deva(args.deva_json)
-    # Substitua a chamada no main por:
+    labels = build_labels_with_deva_json(
+        scene,
+        xyz,
+        args.masks_path,
+        args.deva_json,
+        min_score=0.7,
+    )
 
-    labels = build_labels(scene, xyz, args.masks_path)
     pipe = pipeline_params.extract(args)
     background = torch.tensor([1, 1, 1], dtype=torch.float, device=device)
-    #labels = build_labels_via_id_rendering(scene,gaussians,pipe,background,args.masks_path,ann_map,device)
     render_clusters(labels, "debug_labels_2d", gaussians, scene, pipe, background, args, device, mask_filter)
+
     unique, counts = np.unique(labels, return_counts=True)
-        
     print("\n========== LABELS GERADOS ==========")
     print("Número de labels:", len(unique))
-        
     for label, count in zip(unique[:30], counts[:30]):
         print(f"Label {label}: {count:,} Gaussianas")
+
+    # ==========================================================
     # FEATURES
+    # ==========================================================
     scaler = StandardScaler()
     x_input = np.concatenate([
-        scaler.fit_transform(xyz) * 0.7,
+        scaler.fit_transform(xyz) * 1,
         scaler.fit_transform(rgb) * 1.5,
     ], axis=1)
     x = torch.tensor(x_input, dtype=torch.float)
 
     # ==========================================================
-    # CONSTRUÇÃO DO GRAFO GEOMÉTRICO
+    # CONSTRUÇÃO DO GRAFO GEOMÉTRICO (vetorizado)
     # ==========================================================
     print("\n🔗 Construindo grafo geométrico...")
     N_NEIGHBORS = 6
     nbrs = NearestNeighbors(n_neighbors=N_NEIGHBORS, algorithm="auto").fit(xyz)
     distances, indices = nbrs.kneighbors(xyz)
 
-    edges = []
-    edge_weights = []
-    all_neighbor_distances = distances[:, 1:].reshape(-1)
-    sigma = np.median(all_neighbor_distances)
+    # remove o próprio ponto (primeiro vizinho = ele mesmo)
+    neighbor_idx = indices[:, 1:]              # (N, k)
+    neighbor_dist = distances[:, 1:]           # (N, k)
+
+    sigma = np.median(neighbor_dist)
     print(f"  Sigma geométrico: {sigma:.4f}")
 
-    distance_threshold = np.mean(all_neighbor_distances) + 1.0 * np.std(all_neighbor_distances)
-    all_color_sims = []
+    # distância de cor euclidiana (não cosine — cosine trata sombra/luz
+    # do mesmo objeto como "cores idênticas", o que gerava ruído nos labels)
+    rgb_i = rgb[:, None, :]                    # (N, 1, 3)
+    rgb_j = rgb[neighbor_idx]                  # (N, k, 3)
+    color_dist = np.linalg.norm(rgb_i - rgb_j, axis=-1)   # (N, k)
+    color_sigma = np.median(color_dist)
+    color_weight_all = np.exp(-(color_dist ** 2) / (2 * color_sigma ** 2 + 1e-8))
 
-    for i in range(len(indices)):
-        for k in range(1, len(indices[i])):
-            j = indices[i][k]
-            color_sim = F.cosine_similarity(
-                torch.tensor(rgb[i]).unsqueeze(0),
-                torch.tensor(rgb[j]).unsqueeze(0), dim=1
-            ).item()
-            all_color_sims.append(color_sim)
+    spatial_weight_all = np.exp(-(neighbor_dist ** 2) / (2 * sigma ** 2 + 1e-8))
 
-    all_color_sims = np.array(all_color_sims)
-    color_threshold = np.percentile(all_color_sims, 25)
+    # thresholds adaptativos — calculados a partir da distribuição real
+    # dos dados e agora efetivamente usados no filtro (antes eram
+    # calculados e descartados em favor de números fixos)
+    distance_threshold = neighbor_dist.mean() + neighbor_dist.std()
+    color_dist_threshold = np.percentile(color_dist, 75)  # mantém os 75% mais parecidos
+    print(f"  Distance threshold: {distance_threshold:.4f} | Color dist threshold: {color_dist_threshold:.4f}")
 
-    for i in range(len(indices)):
-        for k in range(1, len(indices[i])):
-            j = indices[i][k]
-            d = distances[i][k]
-            color_sim = F.cosine_similarity(
-                torch.tensor(rgb[i]).unsqueeze(0),
-                torch.tensor(rgb[j]).unsqueeze(0), dim=1
-            ).item()
+    edge_mask = (neighbor_dist <= distance_threshold) & (color_dist <= color_dist_threshold)
+    src, k_idx = np.where(edge_mask)
+    dst = neighbor_idx[src, k_idx]
 
-            if d <=3 and color_sim >= 0.8:
-                spatial_weight = np.exp(-(d ** 2) / (2 * sigma ** 2 + 1e-8))
-                color_weight = (color_sim + 1.0) * 0.5
-                weight = (0.6 * spatial_weight + 1.2 * color_weight)
-                
-                edges.append([i, j])
-                edge_weights.append(weight)
-                edges.append([j, i])
-                edge_weights.append(weight)
+    weight = 0.6 * spatial_weight_all[src, k_idx] + 1.2 * color_weight_all[src, k_idx]
 
-            
+    # arestas bidirecionais
+    edges_np = np.concatenate([
+        np.stack([src, dst], axis=1),
+        np.stack([dst, src], axis=1),
+    ], axis=0)
+    weights_np = np.concatenate([weight, weight], axis=0)
 
-    edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
-    edge_weights_t = torch.tensor(edge_weights, dtype=torch.float, device=device)
+    # dedup: kNN não é simétrico, então pares mutuamente vizinhos podem
+    # gerar a mesma aresta duas vezes (uma de cada direção da iteração)
+    edges_np, dedup_idx = np.unique(edges_np, axis=0, return_index=True)
+    weights_np = weights_np[dedup_idx]
 
-    # MODELO GAT
+    print(f"  Arestas no grafo: {len(edges_np):,}")
+
+    edge_index = torch.tensor(edges_np.T, dtype=torch.long)
+    edge_weights_t = torch.tensor(weights_np, dtype=torch.float, device=device)
+
+    # ==========================================================
     # MODELO (GAT ou GCN)
+    # ==========================================================
     in_dim = x.shape[1]
-    
-    if args.model_type == "gcn":
-        model = GaussianGCN(in_dim=in_dim, out_dim=32).to(device)
-    else:
-        model = GaussianGAT(in_channels=in_dim, heads=args.gat_heads).to(device)
-        
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    criterion = ContrastiveLoss()
 
-    data = Data(x=x, edge_index=edge_index).to(device)
+    if args.model_type_choice == "gcn":
+        # Normalização Min-Max exclusiva para a GCN
+        w_min, w_max = weights_np.min(), weights_np.max()
+        weights_norm = (weights_np - w_min) / (w_max - w_min + 1e-8)
+        edge_weights_t = torch.tensor(weights_norm, dtype=torch.float, device=device)
+
+        model = GaussianGCN(in_channels=in_dim, out_dim=32).to(device)
+        data = Data(x=x, edge_index=edge_index, edge_weight=edge_weights_t).to(device)
+
+    else:  # gat (Sua configuração original)
+        edge_weights_t = torch.tensor(weights_np, dtype=torch.float, device=device)
+
+        model = GaussianGAT(in_channels=in_dim, heads=args.gat_heads).to(device)
+        data = Data(x=x, edge_index=edge_index, edge_weight=edge_weights_t).to(device)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    criterion = ContrastiveLoss(
+        temperature=0.10,
+        pos_margin=0.6,
+        neg_margin=0.25
+    )
     labels_t = torch.tensor(labels, device=device)
 
-    print("\n🎓 Treinando GAT/GCN com Early Stopping...")
+    print(f"\n🎓 Treinando {args.model_type_choice.upper()} com Early Stopping...")
 
-    # Inicializa o early stopping
     early_stopping = EarlyStopping(patience=20, min_delta=0.0001, verbose=True)
-
-    # Lista para guardar histórico de losses (opcional)
     loss_history = []
     menor_loss = float('inf')
-    for epoch in range(1000):  # Aumente o máximo de épocas
+
+    for epoch in range(200):
+        model.train()
         optimizer.zero_grad()
 
-        if args.model_type == "gcn":
-            embeddings = model(data.x, data.edge_index, edge_weight=edge_weights_t)
+        # A GCN consome edge_weight, a GAT roda sem ele no forward (como na sua original)
+        if args.model_type_choice == "gcn":
+            embeddings = model(data.x, data.edge_index, edge_weight=data.edge_weight)
         else:
             embeddings = model(data.x, data.edge_index)
 
@@ -800,7 +983,7 @@ def main():
             z,
             labels_t,
             data.edge_index,
-            edge_weights=edge_weights_t
+            edge_weights=data.edge_weight
         )
 
         loss.backward()
@@ -808,40 +991,25 @@ def main():
 
         current_loss = loss.item()
         loss_history.append(current_loss)
-        
-        # Atualiza o menor loss (tracking)
+
         if current_loss < menor_loss:
             menor_loss = current_loss
 
         if epoch % 10 == 0:
             print(f"Epoch {epoch:4d} | Loss: {current_loss:.4f} | Best: {menor_loss:.4f}")
 
-        # Verifica early stopping
         if early_stopping(current_loss, model):
             break
 
-    # Restaura o melhor modelo encontrado
     early_stopping.restore_best_model(model)
 
-    # Opcional: plota o histórico de losses
-    try:
-        plt.figure(figsize=(10, 5))
-        plt.plot(loss_history)
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.title('Training Loss History')
-        plt.grid(True)
-        plt.savefig(os.path.join(args.output, 'loss_history.png'))
-        plt.close()
-        print(f"  📊 Histórico de losses salvo em: {os.path.join(args.output, 'loss_history.png')}")
-    except Exception as e:
-        print(f"  ⚠️ Não foi possível salvar o gráfico de losses: {e}")
-
+    # ==========================================================
     # EXTRAÇÃO DE EMBEDDINGS
+    # ==========================================================
     model.eval()
     with torch.no_grad():
-        if args.model_type == "gcn":
-            out_emb = model(data.x, data.edge_index, edge_weight=edge_weights_t)
+        if args.model_type_choice == "gcn":
+            out_emb = model(data.x, data.edge_index, edge_weight=data.edge_weight)
         else:
             out_emb = model(data.x, data.edge_index)
             
@@ -864,6 +1032,14 @@ def main():
         k=args.knn_reassign_k, 
         min_agreement=0.5
     )
+
+    #cluster_labels = clean_micro_clusters_spatial_voting(
+        #xyz=xyz, 
+        #labels=cluster_labels, 
+        #k_neighbors=25,          # Considera as 25 gaussianas 3D ao redor
+        #min_cluster_size=30,    # Qualquer segmento menor que 200 gaussianas é "comido" pelo objeto principal
+        #iterations=2             # 2 passadas garantem uma superfície contínua e limpa
+    #)
 
     # Montagem final do vetor de cores adequado ao renderizador
     if args.render_full_pointcloud:
@@ -893,7 +1069,7 @@ def main():
     pipe = pipeline_params.extract(args)
     background = torch.tensor([1, 1, 1], dtype=torch.float, device=device)
 
-    render_clusters(cluster_labels, args.model_type, gaussians, scene, pipe, background, args, device, mask_filter)
+    render_clusters(render_labels, args.model_type_choice, gaussians, scene, pipe, background, args, device, None)
 
     gaussians._features_dc.data = orig_dc
     print("\n✅ Concluído! Pipeline executado de forma otimizada.")
