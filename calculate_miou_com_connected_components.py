@@ -51,7 +51,7 @@ class RestrictedMetrics2D:
         combined_pred_mask = np.zeros((H, W), dtype=bool)
         
         print(f"\n🎯 AVALIAÇÃO MULTI-COMPONENTE (Tolerância = {color_tolerance}):")
-        print("=" * 70)
+        print("=" * 80)
         
         for obj in self.gt_objects:
             cat_name = obj["category"]
@@ -65,7 +65,8 @@ class RestrictedMetrics2D:
             if len(pred_pixels_in_gt) == 0:
                 results.append({
                     "category": cat_name, "precision": 0.0, "recall": 0.0,
-                    "f1": 0.0, "iou": 0.0, "pixel_acc": 0.0, "area": obj["area"], "covered": False
+                    "f1": 0.0, "dice": 0.0, "iou": 0.0, "pixel_acc": 0.0, 
+                    "area": obj["area"], "covered": False
                 })
                 continue
 
@@ -118,6 +119,7 @@ class RestrictedMetrics2D:
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
             f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+            dice = (2 * tp) / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0.0
             
             union = tp + fp + fn
             iou = tp / union if union > 0 else 0.0
@@ -133,6 +135,7 @@ class RestrictedMetrics2D:
                 "precision": precision,
                 "recall": recall,
                 "f1": f1,
+                "dice": dice,
                 "iou": iou,
                 "pixel_acc": pixel_acc,
                 "area": obj["area"],
@@ -159,38 +162,39 @@ class RestrictedMetrics2D:
             mean_precision = np.mean([r["precision"] for r in valid_results])
             mean_recall = np.mean([r["recall"] for r in valid_results])
             mean_f1 = np.mean([r["f1"] for r in valid_results])
+            mean_dice = np.mean([r["dice"] for r in valid_results])
             mean_iou = np.mean([r["iou"] for r in valid_results])
             mean_pixel_acc = np.mean([r["pixel_acc"] for r in valid_results])
             covered_objects = sum(1 for r in valid_results if r["covered"])
             total_objects = len(valid_results)
         else:
-            mean_precision = mean_recall = mean_f1 = mean_iou = mean_pixel_acc = 0.0
+            mean_precision = mean_recall = mean_f1 = mean_dice = mean_iou = mean_pixel_acc = 0.0
             covered_objects = total_objects = 0
             
-        print("=" * 70)
+        print("=" * 80)
         print(f"📊 RESULTADOS AGREGADOS:")
         print(f"  • Precision Média:            {mean_precision*100:.2f}%")
         print(f"  • Recall Médio:               {mean_recall*100:.2f}%")
         print(f"  • F1-score Médio:             {mean_f1:.4f}")
+        print(f"  • Dice Score Médio:           {mean_dice:.4f}")
         print(f"  • mIoU:                       {mean_iou:.4f}")
         print(f"  • Pixel Accuracy Médio:       {mean_pixel_acc*100:.2f}%")
         print(f"  • Objetos Detectados (IoU>={iou_threshold}): {covered_objects}/{total_objects} ({100*covered_objects/total_objects if total_objects > 0 else 0:.1f}%)")
         
         print("\n📋 DETALHAMENTO POR OBJETO:")
-        print("-" * 70)
-        print(f"{'Categoria':<20} {'Prec':>8} {'Rec':>8} {'F1':>8} {'IoU':>8} {'Detectado?':>12}")
-        print("-" * 70)
+        print("-" * 80)
+        print(f"{'Categoria':<20} {'Prec':>8} {'Rec':>8} {'F1':>8} {'Dice':>8} {'IoU':>8} {'Detectado?':>12}")
+        print("-" * 80)
         for r in valid_results:
             status = "SIM" if r["covered"] else "NÃO"
             print(f"{r['category']:<20} {r['precision']*100:>7.1f}% {r['recall']*100:>7.1f}% "
-                  f"{r['f1']:>7.3f} {r['iou']:>7.3f} {status:>12}")
+                  f"{r['f1']:>7.3f} {r['dice']:>7.3f} {r['iou']:>7.3f} {status:>12}")
 
         return results
 
 if __name__ == "__main__":
     json_path = "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00002.json"
-    #pred_path = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/output_seg/gat/frame_00002.png"
     pred_path = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/output_seg/gat/frame_00002.png"
 
     evaluator = RestrictedMetrics2D(json_path, scale_factor=0.25)
-    evaluator.evaluate(pred_path, color_tolerance=50.0, iou_threshold=0.1)
+    evaluator.evaluate(pred_path, color_tolerance=40.0, iou_threshold=0.250)
