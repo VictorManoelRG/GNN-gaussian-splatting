@@ -190,7 +190,7 @@ class RestrictedMetrics2D:
 if __name__ == "__main__":
     json_path = "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00002.json"
     #pred_path = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/output_seg/gat/frame_00002.png"
-    pred_path = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/output/teatime/train/ours_30000/objects_pred/00001.png"
+    pred_path = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/output_seg/gat/frame_00002.png"
 
     evaluator = RestrictedMetrics2D(json_path, scale_factor=0.25)
     evaluator.evaluate(pred_path, color_tolerance=50.0, iou_threshold=0.1)
