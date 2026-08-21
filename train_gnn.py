@@ -9,7 +9,8 @@ from collections import defaultdict
 from scipy.stats import mode
 from scipy.stats import mode as scipy_mode
 from skimage.color import rgb2lab
-
+import matplotlib.colors as mcolors
+from scipy.spatial import cKDTree
 from argparse import ArgumentParser
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
@@ -178,6 +179,129 @@ class ColorAwareContrastiveLoss(nn.Module):
         
         # Combinação final de perdas
         total_loss = (1-self.color_weight) * (pos_loss + neg_loss + nce_loss) + (self.color_weight * color_loss)
+        return total_loss
+
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class ColorAwareContrastiveLossV2(nn.Module):
+    def __init__(self, temperature=0.07, pos_margin=0.5, neg_margin=0.2, 
+                 color_weight=0.3, color_sigma=0.15, max_neg_candidates=512):
+        super().__init__()
+        self.temperature = temperature
+        self.pos_margin = pos_margin
+        self.neg_margin = neg_margin
+        self.color_weight = color_weight
+        self.color_sigma = color_sigma
+        self.max_neg_candidates = max_neg_candidates  # Teto de candidatos para prevenir OOM
+    
+    def forward(self, embeddings, labels, edge_index, colors, edge_weights=None):
+        src, dst = edge_index
+        device = embeddings.device
+        
+        # 1. Normalização L2 prévia (transforma cosseno em produto escalar leve)
+        emb_norm = F.normalize(embeddings, p=2, dim=1)
+        sim = (emb_norm[src] * emb_norm[dst]).sum(dim=1)
+        
+        # ==========================================================
+        # 1. LOSS SEMÂNTICA
+        # ==========================================================
+        valid = (labels[src] != -1) & (labels[dst] != -1)
+        same_label = (labels[src] == labels[dst]) & valid
+        diff_label = (labels[src] != labels[dst]) & valid
+        
+        pos_loss = torch.tensor(0.0, device=device)
+        if same_label.any():
+            raw_pos = torch.relu(1 - sim[same_label] - self.pos_margin)
+            pos_loss = (raw_pos * edge_weights[same_label]).mean() if edge_weights is not None else raw_pos.mean()
+        
+        neg_loss = torch.tensor(0.0, device=device)
+        if diff_label.any():
+            raw_neg = torch.relu(sim[diff_label] - self.neg_margin)
+            neg_loss = (raw_neg * edge_weights[diff_label]).mean() if edge_weights is not None else raw_neg.mean()
+        
+        # ==========================================================
+        # 2. LOSS DE CONSISTÊNCIA DE COR
+        # ==========================================================
+        color_dist = torch.norm(colors[src] - colors[dst], p=2, dim=1)
+        color_sim = torch.exp(- (color_dist ** 2) / (2 * (self.color_sigma ** 2) + 1e-8))
+        color_loss = F.mse_loss(sim, color_sim)
+
+        # ==========================================================
+        # 3. INFO-NCE LOSS (Economia de VRAM)
+        # ==========================================================
+        uniq_labels = torch.unique(labels[labels != -1])
+        nce_loss = torch.tensor(0.0, device=device)
+        nce_count = 0
+        
+        for label in uniq_labels:
+            pos_mask = (labels == label)
+            pos_indices = torch.where(pos_mask)[0]
+            
+            if pos_indices.shape[0] < 2:
+                continue
+                
+            neg_mask = (labels != label) & (labels != -1)
+            neg_indices = torch.where(neg_mask)[0]
+            
+            anchors_idx = pos_indices[torch.randperm(pos_indices.shape[0])[:min(5, pos_indices.shape[0])]]
+            
+            for anchor_idx in anchors_idx:
+                anchor_emb = emb_norm[anchor_idx].unsqueeze(0)
+                anchor_color = colors[anchor_idx].unsqueeze(0)
+                
+                # --- HARD POSITIVE MINING ---
+                other_pos_indices = pos_indices[pos_indices != anchor_idx]
+                with torch.no_grad():
+                    pos_sims_no_grad = (anchor_emb * emb_norm[other_pos_indices]).sum(dim=1)
+                    hard_pos_idx = other_pos_indices[pos_sims_no_grad.argmin()]
+                
+                # Retém gradiente apenas do positivo selecionado
+                pos_sim = (anchor_emb * emb_norm[hard_pos_idx].unsqueeze(0)).sum(dim=1)
+                
+                # --- COLOR-AWARE HARD NEGATIVE MINING ---
+                if neg_indices.shape[0] > 0:
+                    # Amostragem limite de candidatos para evitar picos de memória
+                    if neg_indices.shape[0] > self.max_neg_candidates:
+                        perm = torch.randperm(neg_indices.shape[0], device=device)[:self.max_neg_candidates]
+                        curr_neg_indices = neg_indices[perm]
+                    else:
+                        curr_neg_indices = neg_indices
+
+                    # Mineração SEM GRADIENTE (libera ~90% de VRAM)
+                    with torch.no_grad():
+                        cand_embs = emb_norm[curr_neg_indices]
+                        cand_colors = colors[curr_neg_indices]
+                        
+                        neg_emb_sim = (anchor_emb * cand_embs).sum(dim=1)
+                        neg_color_dist = torch.norm(anchor_color - cand_colors, p=2, dim=1)
+                        neg_color_sim = torch.exp(- (neg_color_dist ** 2) / (2 * (self.color_sigma ** 2) + 1e-8))
+                        
+                        combined_hardness = neg_emb_sim + self.color_weight * neg_color_sim
+                        k_negs = min(10, curr_neg_indices.shape[0])
+                        top_hard_rel_indices = combined_hardness.topk(k_negs).indices
+                        selected_neg_indices = curr_neg_indices[top_hard_rel_indices]
+                    
+                    # Gradientes mantidos apenas para os Top-K Negativos finalistas
+                    hard_neg_embs = emb_norm[selected_neg_indices]
+                    hard_negatives_sim = (anchor_emb * hard_neg_embs).sum(dim=1)
+                    
+                    logits = torch.cat([pos_sim, hard_negatives_sim]).unsqueeze(0) / self.temperature
+                    targets = torch.zeros(1, dtype=torch.long, device=device)
+                    
+                    nce_loss = nce_loss + F.cross_entropy(logits, targets)
+                    nce_count += 1
+        
+        if nce_count > 0:
+            nce_loss = nce_loss / nce_count
+        
+        total_loss = (1 - self.color_weight) * (pos_loss + neg_loss + nce_loss) + (self.color_weight * color_loss)
         return total_loss
 
 class PureColorLoss(nn.Module):
@@ -414,7 +538,7 @@ def compute_dynamic_filters(opacity, scaling, target_count=220000):
     if n_total <= target_count:
         print(f"   ⚠️ Total ({n_total:,}) já é menor que o target ({target_count:,})")
         print(f"   Usando threshold mínimo (0.01) para manter todas as gaussianas")
-        return 0.01, 1.0, n_total
+        return 0, 10, n_total
     
     best_op_thresh = None
     best_sc_thresh = 0.7
@@ -480,32 +604,56 @@ def project_points(xyz, view):
 
 def project_points_with_depth(xyz, view, out_width=None, out_height=None):
     """
-    Projeta os pontos 3D garantindo compatibilidade de convenção de matrizes do 3DGS.
+    Projeta pontos 3D no espaço de tela (pixels) e retorna profundidade (z_cam),
+    seguindo a convenção exata do repositório oficial Gaussian Splatting.
     """
-    # Garantir matrizes no formato float32 do numpy
-    w2c = view.world_view_transform.detach().cpu().numpy().T  # Atenção ao .T dependendo do framework
-    P = view.full_proj_transform.detach().cpu().numpy().T     # Idem aqui
-
-    p_hom = np.hstack([xyz, np.ones((xyz.shape[0], 1), dtype=np.float32)])
+    import torch
     
-    # Transformação para o espaço da câmera
+    # Converte para numpy se necessário
+    if isinstance(xyz, torch.Tensor):
+        xyz = xyz.detach().cpu().numpy()
+    
+    # 1. Converte para homogêneo (N, 4)
+    N = xyz.shape[0]
+    p_hom = np.hstack([xyz, np.ones((N, 1), dtype=np.float32)])
+    
+    # 2. Pega as matrizes e garante que são numpy
+    w2c = view.world_view_transform.detach().cpu().numpy()
+    P = view.full_proj_transform.detach().cpu().numpy()
+    
+    # 3. Projeção para espaço da câmera (z_cam)
     p_cam = p_hom @ w2c
-    z_cam = p_cam[:, 2]
-
-    # Projeção NDC (-1 a 1)
+    z_cam = p_cam[:, 2].copy()  # Profundidade no espaço da câmera
+    
+    # 4. Projeção completa (espaço NDC)
     proj = p_hom @ P
-    # Evita divisão por zero/valores atrás da câmera
-    w = proj[:, 3:4]
-    w_safe = np.where(np.abs(w) < 1e-6, 1e-6, w)
+    
+    # 5. Divisão por W (com proteção contra divisão por zero)
+    w_vals = proj[:, 3:4]
+    w_safe = np.where(np.abs(w_vals) < 1e-8, 1e-8, w_vals)
     proj_ndc = proj[:, :3] / w_safe
-
+    
+    # 6. Dimensões da imagem
     W = out_width if out_width is not None else view.image_width
     H = out_height if out_height is not None else view.image_height
-
-    # Pixel coords
-    u = ((proj_ndc[:, 0] * 0.5 + 0.5) * W).astype(np.int32)
-    v = ((proj_ndc[:, 1] * 0.5 + 0.5) * H).astype(np.int32)
-
+    
+    # 7. Coordenadas de pixel (corrigidas)
+    u = np.round((proj_ndc[:, 0] * 0.5 + 0.5) * W - 0.5).astype(np.int32)
+    v = np.round((0.5 - proj_ndc[:, 1] * 0.5) * H - 0.5).astype(np.int32)
+    
+    # 🔥 Correção importante: algumas implementações usam floor, outras round
+    # A versão oficial do 3DGS usa floor para u e v
+    # u = np.floor((proj_ndc[:, 0] * 0.5 + 0.5) * W).astype(np.int32)
+    # v = np.floor((0.5 - proj_ndc[:, 1] * 0.5) * H).astype(np.int32)
+    
+    # 8. Verificação adicional: alguns pontos podem estar fora do frustum
+    valid_ndc = (np.abs(proj_ndc[:, 0]) <= 1.0) & (np.abs(proj_ndc[:, 1]) <= 1.0) & (proj_ndc[:, 2] <= 1.0)
+    
+    # Aplica a validade NDC para evitar projeções inválidas
+    u[~valid_ndc] = -1
+    v[~valid_ndc] = -1
+    z_cam[~valid_ndc] = -1
+    
     return u, v, z_cam
 
 
@@ -549,11 +697,11 @@ def build_labels_with_deva_json(
     deva_json_path,
     min_score=0.3,
     min_area=20,
-    max_area=10000,
+    max_area=600,
     depth_tolerance=0.02,  # Mantido para compatibilidade, mas não será usado
     color_tolerance=0.25,
     use_color_validation=False,
-    propagate_to_neighbors=True,
+    propagate_to_neighbors=False,
     k_propagate=1,
 ):
     N = xyz.shape[0]
@@ -712,7 +860,436 @@ def build_labels_with_deva_json(
 
     return labels
 
+def build_labels_with_deva_json_v2(
+    scene,
+    xyz,
+    masks_path,
+    deva_json_path,
+    min_score=0.3,
+    min_area=100,
+    max_area=22500,
+    depth_tolerance=0.02,  # Mantido para compatibilidade, mas não será usado
+    color_tolerance=0.25,
+    use_color_validation=False,
+    propagate_to_neighbors=False,
+    k_propagate=1,
+    depth_rel_tol=0.05,   # 🔥 NOVO: tolerância relativa do z-buffer (5% por padrão)
+    min_votes=3,          # 🔥 NOVO: mínimo de observações para um label ser aceito
+):
+    N = xyz.shape[0]
 
+    # -------------------------------------------------------------------------
+    # 1. Carregamento do JSON do DEVA e indexação
+    # -------------------------------------------------------------------------
+    print(f"📖 Carregando anotações do DEVA em: {deva_json_path}")
+    with open(deva_json_path, "r") as f:
+        deva_data = json.load(f)
+
+    deva_meta = {}
+    total_segments_raw = 0
+    total_segments_kept = 0
+
+    for ann in deva_data.get("annotations", []):
+        fname = ann["file_name"]
+        deva_meta[fname] = {}
+        for seg in ann.get("segments_info", []):
+            total_segments_raw += 1
+            sid = seg["id"]
+            score = seg.get("score", 1.0)
+            area = seg.get("area", 0)
+
+            # Filtro por limiares e área máxima (descarta fundo gigante)
+            if score >= min_score and min_area <= area <= max_area:
+                total_segments_kept += 1
+                deva_meta[fname][sid] = {
+                    "score": score,
+                    "area": area,
+                    "category_id": seg.get("category_id"),
+                }
+
+    print(f"  └─ Segmentos no JSON: {total_segments_raw} total | {total_segments_kept} mantidos (score>={min_score}, {min_area}<=area<={max_area})")
+
+    # -------------------------------------------------------------------------
+    # 2. Estruturas para Acumulação Ponderada e Média
+    # -------------------------------------------------------------------------
+    train_cameras = scene.getTrainCameras()
+    total_cameras = len(train_cameras)
+
+    # gi -> {sid: acumulado_dos_pesos}
+    votes_weight = [defaultdict(float) for _ in range(N)]
+    # gi -> {sid: contagem_de_observacoes}
+    votes_count = [defaultdict(int) for _ in range(N)]
+
+    processed = 0
+    frames_com_mascara_lida = 0
+    total_pontos_antes_zbuffer = 0
+    total_pontos_depois_zbuffer = 0
+
+    print(f"🔍 Montando labels (votação normalizada, por distância e com z-buffer) em {masks_path}...")
+
+    for view in train_cameras:
+        name = view.image_name
+        json_frame_key = f"{name}.jpg" if not name.endswith((".jpg", ".png")) else name
+
+        frame_seg_info = deva_meta.get(json_frame_key, {})
+        if not frame_seg_info:
+            continue
+
+        mask_path = os.path.join(masks_path, f"{name}.png")
+        mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+        if mask is None:
+            continue
+        if mask.ndim == 3:
+            mask = mask[..., 0]
+
+        frames_com_mascara_lida += 1
+        processed += 1
+        if processed % 50 == 0:
+            print(f"  Processando frame {processed}/{total_cameras}...")
+
+        H, W = mask.shape
+
+        # Projeta TODOS os pontos
+        u, v, z_cam = project_points_with_depth(xyz, view, out_width=W, out_height=H)
+
+        valid = (z_cam > 0.1) & (u >= 0) & (u < W) & (v >= 0) & (v < H)
+        idx = np.where(valid)[0]
+        if idx.size == 0:
+            continue
+
+        # ════════════════════════════════════════════════════════════════════
+        # 🔥 Z-BUFFER: mantém, por pixel, apenas as gaussianas cuja profundidade
+        # está próxima da mínima (a "superfície visível") naquele frame.
+        # Isso evita que pontos ocluídos (atrás de outros objetos, floaters,
+        # dentro de paredes) "roubem" o label do que está de fato na frente.
+        # ════════════════════════════════════════════════════════════════════
+        u_valid = u[idx].astype(np.int64)
+        v_valid = v[idx].astype(np.int64)
+        z_valid = z_cam[idx]
+
+        pixel_id = v_valid * W + u_valid
+
+        # Ordena por pixel e, dentro de cada pixel, por profundidade crescente
+        order = np.lexsort((z_valid, pixel_id))
+        pixel_id_sorted = pixel_id[order]
+        z_sorted = z_valid[order]
+        idx_sorted = idx[order]
+
+        # Para cada pixel, a primeira ocorrência (após o sort) é a de menor z
+        uniq_pixels, first_pos = np.unique(pixel_id_sorted, return_index=True)
+        z_min_per_pixel = z_sorted[first_pos]
+
+        # Mapeia de volta: para cada ponto ordenado, qual o z mínimo do seu pixel
+        pixel_lookup = np.searchsorted(uniq_pixels, pixel_id_sorted)
+        z_min_broadcast = z_min_per_pixel[pixel_lookup]
+
+        # Mantém apenas pontos dentro da tolerância relativa da superfície
+        keep = z_sorted <= z_min_broadcast * (1.0 + depth_rel_tol)
+
+        idx = idx_sorted[keep]
+        u_kept = u[idx]
+        v_kept = v[idx]
+
+        total_pontos_antes_zbuffer += idx_sorted.size
+        total_pontos_depois_zbuffer += idx.size
+
+        if idx.size == 0:
+            continue
+
+        # Obtém os IDs das máscaras apenas para os pontos "visíveis" (pós z-buffer)
+        sids = mask[v_kept, u_kept].astype(np.int64)
+
+        # Matriz de posições da câmera para ponderação por distância 3D
+        cam_center = view.camera_center.detach().cpu().numpy() if hasattr(view, 'camera_center') else None
+
+        for gi, sid in zip(idx, sids):
+            if sid in frame_seg_info:
+                score = frame_seg_info[sid]["score"]
+                area = frame_seg_info[sid]["area"]
+
+                # 1. Fator de distância: Visão de perto ganha mais peso
+                if cam_center is not None:
+                    dist = np.linalg.norm(xyz[gi] - cam_center) + 1e-5
+                    dist_weight = 1.0 / dist
+                else:
+                    dist_weight = 1.0
+
+                # 2. Fator de área: Ponderação inversamente proporcional ao tamanho
+                area_weight = 1.0 / np.log1p(area)
+
+                # Peso combinado para este frame
+                weight = score * dist_weight * area_weight
+
+                votes_weight[gi][sid] += weight
+                votes_count[gi][sid] += 1
+
+    if total_pontos_antes_zbuffer > 0:
+        reducao = 100 * (1 - total_pontos_depois_zbuffer / total_pontos_antes_zbuffer)
+        print(f"\n📉 Z-buffer: {total_pontos_antes_zbuffer:,} → {total_pontos_depois_zbuffer:,} votos "
+              f"({reducao:.1f}% descartados por oclusão)")
+
+    # -------------------------------------------------------------------------
+    # 3. Atribuição por Pontuação Média (Média Ponderada por Frame)
+    # -------------------------------------------------------------------------
+    labels = np.full(N, -1, dtype=np.int64)
+
+    for i in range(N):
+        if votes_weight[i]:
+            # 🔥 Filtra candidatos com poucas observações (ruído estatístico)
+            avg_scores = {
+                sid: votes_weight[i][sid] / votes_count[i][sid]
+                for sid in votes_weight[i]
+                if votes_count[i][sid] >= min_votes
+            }
+            if avg_scores:
+                # O label vencedor é o que teve maior score médio
+                labels[i] = max(avg_scores, key=avg_scores.get)
+
+    assigned = np.sum(labels != -1)
+    print(f"\n✅ Concluído:")
+    print(f"  • Frames com máscara lida: {frames_com_mascara_lida}/{total_cameras}")
+    print(f"  • Gaussianas rotuladas (votação média/normalizada): {assigned}/{N} ({100 * assigned / N:.1f}%)")
+
+    # --- suaviza ruído sal-e-pimenta antes de propagar pros -1 ---
+    print(f"\n🧹 Suavizando labels espacialmente...")
+    #labels = smooth_labels_spatially(xyz, labels, k=24, min_agreement=0.7, n_passes=2)
+
+    # -------------------------------------------------------------------------
+    # 4. Propagação KNN Opcional
+    # -------------------------------------------------------------------------
+    if propagate_to_neighbors:
+        valid_idx = np.where(labels != -1)[0]
+        invalid_idx = np.where(labels == -1)[0]
+        if len(valid_idx) > 0 and len(invalid_idx) > 0:
+            print(f"  🔄 Propagando {len(invalid_idx):,} gaussianas via KNN (k={k_propagate})...")
+            nbrs = NearestNeighbors(n_neighbors=k_propagate, algorithm="auto").fit(xyz[valid_idx])
+            _, nn_idx = nbrs.kneighbors(xyz[invalid_idx])
+            if k_propagate == 1:
+                labels[invalid_idx] = labels[valid_idx[nn_idx.flatten()]]
+            else:
+                neigh_labels = labels[valid_idx[nn_idx]]
+                labels[invalid_idx] = mode(neigh_labels, axis=1, keepdims=False).mode
+
+            final_assigned = np.sum(labels != -1)
+            print(f"  • Total após KNN: {final_assigned}/{N} ({100 * final_assigned / N:.1f}%)")
+
+    return labels
+
+import os
+import json
+import cv2
+import numpy as np
+from collections import defaultdict
+from scipy.stats import mode
+from sklearn.neighbors import NearestNeighbors
+
+def build_labels_with_deva_json_v2_black(
+    scene,
+    xyz,
+    masks_path,
+    deva_json_path,
+    min_score=0.3,
+    min_area=20,
+    max_area=22500,
+    depth_tolerance=0.02,
+    color_tolerance=0.25,
+    use_color_validation=False,
+    propagate_to_neighbors=False,
+    k_propagate=1,
+    depth_rel_tol=0.1,
+    min_votes=3,
+):
+    N = xyz.shape[0]
+
+    # -------------------------------------------------------------------------
+    # 1. Carregamento do JSON do DEVA e indexação
+    # -------------------------------------------------------------------------
+    print(f"📖 Carregando anotações do DEVA em: {deva_json_path}")
+    with open(deva_json_path, "r") as f:
+        deva_data = json.load(f)
+
+    deva_meta = {}
+    total_segments_raw = 0
+    total_segments_kept = 0
+
+    for ann in deva_data.get("annotations", []):
+        fname = ann["file_name"]
+        deva_meta[fname] = {}
+        for seg in ann.get("segments_info", []):
+            total_segments_raw += 1
+            sid = seg["id"]
+            score = seg.get("score", 1.0)
+            area = seg.get("area", 0)
+
+            if score >= min_score:
+                total_segments_kept += 1
+                deva_meta[fname][sid] = {
+                    "score": score,
+                    "area": area,
+                    "category_id": seg.get("category_id"),
+                }
+
+    print(f"  └─ Segmentos no JSON: {total_segments_raw} total | {total_segments_kept} mantidos (score>={min_score}, {min_area}<=area<={max_area})")
+
+    # -------------------------------------------------------------------------
+    # 2. Estruturas para Acumulação Ponderada e Média
+    # -------------------------------------------------------------------------
+    train_cameras = scene.getTrainCameras()
+    total_cameras = len(train_cameras)
+
+    votes_weight = [defaultdict(float) for _ in range(N)]
+    votes_count = [defaultdict(int) for _ in range(N)]
+
+    processed = 0
+    frames_com_mascara_lida = 0
+    total_pontos_antes_zbuffer = 0
+    total_pontos_depois_zbuffer = 0
+
+    print(f"🔍 Montando labels (votação normalizada, por distância e com z-buffer) em {masks_path}...")
+
+    for view in train_cameras:
+        name = view.image_name
+        json_frame_key = f"{name}.jpg" if not name.endswith((".jpg", ".png")) else name
+
+        frame_seg_info = deva_meta.get(json_frame_key, {})
+        if not frame_seg_info:
+            continue
+
+        mask_path = os.path.join(masks_path, f"{name}.png")
+        mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+        if mask is None:
+            continue
+
+        # 🔥 IDENTIFICAÇÃO DE PIXELS NÃO-PRETOS (Diferentes de 0 ou [0,0,0])
+        if mask.ndim == 3:
+            is_not_black = np.any(mask != 0, axis=-1)
+            mask_single = mask[..., 0]
+        else:
+            is_not_black = (mask != 0)
+            mask_single = mask
+
+        frames_com_mascara_lida += 1
+        processed += 1
+        if processed % 50 == 0:
+            print(f"  Processando frame {processed}/{total_cameras}...")
+
+        H, W = mask_single.shape
+
+        # Projeta TODOS os pontos
+        u, v, z_cam = project_points_with_depth(xyz, view, out_width=W, out_height=H)
+
+        valid = (z_cam > 0.1) & (u >= 0) & (u < W) & (v >= 0) & (v < H)
+        idx = np.where(valid)[0]
+        if idx.size == 0:
+            continue
+
+        # Z-BUFFER
+        u_valid = u[idx].astype(np.int64)
+        v_valid = v[idx].astype(np.int64)
+        z_valid = z_cam[idx]
+
+        pixel_id = v_valid * W + u_valid
+
+        order = np.lexsort((z_valid, pixel_id))
+        pixel_id_sorted = pixel_id[order]
+        z_sorted = z_valid[order]
+        idx_sorted = idx[order]
+
+        uniq_pixels, first_pos = np.unique(pixel_id_sorted, return_index=True)
+        z_min_per_pixel = z_sorted[first_pos]
+
+        pixel_lookup = np.searchsorted(uniq_pixels, pixel_id_sorted)
+        z_min_broadcast = z_min_per_pixel[pixel_lookup]
+
+        keep = z_sorted <= z_min_broadcast * (1.0 + depth_rel_tol)
+
+        idx = idx_sorted[keep]
+        u_kept = u[idx]
+        v_kept = v[idx]
+
+        total_pontos_antes_zbuffer += idx_sorted.size
+        total_pontos_depois_zbuffer += idx.size
+
+        if idx.size == 0:
+            continue
+
+        # 🔥 FILTRO DE PIXELS PRETOS: Descarta imediatamente pontos projetados em (0,0,0)
+        valid_surface = is_not_black[v_kept, u_kept]
+        if not np.any(valid_surface):
+            continue
+
+        idx = idx[valid_surface]
+        u_kept = u_kept[valid_surface]
+        v_kept = v_kept[valid_surface]
+
+        # Obtém os IDs das máscaras validadas
+        sids = mask_single[v_kept, u_kept].astype(np.int64)
+
+        cam_center = view.camera_center.detach().cpu().numpy() if hasattr(view, 'camera_center') else None
+
+        for gi, sid in zip(idx, sids):
+            # 🔥 Garante que o sid é válido, maior que zero e está nas anotações
+            if sid > 0 and sid in frame_seg_info:
+                score = frame_seg_info[sid]["score"]
+                area = frame_seg_info[sid]["area"]
+
+                if cam_center is not None:
+                    dist = np.linalg.norm(xyz[gi] - cam_center) + 1e-5
+                    dist_weight = 1.0 / dist
+                else:
+                    dist_weight = 1.0
+
+                area_weight = 1.0 / np.log1p(area)
+                weight = score * dist_weight * area_weight
+
+                votes_weight[gi][sid] += weight
+                votes_count[gi][sid] += 1
+
+    if total_pontos_antes_zbuffer > 0:
+        reducao = 100 * (1 - total_pontos_depois_zbuffer / total_pontos_antes_zbuffer)
+        print(f"\n📉 Z-buffer: {total_pontos_antes_zbuffer:,} → {total_pontos_depois_zbuffer:,} votos "
+              f"({reducao:.1f}% descartados por oclusão)")
+
+    # -------------------------------------------------------------------------
+    # 3. Atribuição por Pontuação Média
+    # -------------------------------------------------------------------------
+    labels = np.full(N, -1, dtype=np.int64)
+
+    for i in range(N):
+        if votes_weight[i]:
+            avg_scores = {
+                sid: votes_weight[i][sid] / votes_count[i][sid]
+                for sid in votes_weight[i]
+                if votes_count[i][sid] >= min_votes
+            }
+            if avg_scores:
+                labels[i] = max(avg_scores, key=avg_scores.get)
+
+    assigned = np.sum(labels != -1)
+    print(f"\n✅ Concluído:")
+    print(f"  • Frames com máscara lida: {frames_com_mascara_lida}/{total_cameras}")
+    print(f"  • Gaussianas rotuladas: {assigned}/{N} ({100 * assigned / N:.1f}%)")
+
+    # -------------------------------------------------------------------------
+    # 4. Propagação KNN Opcional
+    # -------------------------------------------------------------------------
+    if propagate_to_neighbors:
+        valid_idx = np.where(labels != -1)[0]
+        invalid_idx = np.where(labels == -1)[0]
+        if len(valid_idx) > 0 and len(invalid_idx) > 0:
+            print(f"  🔄 Propagando {len(invalid_idx):,} gaussianas via KNN (k={k_propagate})...")
+            nbrs = NearestNeighbors(n_neighbors=k_propagate, algorithm="auto").fit(xyz[valid_idx])
+            _, nn_idx = nbrs.kneighbors(xyz[invalid_idx])
+            if k_propagate == 1:
+                labels[invalid_idx] = labels[valid_idx[nn_idx.flatten()]]
+            else:
+                neigh_labels = labels[valid_idx[nn_idx]]
+                labels[invalid_idx] = mode(neigh_labels, axis=1, keepdims=False).mode
+
+            final_assigned = np.sum(labels != -1)
+            print(f"  • Total após KNN: {final_assigned}/{N} ({100 * final_assigned / N:.1f}%)")
+
+    return labels
 # ==========================================================
 # PROPAGAÇÃO DE LABELS PARA O CONJUNTO COMPLETO (SPAÇAL)
 # ==========================================================
@@ -969,7 +1546,385 @@ def render_clusters_tab20(labels, name, gaussians, scene, pipe, background, args
     gaussians._scaling.data = orig_data['scaling']
     gaussians._rotation.data = orig_data['rotation']
 
-# ==========================================================
+def generate_unique_colors(num_clusters, seed=42):
+    """Gera N cores RGB (float32 entre [0.0, 1.0]) bem distintas no espaço HSV."""
+    np.random.seed(seed)
+    hues = np.linspace(0, 1, num_clusters, endpoint=False)
+    np.random.shuffle(hues)
+    
+    colors = []
+    for h in hues:
+        s = np.random.uniform(0.65, 1.0)
+        v = np.random.uniform(0.70, 1.0)
+        colors.append(mcolors.hsv_to_rgb([h, s, v]))
+        
+    return np.array(colors, dtype=np.float32)
+
+def render_clusters_uniform_cuda_tree(labels, name, gaussians, scene, pipe, background, args, device, mask_filter=None):
+    """
+    Renderiza cada cluster com uma cor única e uniforme usando o rasterizador CUDA.
+    Substitui o mapa fixo por geração dinâmica HSV (sem repetição) e cKDTree para pós-processamento.
+    """
+    unique_labels = np.unique(labels)
+    valid_labels = [l for l in unique_labels if l != -1]
+    num_clusters = len(valid_labels)
+    
+    # 1. Gerar cores únicas sem limite de limite de tabela (sem repetição)
+    unique_colors = generate_unique_colors(num_clusters)
+    
+    # 2. Mapeamento de rótulos para cores RGB
+    color_map = {label: unique_colors[i] for i, label in enumerate(valid_labels)}
+    if -1 in unique_labels:
+        color_map[-1] = np.array([0.0, 0.0, 0.0], dtype=np.float32)  # Ruído fica preto
+        
+    # 3. Construir a árvore k-d com as cores dos clusters válidos
+    valid_colors = np.array([color_map[l] for l in valid_labels], dtype=np.float32)
+    color_tree = cKDTree(valid_colors)
+    
+    # 4. Converter cores para cada Gaussiana e transferir para GPU
+    gaussian_colors = np.array([color_map[l] for l in labels], dtype=np.float32)
+    colors_tensor = torch.tensor(gaussian_colors, dtype=torch.float32, device=device)
+    
+    # 5. Fazer backup dos parâmetros originais do modelo
+    orig_data = {
+        'xyz': gaussians._xyz.data.clone(),
+        'opacity': gaussians._opacity.data.clone(),
+        'features_dc': gaussians._features_dc.data.clone(),
+        'features_rest': gaussians._features_rest.data.clone(),
+        'scaling': gaussians._scaling.data.clone(),
+        'rotation': gaussians._rotation.data.clone()
+    }
+    
+    # 6. Atribuir cores no formato de harmônicos esféricos (DC) e zerar harmônicos superiores
+    if mask_filter is not None:
+        mask = torch.tensor(mask_filter, device=device, dtype=torch.bool)
+        gaussians._xyz.data = orig_data['xyz'][mask]
+        gaussians._opacity.data = orig_data['opacity'][mask]
+        gaussians._scaling.data = orig_data['scaling'][mask]
+        gaussians._rotation.data = orig_data['rotation'][mask]
+        
+        gaussians._features_dc.data = (colors_tensor[mask].unsqueeze(1) - 0.5) / 0.28209
+        new_rest_shape = [gaussians._xyz.shape[0], orig_data['features_rest'].shape[1], 3]
+        gaussians._features_rest.data = torch.zeros(new_rest_shape, device=device)
+    else:
+        gaussians._features_dc.data = (colors_tensor.unsqueeze(1) - 0.5) / 0.28209
+        gaussians._features_rest.data = torch.zeros_like(gaussians._features_rest)
+    
+    out_dir = os.path.join(args.output, name)
+    os.makedirs(out_dir, exist_ok=True)
+    print(f"Rendering {num_clusters} unique uniform clusters (CUDA) to {out_dir}...")
+    
+    # 7. Renderização e pós-processamento por frame
+    for view in scene.getTrainCameras():
+        render_pkg = render(view, gaussians, pipe, background)
+        img = render_pkg["render"]
+        img_np = img.detach().cpu().numpy().transpose(1, 2, 0)
+        img_np = np.clip(img_np, 0, 1)
+        
+        h, w, c = img_np.shape
+        flat_img = img_np.reshape(-1, 3)
+        
+        # Mascarar o fundo escuro/preto
+        fg_mask = np.any(flat_img >= 0.05, axis=1)
+        
+        # Mapeamento vetorizado para a cor mais próxima via cKDTree
+        if np.any(fg_mask):
+            _, indices = color_tree.query(flat_img[fg_mask])
+            flat_img[fg_mask] = valid_colors[indices]
+        
+        img_np = flat_img.reshape(h, w, c)
+        
+        # Salvar imagem
+        img_uint8 = (img_np * 255).astype(np.uint8)
+        img_bgr = cv2.cvtColor(img_uint8, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(out_dir, f"{view.image_name}.png"), img_bgr)
+    
+    # 8. Restaurar parâmetros originais das Gaussianas
+    gaussians._xyz.data = orig_data['xyz']
+    gaussians._opacity.data = orig_data['opacity']
+    gaussians._features_dc.data = orig_data['features_dc']
+    gaussians._features_rest.data = orig_data['features_rest']
+    gaussians._scaling.data = orig_data['scaling']
+    gaussians._rotation.data = orig_data['rotation']
+
+def render_clusters_tab20_uniform_cuda(labels, name, gaussians, scene, pipe, background, args, device, mask_filter=None):
+    """
+    Renderiza cada cluster com UMA cor uniforme usando o rasterizador CUDA.
+    Modifica as features dos objetos (OBJECTS) para terem cores uniformes por cluster.
+    """
+    unique_labels = np.unique(labels)
+    num_clusters = len(unique_labels)
+    
+    # Gerar cores únicas para cada cluster
+    cmap = plt.get_cmap("tab20")
+    colors = cmap(np.linspace(0, 1, max(1, num_clusters)))[:, :3]
+    np.random.shuffle(colors)
+    
+    # Mapear cada label para UMA cor específica
+    color_map = {label: colors[i % len(colors)] for i, label in enumerate(unique_labels)}
+    if -1 in color_map:
+        color_map[-1] = np.array([0.0, 0.0, 0.0])  # Ruído fica preto
+    
+    # ====== CRIAR FEATURES UNIFORMES ======
+    # Cada gaussiana recebe a cor do seu cluster (TODAS as gaussianas do mesmo cluster têm a MESMA cor)
+    # Convertendo para o formato esperado pelo CUDA (features)
+    gaussian_colors = np.array([color_map[l] for l in labels], dtype=np.float32)
+    
+    # Guardar dados originais
+    orig_data = {
+        'xyz': gaussians._xyz.data.clone(),
+        'opacity': gaussians._opacity.data.clone(),
+        'features_dc': gaussians._features_dc.data.clone(),
+        'features_rest': gaussians._features_rest.data.clone(),
+        'scaling': gaussians._scaling.data.clone(),
+        'rotation': gaussians._rotation.data.clone()
+    }
+    
+    # ====== MODIFICAR FEATURES DIRECTAMENTE ======
+    # As features são armazenadas como SH coefficients.
+    # Para cores uniformes, precisamos converter RGB para o formato SH.
+    # A conversão é: SH_color = (RGB - 0.5) / 0.28209
+    colors_tensor = torch.tensor(gaussian_colors, dtype=torch.float32, device=device)
+    
+    if mask_filter is not None:
+        mask = torch.tensor(mask_filter, device=device, dtype=torch.bool)
+        gaussians._xyz.data = orig_data['xyz'][mask]
+        gaussians._opacity.data = orig_data['opacity'][mask]
+        gaussians._scaling.data = orig_data['scaling'][mask]
+        gaussians._rotation.data = orig_data['rotation'][mask]
+        
+        # Atribuir cores uniformes via features_dc
+        gaussians._features_dc.data = (colors_tensor[mask].unsqueeze(1) - 0.5) / 0.28209
+        # ZERAR features_rest para eliminar variações
+        new_rest_shape = [gaussians._xyz.shape[0], orig_data['features_rest'].shape[1], 3]
+        gaussians._features_rest.data = torch.zeros(new_rest_shape, device=device)
+    else:
+        # Atribuir cores uniformes via features_dc
+        gaussians._features_dc.data = (colors_tensor.unsqueeze(1) - 0.5) / 0.28209
+        # ZERAR features_rest para eliminar variações
+        gaussians._features_rest.data = torch.zeros_like(gaussians._features_rest)
+    
+    # Renderizar
+    out_dir = os.path.join(args.output, name)
+    os.makedirs(out_dir, exist_ok=True)
+    print(f"Rendering {num_clusters} uniform clusters (CUDA) to {out_dir}...")
+    
+    for view in scene.getTrainCameras():
+        # Usar a função render ORIGINAL (já modificamos as features)
+        render_pkg = render(view, gaussians, pipe, background)
+        img = render_pkg["render"]
+        img_np = img.detach().cpu().numpy().transpose(1, 2, 0)
+        img_np = np.clip(img_np, 0, 1)
+        
+        # ====== PÓS-PROCESSAMENTO: FORÇAR CORES PERFEITAMENTE UNIFORMES ======
+        # Para cada pixel, mapear para a cor mais próxima do cluster
+        for i in range(img_np.shape[0]):
+            for j in range(img_np.shape[1]):
+                pixel = img_np[i, j]
+                # Ignorar fundo preto
+                if np.all(pixel < 0.05):
+                    continue
+                # Encontrar a cor do cluster mais próxima
+                distancias = []
+                for label, cor in color_map.items():
+                    if label == -1:
+                        continue
+                    dist = np.linalg.norm(pixel - cor)
+                    distancias.append((dist, cor))
+                
+                if distancias:
+                    _, cor_mais_proxima = min(distancias, key=lambda x: x[0])
+                    img_np[i, j] = cor_mais_proxima
+        
+        img_uint8 = (img_np * 255).astype(np.uint8)
+        img_bgr = cv2.cvtColor(img_uint8, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(out_dir, f"{view.image_name}.png"), img_bgr)
+    
+    # Restaurar dados originais
+    gaussians._xyz.data = orig_data['xyz']
+    gaussians._opacity.data = orig_data['opacity']
+    gaussians._features_dc.data = orig_data['features_dc']
+    gaussians._features_rest.data = orig_data['features_rest']
+    gaussians._scaling.data = orig_data['scaling']
+    gaussians._rotation.data = orig_data['rotation']
+    """
+    Renderiza clusters com cor 100% uniforme por pixel, usando o canal de
+    'object features' (render_object) em vez do blending alfa de RGB.
+    Isso evita halos/gradientes nas bordas dos clusters, permitindo
+    avaliação correta com métricas tipo IoU/mIoU.
+    """
+    unique_labels = np.unique(labels)
+    num_clusters = len(unique_labels)
+
+    # Dimensão de saída de objetos do modelo (NUM_OBJECTS definido no CUDA/config)
+    num_obj_channels = gaussians._objects_dc.shape[-1] if gaussians._objects_dc.dim() > 2 \
+        else gaussians._objects_dc.shape[1]
+
+    if num_clusters > num_obj_channels:
+        raise ValueError(
+            f"Número de clusters ({num_clusters}) excede os canais de objeto "
+            f"disponíveis ({num_obj_channels}). Aumente NUM_OBJECTS no CUDA/config "
+            f"ou reduza o número de clusters."
+        )
+
+    # Mapeia cada label -> índice de canal (0..num_clusters-1)
+    label_to_channel = {label: i for i, label in enumerate(unique_labels)}
+    NOISE_CHANNEL = label_to_channel.get(-1, None)
+
+    # Cores fixas (tab20) só para visualização, aplicadas DEPOIS do argmax
+    cmap = plt.get_cmap("tab20")
+    colors = cmap(np.linspace(0, 1, max(1, num_clusters)))[:, :3]
+    np.random.shuffle(colors)
+    color_lut = {i: colors[i] for i in range(num_clusters)}
+    if NOISE_CHANNEL is not None:
+        color_lut[NOISE_CHANNEL] = np.array([0.0, 0.0, 0.0])  # ruído = preto
+
+    # Monta o one-hot por gaussiana (não é mais RGB, é "objeto")
+    channel_idx = np.array([label_to_channel[l] for l in labels])
+    one_hot = np.zeros((len(labels), num_obj_channels), dtype=np.float32)
+    one_hot[np.arange(len(labels)), channel_idx] = 1.0
+    one_hot_tensor = torch.tensor(one_hot, dtype=torch.float32, device=device)
+
+    # Backup do estado original
+    orig_data = {
+        'xyz': gaussians._xyz.data.clone(),
+        'opacity': gaussians._opacity.data.clone(),
+        'scaling': gaussians._scaling.data.clone(),
+        'rotation': gaussians._rotation.data.clone(),
+        'objects_dc': gaussians._objects_dc.data.clone(),
+    }
+
+    if mask_filter is not None:
+        mask = torch.tensor(mask_filter, device=device, dtype=torch.bool)
+        gaussians._xyz.data = orig_data['xyz'][mask]
+        gaussians._opacity.data = orig_data['opacity'][mask]
+        gaussians._scaling.data = orig_data['scaling'][mask]
+        gaussians._rotation.data = orig_data['rotation'][mask]
+        gaussians._objects_dc.data = one_hot_tensor.unsqueeze(1) \
+            if orig_data['objects_dc'].dim() == 3 else one_hot_tensor
+    else:
+        gaussians._objects_dc.data = one_hot_tensor.unsqueeze(1) \
+            if orig_data['objects_dc'].dim() == 3 else one_hot_tensor
+
+    out_dir = os.path.join(args.output, name)
+    os.makedirs(out_dir, exist_ok=True)
+    print(f"Rendering {num_clusters} discrete clusters (hard/uniform) to {out_dir}...")
+
+    for view in scene.getTrainCameras():
+        render_pkg = render(view, gaussians, pipe, background)
+        obj_render = render_pkg["render_object"]          # [OBJECTS, H, W]
+
+        # Label duro por pixel: argmax sobre canais de objeto
+        label_map = obj_render.argmax(dim=0).detach().cpu().numpy()  # [H, W]
+
+        # Aplica cor fixa a partir do LUT — sem qualquer mistura alfa
+        img_rgb = np.zeros((*label_map.shape, 3), dtype=np.float32)
+        for ch, color in color_lut.items():
+            img_rgb[label_map == ch] = color
+
+        img_uint8 = (np.clip(img_rgb, 0, 1) * 255).astype(np.uint8)
+        img_bgr = cv2.cvtColor(img_uint8, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(out_dir, f"{view.image_name}.png"), img_bgr)
+
+    # Restaura estado original
+    gaussians._xyz.data = orig_data['xyz']
+    gaussians._opacity.data = orig_data['opacity']
+    gaussians._scaling.data = orig_data['scaling']
+    gaussians._rotation.data = orig_data['rotation']
+    gaussians._objects_dc.data = orig_data['objects_dc']
+
+def render_clusters_tab20_opacity0(labels, name, gaussians, scene, pipe, background, args, device, mask_filter=None):
+    unique_labels = np.unique(labels)
+    num_clusters = len(unique_labels)
+    cmap = plt.get_cmap("tab20")
+    colors = cmap(np.linspace(0, 1, max(1, num_clusters)))[:, :3]
+    np.random.shuffle(colors)
+    
+    color_map = {label: colors[i % len(colors)] for i, label in enumerate(unique_labels)}
+    if -1 in color_map:
+        color_map[-1] = np.array([0.0, 0.0, 0.0])  # Ruído/Sem classe fica estritamente PRETO
+
+    gaussian_colors = np.array([color_map[l] for l in labels])
+    colors_tensor_filtered = torch.tensor(gaussian_colors, dtype=torch.float32, device=device)
+
+    orig_data = {
+        'xyz': gaussians._xyz.data.clone(),
+        'opacity': gaussians._opacity.data.clone(),
+        'features_dc': gaussians._features_dc.data.clone(),
+        'features_rest': gaussians._features_rest.data.clone(),
+        'scaling': gaussians._scaling.data.clone(),
+        'rotation': gaussians._rotation.data.clone()
+    }
+
+    # Criar máscara para gaussianas pretas (label -1) usando numpy (mais eficiente em memória)
+    is_black_mask = np.array([l == -1 for l in labels])
+    
+    # Se há gaussianas pretas, modificar a opacidade diretamente
+    if np.any(is_black_mask):
+        # Converter máscara para tensor torch no mesmo dispositivo
+        black_indices = torch.tensor(np.where(is_black_mask)[0], device=device, dtype=torch.long)
+        
+        # Modificar apenas as gaussianas pretas in-place (economiza memória)
+        if mask_filter is not None:
+            mask = torch.tensor(mask_filter, device=device, dtype=torch.bool)
+            gaussians._xyz.data = orig_data['xyz'][mask]
+            gaussians._opacity.data = orig_data['opacity'][mask]
+            gaussians._scaling.data = orig_data['scaling'][mask]
+            gaussians._rotation.data = orig_data['rotation'][mask]
+            
+            # Aplicar opacidade zero para gaussianas pretas no subset filtrado
+            black_mask_filtered = torch.tensor(is_black_mask[mask_filter], device=device, dtype=torch.bool)
+            if black_mask_filtered.any():
+                gaussians._opacity.data[black_mask_filtered] = 0.0
+            
+            gaussians._features_dc.data = (colors_tensor_filtered[mask].unsqueeze(1) - 0.5) / 0.28209
+            new_rest_shape = [gaussians._xyz.shape[0], orig_data['features_rest'].shape[1], 3]
+            gaussians._features_rest.data = torch.zeros(new_rest_shape, device=device)
+        else:
+            # Para todas as gaussianas, modificar in-place
+            # Usar indexação direta para modificar apenas as gaussianas pretas
+            gaussians._opacity.data[black_indices] = 0.0
+            
+            # Modificar cores para todas as gaussianas
+            gaussians._features_dc.data = (colors_tensor_filtered.unsqueeze(1) - 0.5) / 0.28209
+            gaussians._features_rest.data = torch.zeros_like(gaussians._features_rest)
+    else:
+        # Se não há gaussianas pretas, proceder normalmente
+        if mask_filter is not None:
+            mask = torch.tensor(mask_filter, device=device, dtype=torch.bool)
+            gaussians._xyz.data = orig_data['xyz'][mask]
+            gaussians._opacity.data = orig_data['opacity'][mask]
+            gaussians._scaling.data = orig_data['scaling'][mask]
+            gaussians._rotation.data = orig_data['rotation'][mask]
+            
+            gaussians._features_dc.data = (colors_tensor_filtered[mask].unsqueeze(1) - 0.5) / 0.28209
+            new_rest_shape = [gaussians._xyz.shape[0], orig_data['features_rest'].shape[1], 3]
+            gaussians._features_rest.data = torch.zeros(new_rest_shape, device=device)
+        else:
+            gaussians._features_dc.data = (colors_tensor_filtered.unsqueeze(1) - 0.5) / 0.28209
+            gaussians._features_rest.data = torch.zeros_like(gaussians._features_rest)
+
+    out_dir = os.path.join(args.output, name)
+    os.makedirs(out_dir, exist_ok=True)
+    print(f"Rendering {num_clusters} discrete clusters to {out_dir}...")
+    print(f"Gaussianas pretas (opacidade 0): {np.sum(is_black_mask)}")
+
+    for view in scene.getTrainCameras():
+        render_pkg = render(view, gaussians, pipe, background)
+        img = render_pkg["render"]
+        img_np = img.detach().cpu().numpy().transpose(1, 2, 0)
+        img_np = np.clip(img_np, 0, 1)
+        img_uint8 = (img_np * 255).astype(np.uint8)
+        img_bgr = cv2.cvtColor(img_uint8, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(out_dir, f"{view.image_name}.png"), img_bgr)
+
+    # Restaurar dados originais
+    gaussians._xyz.data = orig_data['xyz']
+    gaussians._opacity.data = orig_data['opacity']
+    gaussians._features_dc.data = orig_data['features_dc']
+    gaussians._features_rest.data = orig_data['features_rest']
+    gaussians._scaling.data = orig_data['scaling']
+    gaussians._rotation.data = orig_data['rotation']
 # MAIN
 # ==========================================================
 # ==========================================================
@@ -1372,45 +2327,31 @@ def evaluate_cluster_validity(embeddings, labels, xyz=None):
         'N_Valid_Points': valid_mask.sum()
     }
 
-
-def evaluate_spatial_consistency(xyz, labels):
-    """
-    Métrica adicional: Consistência Espacial
-    Verifica se pontos de um mesmo cluster estão espacialmente próximos
+from scipy.spatial.distance import pdist
+def evaluate_spatial_consistency(xyz, labels, max_samples_per_cluster=2000):
+    spatial_metrics = {}
+    unique_labels = np.unique(labels)
+    unique_labels = unique_labels[unique_labels != -1]  # Ignora ruído
     
-    Args:
-        xyz: Coordenadas 3D dos pontos
-        labels: Labels dos clusters
-    
-    Returns:
-        dict: Média da distância intra-cluster
-    """
-    valid_mask = labels != -1
-    if valid_mask.sum() == 0:
-        return {'Mean_Intra_Cluster_Distance': 0.0}
-    
-    xyz_valid = xyz[valid_mask]
-    labels_valid = labels[valid_mask]
-    
-    intra_distances = []
-    unique_labels = np.unique(labels_valid)
+    intra_cluster_distances = []
     
     for label in unique_labels:
-        cluster_points = xyz_valid[labels_valid == label]
-        if len(cluster_points) > 1:
-            # Distância média entre todos os pontos do cluster
-            from scipy.spatial.distance import pdist
-            if len(cluster_points) > 1:
-                distances = pdist(cluster_points)
-                intra_distances.append(np.mean(distances))
-    
-    mean_intra_dist = np.mean(intra_distances) if intra_distances else 0.0
-    
-    print(f"\n📊 Consistência Espacial:")
-    print(f"  Distância média intra-cluster: {mean_intra_dist:.3f} (menor = mais compacto)")
-    
-    return {'Mean_Intra_Cluster_Distance': mean_intra_dist}
-
+        cluster_points = xyz[labels == label]
+        
+        # Subamostragem para evitar estouro de memória (MemoryError no pdist)
+        if len(cluster_points) > max_samples_per_cluster:
+            indices = np.random.choice(len(cluster_points), size=max_samples_per_cluster, replace=False)
+            cluster_points_sampled = cluster_points[indices]
+        else:
+            cluster_points_sampled = cluster_points
+            
+        if len(cluster_points_sampled) > 1:
+            # pdist agora consumirá no máximo ~15MB em vez de 94GB
+            distances = pdist(cluster_points_sampled)
+            intra_cluster_distances.append(np.mean(distances))
+            
+    spatial_metrics['Mean_Intra_Cluster_Distance'] = float(np.mean(intra_cluster_distances)) if intra_cluster_distances else 0.0
+    return spatial_metrics
 
 def save_evaluation_report(metrics, output_dir, experiment_name="evaluation"):
     """
@@ -1449,6 +2390,7 @@ def save_evaluation_report(metrics, output_dir, experiment_name="evaluation"):
     
     return csv_path, txt_path
 
+
 def main():
     parser = ArgumentParser()
     model_params = ModelParams(parser, sentinel=True)
@@ -1467,8 +2409,8 @@ def main():
     parser.add_argument("--model_type_choice", default="gcn", choices=["gat", "gcn"])
     parser.add_argument("--gat_heads", default=2, type=int)
     parser.add_argument("--opacity_threshold", default=0.05, type=float)
-    parser.add_argument("--max_scale_threshold", default=0.7, type=float, help="Filtro de escala contra elipsoides gigantes")
-    parser.add_argument("--min_cluster_size", default=25, type=int)
+    parser.add_argument("--max_scale_threshold", default=10, type=float, help="Filtro de escala contra elipsoides gigantes")
+    parser.add_argument("--min_cluster_size", default=30, type=int)
     parser.add_argument("--target_gaussians", default=230000, type=int, help="Número alvo de gaussianas após filtragem")
 
     parser.add_argument("--render_full_pointcloud", action="store_true", default=True,
@@ -1495,30 +2437,50 @@ def main():
     scaling = torch.exp(gaussians._scaling).detach().cpu().numpy()
     max_scaling = np.max(scaling, axis=1)
 
-    dyn_op_thresh, dyn_sc_thresh, final_count = compute_dynamic_filters(
-        opacity,
-        max_scaling,
-        target_count=180000
-    )
-
-    args.opacity_threshold = dyn_op_thresh
-    args.max_scale_threshold = dyn_sc_thresh
-
-    mask_filter = (opacity > args.opacity_threshold) & (max_scaling < args.max_scale_threshold)
-    #mask_filter = None
-    xyz = xyz[mask_filter]
-    rgb = rgb[mask_filter]
-    opacity_filtered = opacity[mask_filter]
-
-    print(f"\n⚙️ Geometria Filtrada: {len(xyz):,} de {len(opacity):,} Gaussianas restantes.")
-
-    labels = build_labels_with_deva_json(
+    labels_deva = build_labels_with_deva_json_v2_black(
         scene,
         xyz,
         args.masks_path,
         args.deva_json,
-        min_score=0.7,
+        min_score=0.95,
     )
+
+    first_candidate_len = gaussians._xyz.shape[0] * 0.7
+    if 280000 < first_candidate_len:
+        first_candidate_len = 280000
+
+    print(f"Total de Gaussianas antes do filtro -1: {len(labels_deva):,}")
+
+    dyn_op_thresh, dyn_sc_thresh, final_count = compute_dynamic_filters(
+        opacity,
+        max_scaling,
+        target_count=first_candidate_len
+    )
+    
+    args.opacity_threshold = dyn_op_thresh
+    args.max_scale_threshold = dyn_sc_thresh
+    
+    # Máscaras booleanas de tamanho N
+    mask_geom = (opacity > args.opacity_threshold) & (max_scaling < args.max_scale_threshold)
+    mask_labels_validos = (labels_deva != -1)
+
+    print(f"Total de Gaussianas com label válido: {np.sum(mask_labels_validos):,}")
+
+    # COMBINAÇÃO CORRETA: Mantém apenas quem passa na geometria E tem label válido
+    mask_filter = mask_geom & mask_labels_validos
+
+    labels = labels_deva[mask_filter]
+    xyz = xyz[mask_filter]
+    rgb = rgb[mask_filter]
+
+    xyz_centered = xyz - np.mean(xyz, axis=0)
+    spatial_std = np.std(xyz) # desvio padrão global
+    xyz_norm = xyz_centered / (spatial_std + 1e-8)
+
+    scaler_rgb = StandardScaler()
+    rgb_norm = scaler_rgb.fit_transform(rgb) * 3.0
+
+    print(f"Total final para treinamento (com label e filtradas): {len(labels):,}")
 
     pipe = pipeline_params.extract(args)
     background = torch.tensor([1, 1, 1], dtype=torch.float, device=device)
@@ -1534,17 +2496,14 @@ def main():
     # FEATURES
     # ==========================================================
     scaler = StandardScaler()
-    x_input = np.concatenate([
-        scaler.fit_transform(xyz) * 1,
-        scaler.fit_transform(rgb) * 3,
-    ], axis=1)
+    x_input = np.concatenate([xyz_norm, rgb_norm], axis=1)
     x = torch.tensor(x_input, dtype=torch.float)
 
     # ==========================================================
     # CONSTRUÇÃO DO GRAFO GEOMÉTRICO (vetorizado)
     # ==========================================================
     print("\n🔗 Construindo grafo geométrico...")
-    N_NEIGHBORS = 7
+    N_NEIGHBORS = 8
     nbrs = NearestNeighbors(n_neighbors=N_NEIGHBORS, algorithm="auto").fit(xyz)
     distances, indices = nbrs.kneighbors(xyz)
 
@@ -1576,7 +2535,7 @@ def main():
     src, k_idx = np.where(edge_mask)
     dst = neighbor_idx[src, k_idx]
 
-    weight = 0.6 * spatial_weight_all[src, k_idx] + 1.2 * color_weight_all[src, k_idx]
+    weight = 0.8 * spatial_weight_all[src, k_idx] +  color_weight_all[src, k_idx]
 
     # arestas bidirecionais
     edges_np = np.concatenate([
@@ -1639,12 +2598,12 @@ def main():
     #         color_weight=0.2,  # Peso da perda de cor (ajuste entre 0.1 e 0.5)
     #         color_sigma=0.12    # Tolerância de diferença de cor
     #     )
-    criterion = ColorAwareContrastiveLoss(
+    criterion = ColorAwareContrastiveLossV2(
                 temperature=0.05,
                 pos_margin=0.2,
                 neg_margin=0.1,
-                color_weight=0,  # Peso da perda de cor (ajuste entre 0.1 e 0.5)
-                color_sigma=0.2    # Tolerância de diferença de cor
+                color_weight=0.5,  # Peso da perda de cor (ajuste entre 0.1 e 0.5)
+                color_sigma=0.25    # Tolerância de diferença de cor
             )
 
     # criterion = PureColorLoss(
@@ -1738,17 +2697,17 @@ def main():
     # --- HDBSCAN COM PARÂMETROS OTIMIZADOS ---
     print("\n📊 Clusterizando os novos embeddings com HDBSCAN...")
     clusterer = hdbscan.HDBSCAN(
-        min_cluster_size=50,
-        prediction_data=False # Alterado para False para maximizar velocidade
+        min_cluster_size=30,                # Baixo = Menos rígido com ruído; evita buracos pretos (-1)
+        prediction_data=False
     ).fit(emb)
     cluster_labels = clusterer.labels_
 
-    # [NOVO] Execução do pipeline rápido de reatribuição por KNN vetorizado
+    #[NOVO] Execução do pipeline rápido de reatribuição por KNN vetorizado
     # cluster_labels = reassign_noise_knn_vectorized(
     #     emb, 
     #     cluster_labels, 
     #     k=args.knn_reassign_k, 
-    #     min_agreement=0.5
+    #     min_agreement=0.8
     # )
 
     # cluster_labels = clean_micro_clusters_cluster_level(
@@ -1775,41 +2734,41 @@ def main():
     print("📊 AVALIAÇÃO DA SEGMENTAÇÃO 3D")
     print("="*60)
     
-    # Abordagem 1: Avaliação Semi-Supervisionada
-    # semi_supervised_metrics = evaluate_semi_supervised(
-    #     initial_labels=labels,  # Labels do DEVA/SAM
-    #     refined_labels=cluster_labels
-    # )
+   # Abordagem 1: Avaliação Semi-Supervisionada
+    semi_supervised_metrics = evaluate_semi_supervised(
+        initial_labels=labels,  # Labels do DEVA/SAM
+        refined_labels=cluster_labels
+    )
     
-    # # Abordagem 3: Coerência Interna dos Clusters
-    # cluster_validity_metrics = evaluate_cluster_validity(
-    #     embeddings=emb,
-    #     labels=cluster_labels,
-    #     xyz=xyz
-    # )
+    # Abordagem 3: Coerência Interna dos Clusters
+    cluster_validity_metrics = evaluate_cluster_validity(
+        embeddings=emb,
+        labels=cluster_labels,
+        xyz=xyz
+    )
     
-    # # Métrica adicional: Consistência Espacial
-    # spatial_metrics = evaluate_spatial_consistency(
-    #     xyz=xyz,
-    #     labels=cluster_labels
-    # )
+    # Métrica adicional: Consistência Espacial
+    spatial_metrics = evaluate_spatial_consistency(
+        xyz=xyz,
+        labels=cluster_labels
+    )
     
-    # # Combinar todas as métricas
-    # all_metrics = {
-    #     **semi_supervised_metrics,
-    #     **cluster_validity_metrics,
-    #     **spatial_metrics,
-    #     'Model_Type': args.model_type_choice,
-    #     'GAT_Heads': args.gat_heads,
-    #     'Min_Cluster_Size': args.min_cluster_size,
-    #     'KNN_Reassign_K': args.knn_reassign_k,
-    #     'Total_Gaussians': len(xyz),
-    #     'Filtered_Gaussians': len(xyz)  # Já filtrados
-    # }
+    # Combinar todas as métricas
+    all_metrics = {
+        **semi_supervised_metrics,
+        **cluster_validity_metrics,
+        **spatial_metrics,
+        'Model_Type': args.model_type_choice,
+        'GAT_Heads': args.gat_heads,
+        'Min_Cluster_Size': args.min_cluster_size,
+        'KNN_Reassign_K': args.knn_reassign_k,
+        'Total_Gaussians': len(xyz),
+        'Filtered_Gaussians': len(xyz)  # Já filtrados
+    }
     
     # #Salvar relatório
-    # eval_dir = os.path.join(args.output, "evaluation")
-    # save_evaluation_report(all_metrics, eval_dir, experiment_name=args.model_type_choice)
+    eval_dir = os.path.join(args.output, "evaluation")
+    save_evaluation_report(all_metrics, eval_dir, experiment_name=args.model_type_choice)
 
     # Montagem final do vetor de cores adequado ao renderizador
     if args.render_full_pointcloud:
@@ -1845,17 +2804,17 @@ def main():
     # ==========================================================
     # RESUMO FINAL COM MÉTRICAS
     # ==========================================================
-    # print("\n" + "="*60)
-    # print("✅ PIPELINE CONCLUÍDO - RESUMO DAS MÉTRICAS")
-    # print("="*60)
-    # print(f"Modelo: {args.model_type_choice.upper()}")
-    # print(f"ARI: {semi_supervised_metrics['ARI']:.4f}")
-    # print(f"NMI: {semi_supervised_metrics['NMI']:.4f}")
-    # print(f"Silhouette: {cluster_validity_metrics['Silhouette']:.4f}")
-    # print(f"Davies-Bouldin: {cluster_validity_metrics['Davies_Bouldin']:.4f}")
-    # print(f"Clusters: {cluster_validity_metrics['N_Clusters']}")
-    # print(f"Relatório salvo em: {eval_dir}")
-    # print("="*60 + "\n")
+    print("\n" + "="*60)
+    print("✅ PIPELINE CONCLUÍDO - RESUMO DAS MÉTRICAS")
+    print("="*60)
+    print(f"Modelo: {args.model_type_choice.upper()}")
+    print(f"ARI: {semi_supervised_metrics['ARI']:.4f}")
+    print(f"NMI: {semi_supervised_metrics['NMI']:.4f}")
+    print(f"Silhouette: {cluster_validity_metrics['Silhouette']:.4f}")
+    print(f"Davies-Bouldin: {cluster_validity_metrics['Davies_Bouldin']:.4f}")
+    print(f"Clusters: {cluster_validity_metrics['N_Clusters']}")
+    print(f"Relatório salvo em: {eval_dir}")
+    print("="*60 + "\n")
     
     print("\n✅ Concluído! Pipeline executado de forma otimizada.")
 
