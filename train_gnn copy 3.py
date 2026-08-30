@@ -698,21 +698,41 @@ def smooth_labels_spatially(xyz, labels, k=12, min_agreement=0.6, n_passes=2):
 
 def build_labels_with_deva_json_v2_black(
     scene,
+    gaussians,
     xyz,
     masks_path,
     deva_json_path,
     min_score=0.3,
     min_area=20,
     max_area=22500,
-    depth_tolerance=20,
-    color_tolerance=0.25,
+    depth_tolerance=0.05,
+    color_tolerance=0.4,
     use_color_validation=False,
     propagate_to_neighbors=False,
     k_propagate=1,
     depth_rel_tol=0.015,
     min_votes=5,
 ):
+    """
+    `gaussians` (GaussianModel) é usado apenas para a validação de cor opcional
+    (use_color_validation=True): compara a cor base (SH grau 0) de cada
+    Gaussiana com o pixel real da foto de treino na posição projetada, e
+    descarta o voto se a distância de cor exceder `color_tolerance`. Isso
+    rejeita votos de Gaussianas que se projetam sobre a máscara certa mas
+    pertencem, na verdade, a outra superfície (oclusão que o z-buffer
+    relativo não capturou, Gaussianas "perdidas" no espaço, etc.).
+
+    `depth_tolerance` é uma tolerância ABSOLUTA (nas mesmas unidades de mundo
+    da cena) combinada com `depth_rel_tol` (relativa) no z-buffer por pixel:
+    o ponto sobrevive se estiver dentro de QUALQUER uma das duas janelas.
+    Isso evita que pixels muito próximos da câmera (z_min pequeno) fiquem com
+    uma janela de tolerância relativa minúscula demais em termos absolutos.
+    """
     N = xyz.shape[0]
+
+    C0 = 0.28209479177387814
+    feat_dc = gaussians._features_dc.detach().cpu().numpy().squeeze(1)
+    gaussian_rgb_all = np.clip(feat_dc * C0 + 0.5, 0.0, 1.0)
 
     # -------------------------------------------------------------------------
     # 1. Carregamento do JSON do DEVA e indexação
@@ -734,7 +754,11 @@ def build_labels_with_deva_json_v2_black(
             score = seg.get("score", 1.0)
             area = seg.get("area", 0)
 
-            if score >= min_score:
+            # `min_area`/`max_area` eram parâmetros aceitos mas nunca usados:
+            # segmentos ruidosos do SAM/DEVA (algumas dezenas de pixels, ou
+            # blobs enormes que engolem vários objetos) entravam na votação
+            # sem filtro nenhum, poluindo a atribuição de rótulos inicial.
+            if score >= min_score and min_area <= area <= max_area:
                 total_segments_kept += 1
                 deva_meta[fname][sid] = {
                     "score": score,
@@ -742,7 +766,8 @@ def build_labels_with_deva_json_v2_black(
                     "category_id": seg.get("category_id"),
                 }
 
-    print(f"  └─ Segmentos no JSON: {total_segments_raw} total | {total_segments_kept} mantidos (score>={min_score})")
+    print(f"  └─ Segmentos no JSON: {total_segments_raw} total | {total_segments_kept} mantidos "
+          f"(score>={min_score}, area em [{min_area}, {max_area}])")
 
     # -------------------------------------------------------------------------
     # 2. Estruturas para Acumulação Ponderada
@@ -822,7 +847,9 @@ def build_labels_with_deva_json_v2_black(
         pixel_lookup = np.searchsorted(uniq_pixels, pixel_id_sorted)
         z_min_broadcast = z_min_per_pixel[pixel_lookup]
 
-        keep = z_sorted <= z_min_broadcast * (1.0 + depth_rel_tol)
+        # Janela de tolerância = a mais permissiva entre relativa e absoluta.
+        tol_window = np.maximum(z_min_broadcast * depth_rel_tol, depth_tolerance)
+        keep = z_sorted <= z_min_broadcast + tol_window
 
         idx = idx_sorted[keep]
         u_kept = u[idx]
@@ -845,6 +872,23 @@ def build_labels_with_deva_json_v2_black(
 
         # Obtém os IDs das máscaras alinhadas
         sids = mask_single[v_kept, u_kept].astype(np.int64)
+
+        # Validação de cor opcional: rejeita votos cuja Gaussiana não bate
+        # com a cor real da foto de treino naquele pixel (indício de que a
+        # Gaussiana pertence a outra superfície, mesmo tendo sobrevivido ao
+        # z-buffer).
+        if use_color_validation:
+            real_rgb = view.original_image.detach().cpu().numpy().transpose(1, 2, 0)
+            real_colors = real_rgb[v_kept, u_kept]
+            gauss_colors = gaussian_rgb_all[idx]
+            color_ok = np.linalg.norm(real_colors - gauss_colors, axis=1) <= color_tolerance
+
+            idx = idx[color_ok]
+            u_kept = u_kept[color_ok]
+            v_kept = v_kept[color_ok]
+            sids = sids[color_ok]
+            if idx.size == 0:
+                continue
 
         cam_center = view.camera_center.detach().cpu().numpy() if hasattr(view, 'camera_center') else None
 
@@ -1044,51 +1088,53 @@ if __name__ == "__main__":
 import colorsys
 import random
 
-def generate_distinct_colors(n):
+def generate_distinct_colors(n, seed=42):
     """
-    Gera N cores RGB visualmente MUITO distintas.
-    Usa uma paleta base de cores puras e depois as embaralha 
-    para evitar que clusters vizinhos fiquem com cores parecidas.
+    Gera N cores RGB maximamente distintas por amostragem greedy de maior
+    distância no espaço perceptual CIELAB (farthest-point sampling).
+
+    Diferente de uma roda de matizes (hue) simples, isso garante que a
+    distância MÍNIMA entre QUAISQUER dois clusters seja a maior possível,
+    evitando que clusters diferentes (ex: a perna do urso, o guardanapo e a
+    cadeira) caiam todos na mesma faixa perceptual de "azul" mesmo tendo
+    matizes numericamente distintos.
     """
-    # Paleta de cores altamente contrastantes (Vermelho, Azul, Verde, Amarelo, Roxo, Laranja, etc.)
-    base_colors = [
-        [1.0, 0.0, 0.0],    # Vermelho Puro
-        [0.0, 0.0, 1.0],    # Azul Puro
-        [0.0, 1.0, 0.0],    # Verde Puro
-        [1.0, 1.0, 0.0],    # Amarelo Puro
-        [1.0, 0.0, 1.0],    # Magenta / Roxo
-        [0.0, 1.0, 1.0],    # Ciano
-        [1.0, 0.5, 0.0],    # Laranja
-        [0.5, 0.0, 1.0],    # Violeta
-        [0.0, 0.5, 1.0],    # Azul Claro
-        [1.0, 0.0, 0.5],    # Rosa Forte
-        [0.5, 1.0, 0.0],    # Verde Limão
-        [0.0, 1.0, 0.5],    # Turquesa
-        [0.5, 0.5, 1.0],    # Lavanda
-        [1.0, 0.5, 0.5],    # Salmão
-        [0.5, 1.0, 1.0],    # Gelado
-    ]
+    if n <= 0:
+        return np.zeros((0, 3), dtype=np.float32)
 
-    colors = []
+    rng = np.random.RandomState(seed)
 
-    # Se o número de clusters for maior que a paleta, geramos variações 
-    # mas ainda com saturação máxima (1.0) e luminosidade alta (0.9)
-    if n <= len(base_colors):
-        # Embaralha para que vizinhos não peguem cores sequenciais
-        random.shuffle(base_colors)
-        colors = np.array(base_colors[:n])
-    else:
-        # Para muitos clusters, usamos a roda de cores, mas com saturação e brilho fixos
-        golden_ratio_conjugate = 0.618033988749895
-        h = random.random()  # começa em ponto aleatório
-        for _ in range(n):
-            h = (h + golden_ratio_conjugate) % 1.0
-            # Saturação e Valor FIXOS em 0.9 e 0.9 para garantir cores "vivas"
-            rgb = colorsys.hsv_to_rgb(h, 0.95, 0.95) 
-            colors.append(rgb)
-        colors = np.array(colors)
+    # Pool grande de candidatos cobrindo várias faixas de saturação/brilho,
+    # para não ficar restrito a um único anel de matizes.
+    hues = np.linspace(0, 1, 360, endpoint=False)
+    sv_tiers = [(0.55, 0.95), (0.9, 0.9), (0.75, 0.6), (1.0, 0.75), (0.6, 0.6)]
+    candidates_rgb = np.array(
+        [colorsys.hsv_to_rgb(h, s, v) for s, v in sv_tiers for h in hues],
+        dtype=np.float64,
+    )
+    candidates_lab = rgb2lab(candidates_rgb.reshape(1, -1, 3)).reshape(-1, 3)
 
-    return colors
+    pool_size = len(candidates_rgb)
+    n_unique = min(n, pool_size)
+    if n > pool_size:
+        print(f"⚠️ generate_distinct_colors: {n} clusters pedidos, mas só há "
+              f"{pool_size} cores perceptualmente distintas no pool; algumas "
+              f"cores serão reaproveitadas.")
+
+    chosen = [rng.randint(pool_size)]
+    min_dist = np.linalg.norm(candidates_lab - candidates_lab[chosen[0]], axis=1)
+    for _ in range(1, n_unique):
+        next_idx = int(np.argmax(min_dist))
+        chosen.append(next_idx)
+        d = np.linalg.norm(candidates_lab - candidates_lab[next_idx], axis=1)
+        min_dist = np.minimum(min_dist, d)
+
+    colors = candidates_rgb[chosen]
+    if n > n_unique:
+        reps = int(np.ceil(n / n_unique))
+        colors = np.tile(colors, (reps, 1))[:n]
+
+    return colors.astype(np.float32)
 
 def render_clusters_tab20(labels, name, gaussians, scene, pipe, background, args, device, mask_filter=None):
     unique_labels = np.unique(labels)
@@ -1148,18 +1194,23 @@ def render_clusters_tab20(labels, name, gaussians, scene, pipe, background, args
     gaussians._rotation.data = orig_data['rotation']
 
 
-def render_clusters(labels, name, gaussians, scene, pipe, background, args, device, mask_filter=None):
+def render_clusters(labels, name, gaussians, scene, pipe, background, args, device, mask_filter=None, color_map=None):
     """
     Renderiza Gaussianas coloridas por cluster.
     Gaussianas fora do mask_filter têm opacidade ZERO (invisíveis).
+
+    Pass `color_map` (dict: label -> RGB) to reuse the exact same palette as
+    another render/point-cloud export (e.g. save_pointcloud_with_metadata),
+    so the same cluster gets the same color everywhere.
     """
     unique_labels = np.unique(labels)
-    num_clusters = len(unique_labels)
-    colors = generate_distinct_colors(num_clusters)
+    valid_labels = [l for l in unique_labels if l != -1]
 
-    color_map = {label: colors[i] for i, label in enumerate(unique_labels)}
-    if -1 in color_map:
-        color_map[-1] = np.array([0.0, 0.0, 0.0])
+    if color_map is None:
+        colors = generate_distinct_colors(len(valid_labels))
+        color_map = {label: colors[i] for i, label in enumerate(valid_labels)}
+        color_map[-1] = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+    num_clusters = len(valid_labels)
 
     # ==========================================================
     # 1. Preparar cores para TODAS as Gaussianas
@@ -1211,33 +1262,71 @@ def render_clusters(labels, name, gaussians, scene, pipe, background, args, devi
         # Manter opacidade original
         gaussians._opacity.data = orig_data['opacity']
     
-    # 3c. Manter features_rest inalterado (tamanho original)
-    # Só zerar se necessário para evitar artefatos
-    if gaussians._features_rest.shape[1] > 0:
-        # Pode manter original ou zerar completamente
-        # gaussians._features_rest.data = torch.zeros_like(gaussians._features_rest)
-        pass  # Manter original é mais seguro
+    # 3c. Zerar features_rest (harmônicos esféricos de ordem > 0). Se deixados
+    # com os valores originais, cada Gaussiana mantém sua variação de cor
+    # dependente de ponto de vista (especular/sombra) da cena original por
+    # cima da cor plana do cluster, o que por si só já tornaria a máscara
+    # não-homogênea mesmo sem nenhuma mistura alfa entre Gaussianas vizinhas.
+    gaussians._features_rest.data = torch.zeros_like(gaussians._features_rest)
 
     # ==========================================================
     # 4. Renderizar
     # ==========================================================
+    # Duas saídas: a renderização crua do rasterizador (com o blending alfa
+    # normal, sem nenhum ajuste de cor) e a versão com "snap" de cor
+    # homogêneo por cluster. Mantém `out_dir` (a versão homogênea) no mesmo
+    # caminho de sempre, para não quebrar nada que já dependa dele.
     out_dir = os.path.join(args.output, name)
+    raw_dir = os.path.join(args.output, f"{name}_raw")
     os.makedirs(out_dir, exist_ok=True)
-    
+    os.makedirs(raw_dir, exist_ok=True)
+
     n_active = np.sum(mask_filter) if mask_filter is not None else n_total
-    print(f"Rendering {num_clusters} discrete clusters to {out_dir}...")
+    print(f"Rendering {num_clusters} discrete clusters...")
+    print(f"  Cru (sem padronização de cor): {raw_dir}")
+    print(f"  Padronizado (cor homogênea por cluster): {out_dir}")
     print(f"  Gaussianas totais: {n_total:,}")
     print(f"  Gaussianas ativas (opacity>0): {n_active:,}")
     print(f"  Gaussianas ocultas (opacity=0): {n_total - n_active:,}")
+
+    # 4a. Paleta de referência para o "snap" de cor pós-render: o rasterizador
+    # mistura (alpha-blend) as cores de todas as Gaussianas que caem no mesmo
+    # raio, então mesmo com uma cor única por cluster, os pixels resultantes
+    # não são homogêneos (halos/gradientes nas bordas). Em vez de depender de
+    # um pós-processo externo (CRF), forçamos cada pixel de primeiro plano
+    # para a cor EXATA do cluster mais próximo em CIELAB.
+    palette_labels = list(color_map.keys())
+    palette_rgb = np.array([color_map[l] for l in palette_labels], dtype=np.float64)
+    palette_lab = rgb2lab(palette_rgb.reshape(1, -1, 3)).reshape(-1, 3)
+    color_tree = cKDTree(palette_lab)
+    bg_np = background.detach().cpu().numpy()
 
     for view in scene.getTrainCameras():
         render_pkg = render(view, gaussians, pipe, background)
         img = render_pkg["render"]
         img_np = img.detach().cpu().numpy().transpose(1, 2, 0)
         img_np = np.clip(img_np, 0, 1)
-        img_uint8 = (img_np * 255).astype(np.uint8)
-        img_bgr = cv2.cvtColor(img_uint8, cv2.COLOR_RGB2BGR)
-        cv2.imwrite(os.path.join(out_dir, f"{view.image_name}.png"), img_bgr)
+
+        # 4a. Salva a versão CRUA (blending alfa do rasterizador, sem ajuste).
+        raw_uint8 = (img_np * 255).astype(np.uint8)
+        raw_bgr = cv2.cvtColor(raw_uint8, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(raw_dir, f"{view.image_name}.png"), raw_bgr)
+
+        # 4b. Aplica o snap de cor e salva a versão PADRONIZADA (homogênea).
+        h, w, c = img_np.shape
+        flat_img = img_np.reshape(-1, 3).copy()
+
+        # Só faz snap dos pixels que não são o fundo; o fundo (branco) fica intacto.
+        fg_mask = np.linalg.norm(flat_img - bg_np, axis=1) > 0.05
+        if np.any(fg_mask):
+            flat_lab = rgb2lab(flat_img[fg_mask].reshape(1, -1, 3)).reshape(-1, 3)
+            _, nearest_idx = color_tree.query(flat_lab)
+            flat_img[fg_mask] = palette_rgb[nearest_idx]
+
+        uniform_img_np = flat_img.reshape(h, w, c)
+        uniform_uint8 = (uniform_img_np * 255).astype(np.uint8)
+        uniform_bgr = cv2.cvtColor(uniform_uint8, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(os.path.join(out_dir, f"{view.image_name}.png"), uniform_bgr)
 
     # ==========================================================
     # 5. Restaurar dados originais
@@ -2321,12 +2410,16 @@ def save_experiment_results(metrics, loss_history, output_dir, model_name="GAT",
         plot_loss_curve(loss_history, loss_plot_path, model_name, train_sec)
     
     return excel_path, txt_path
-def save_pointcloud_with_metadata(xyz, labels, output_path, metadata=None):
+def save_pointcloud_with_metadata(xyz, labels, output_path, metadata=None, color_map=None):
     """
     Salva a nuvem de pontos 3D com cores discretas para cada cluster e grava os metadados.
+
+    Pass `color_map` (dict: label -> RGB) to reuse the exact same palette as
+    the 2D render (render_clusters), so the same cluster gets the same color
+    in both the point cloud and the images.
     """
     os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-    
+
     # Fallback se Open3D não estiver instalado no ambiente de salvamento
     if not OPEN3D_AVAILABLE:
         npz_path = output_path.replace('.ply', '.npz')
@@ -2334,18 +2427,22 @@ def save_pointcloud_with_metadata(xyz, labels, output_path, metadata=None):
         np.savez(npz_path, points=xyz, labels=labels, metadata=metadata)
         return
 
-    # Mapeamento discreto de cores categóricas para os clusters
+    # Mapeamento discreto de cores para os clusters. IMPORTANTE: NÃO usar
+    # `cmap(label % 20)` — com mais de 20 clusters (comum aqui), dois labels
+    # que diferem por exatamente 20 recebem a MESMA cor. Usamos em vez disso
+    # a mesma paleta maximamente distinta (CIELAB farthest-point) do render 2D.
     unique_labels = np.unique(labels)
     colors = np.zeros((len(labels), 3), dtype=np.float32)
-    cmap = plt.get_cmap("tab20")
+
+    if color_map is None:
+        valid_labels = [l for l in unique_labels if l != -1]
+        palette = generate_distinct_colors(len(valid_labels))
+        color_map = {label: palette[i] for i, label in enumerate(valid_labels)}
+        color_map[-1] = np.array([0.12, 0.12, 0.12], dtype=np.float32)
 
     for label in unique_labels:
         mask = (labels == label)
-        if label == -1:
-            colors[mask] = [0.12, 0.12, 0.12]  # Ruído em cinza escuro
-        else:
-            # Seleciona cor categórica determinística
-            colors[mask] = cmap(int(label) % 20)[:3]
+        colors[mask] = color_map.get(label, np.array([0.12, 0.12, 0.12], dtype=np.float32))
 
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(xyz)
@@ -2452,6 +2549,7 @@ def main():
 
     labels_deva = build_labels_with_deva_json_v2_black(
         scene,
+        gaussians,
         xyz,
         args.masks_path,
         args.deva_json,
@@ -2472,7 +2570,7 @@ def main():
     dyn_op_thresh, dyn_sc_thresh, final_count = compute_dynamic_filters(
         opacity_valid,
         max_scaling_valid,
-        target_count=250000
+        target_count=100000
     )
 
     args.opacity_threshold = dyn_op_thresh
@@ -2771,6 +2869,15 @@ def main():
         max_vram_gb=max_vram_gb
     )
     
+    # Paleta única compartilhada entre a nuvem de pontos 3D e a renderização 2D,
+    # para que o MESMO cluster tenha SEMPRE a MESMA cor nos dois resultados,
+    # com distância perceptual máxima entre clusters (evita repetição de cor
+    # entre objetos diferentes, ex: perna do urso / guardanapo / cadeira).
+    unique_cluster_labels = [l for l in np.unique(cluster_labels) if l != -1]
+    shared_palette = generate_distinct_colors(len(unique_cluster_labels))
+    shared_color_map = {label: shared_palette[i] for i, label in enumerate(unique_cluster_labels)}
+    shared_color_map[-1] = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+
     # Salvar nuvem de pontos
     pointcloud_path = os.path.join(pointclouds_dir, f"{args.model_type_choice}_clusters.ply")
     metadata = {
@@ -2783,7 +2890,7 @@ def main():
         'filtered_gaussians': total_gaussians_filtered,
         'max_vram_gb': max_vram_gb
     }
-    save_pointcloud_with_metadata(xyz, cluster_labels, pointcloud_path, metadata)
+    save_pointcloud_with_metadata(xyz, cluster_labels, pointcloud_path, metadata, color_map=shared_color_map)
     
     # ==========================================================
     # RENDERIZAÇÃO 2D
@@ -2831,17 +2938,18 @@ def main():
             print(f"  Tamanho das labels: {len(render_labels)}")
             print(f"  Tamanho do mask_filter: {len(mask_filter)}")
         
-        # Renderizar
+        # Renderizar (reaproveita a paleta compartilhada com a nuvem de pontos 3D)
         render_clusters(
-            render_labels, 
-            "images", 
-            gaussians, 
-            scene, 
-            pipe, 
-            background, 
-            args, 
-            device, 
-            render_mask
+            render_labels,
+            "images",
+            gaussians,
+            scene,
+            pipe,
+            background,
+            args,
+            device,
+            render_mask,
+            color_map=shared_color_map
         )
         import shutil
         temp_dir = os.path.join(model_dir, "images")
