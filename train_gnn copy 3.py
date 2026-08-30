@@ -696,6 +696,43 @@ def smooth_labels_spatially(xyz, labels, k=12, min_agreement=0.6, n_passes=2):
     return labels
 
 
+def remove_spatial_outliers(xyz, mask, k=16, std_ratio=2.0):
+    """
+    Remove floaters: Gaussianas espacialmente isoladas dentro do subconjunto
+    já marcado por `mask` (opacidade, escala, label DEVA válido, bbox). Um
+    floater pode passar em todos esses filtros e ainda assim ser ruído, pois
+    nenhum deles olha para a DENSIDADE local — um floater típico está sozinho
+    no espaço 3D, longe da superfície real, mesmo tendo opacidade/escala/label
+    "normais".
+
+    Mesmo critério do `remove_statistical_outlier` do Open3D (distância média
+    aos k vizinhos mais próximos, descartando quem fica a mais de
+    `std_ratio` desvios-padrão da média da nuvem), reimplementado com sklearn
+    para não depender do Open3D estar instalado no ambiente de treino.
+    """
+    idx = np.where(mask)[0]
+    if len(idx) < k + 1:
+        return mask
+
+    sub_xyz = xyz[idx]
+    nbrs = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(sub_xyz)
+    dist, _ = nbrs.kneighbors(sub_xyz)
+    mean_dist = dist[:, 1:].mean(axis=1)  # exclui o próprio ponto (distância 0)
+
+    global_mean = mean_dist.mean()
+    global_std = mean_dist.std()
+    keep_local = mean_dist <= (global_mean + std_ratio * global_std)
+
+    new_mask = mask.copy()
+    new_mask[idx[~keep_local]] = False
+
+    n_removed = int(np.sum(~keep_local))
+    print(f"  🧹 Remoção de floaters (outlier espacial, k={k}, std_ratio={std_ratio}): "
+          f"{n_removed:,}/{len(idx):,} gaussianas removidas ({100*n_removed/len(idx):.2f}%)")
+
+    return new_mask
+
+
 def build_labels_with_deva_json_v2_black(
     scene,
     gaussians,
@@ -1333,6 +1370,7 @@ def render_clusters(labels, name, gaussians, scene, pipe, background, args, devi
             flat_lab = rgb2lab(flat_img[fg_mask].reshape(1, -1, 3)).reshape(-1, 3)
             _, nearest_idx = color_tree.query(flat_lab)
             flat_img[fg_mask] = palette_rgb[nearest_idx]
+        flat_img[~fg_mask] = bg_np
 
         uniform_img_np = flat_img.reshape(h, w, c)
         uniform_uint8 = (uniform_img_np * 255).astype(np.uint8)
@@ -2489,7 +2527,12 @@ def main():
     parser.add_argument("--gat_heads", default=4, type=int)
     parser.add_argument("--opacity_threshold", default=0.05, type=float)
     parser.add_argument("--max_scale_threshold", default=10, type=float)
-    parser.add_argument("--min_cluster_size", default=250, type=int)
+    parser.add_argument("--min_cluster_size", default=800, type=int)
+    parser.add_argument("--hdbscan_min_samples", default=12, type=int,
+                        help="min_samples do HDBSCAN. Valores maiores tornam o HDBSCAN mais "
+                             "conservador para chamar uma região esparsa (ex: casca/borda de "
+                             "um objeto) de cluster próprio, reduzindo fragmentos que depois "
+                             "aparecem como uma cor separada na renderização.")
     parser.add_argument("--target_gaussians", default=230000, type=int)
 
     parser.add_argument("--render_full_pointcloud", action="store_true", default=True)
@@ -2608,6 +2651,10 @@ def main():
     mask_geom = (opacity > args.opacity_threshold) & (max_scaling < args.max_scale_threshold)
     mask_filter = mask_geom & mask_labels_validos & mask_box
 
+    # Opacidade/escala/label/bbox não veem DENSIDADE: um floater isolado no
+    # espaço pode passar em todos esses filtros. Remove quem sobra sozinho.
+    mask_filter = remove_spatial_outliers(xyz, mask_filter, k=16, std_ratio=2.0)
+
     labels = labels_deva[mask_filter]
     xyz = xyz[mask_filter]
     rgb = rgb[mask_filter]
@@ -2659,6 +2706,27 @@ def main():
     print(f"  Distance threshold: {distance_threshold:.4f} | Color dist threshold: {color_dist_threshold:.4f}")
 
     edge_mask = (neighbor_dist <= distance_threshold) & (color_dist <= color_dist_threshold)
+
+    # Os thresholds acima são GLOBAIS (uma média/percentil sobre a nuvem
+    # inteira), então nós em regiões esparsas ou em bordas de cor podem não
+    # ter NENHUM vizinho candidato que passe — ficando com grau 0 no grafo.
+    # Isso é especialmente grave no modo GCN (add_self_loops=False): um nó
+    # sem nenhuma aresta não recebe nenhuma mensagem e seu embedding colapsa
+    # para o bias, ignorando por completo a posição/cor daquele ponto.
+    # Garante um grau mínimo forçando a inclusão dos vizinhos mais próximos
+    # (por distância, já ordenados pelo kneighbors) mesmo que não passem no
+    # threshold — o peso espacial/cor real desses vizinhos ainda é calculado
+    # normalmente logo abaixo, então uma aresta "forçada" fraca continua
+    # pesando pouco na loss, só deixa de ser inexistente.
+    MIN_DEGREE = 2
+    degree_per_node = edge_mask.sum(axis=1)
+    needs_forced_edges = degree_per_node < MIN_DEGREE
+    n_forced = int(needs_forced_edges.sum())
+    if n_forced > 0:
+        edge_mask[needs_forced_edges, :MIN_DEGREE] = True
+        print(f"  ⚠️ {n_forced:,} nós ({100*n_forced/len(xyz):.2f}%) tinham menos de {MIN_DEGREE} "
+              f"vizinhos dentro do threshold; grau mínimo {MIN_DEGREE} forçado para evitar nós isolados.")
+
     src, k_idx = np.where(edge_mask)
     dst = neighbor_idx[src, k_idx]
 
@@ -2795,7 +2863,7 @@ def main():
 
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=args.min_cluster_size,
-        min_samples=1,
+        min_samples=args.hdbscan_min_samples,
         prediction_data=False
     ).fit(emb)
 
@@ -2962,17 +3030,16 @@ def main():
             render_mask,
             color_map=shared_color_map
         )
-        import shutil
-        temp_dir = os.path.join(model_dir, "images")
-        if os.path.exists(temp_dir):
-            for file in os.listdir(temp_dir):
-                src = os.path.join(temp_dir, file)
-                dst = os.path.join(images_dir, file)
-                shutil.move(src, dst)
-            os.rmdir(temp_dir)
-        
+        # `render_clusters` já escreve direto em `images_dir` (args.output/"images"
+        # é o mesmo caminho de `images_dir`) — não há nada para mover. O bloco que
+        # existia aqui tentava mover o diretório para dentro dele mesmo e depois
+        # remover uma pasta não-vazia, o que sempre lançava OSError bem no fim do
+        # pipeline (depois de tudo já ter sido salvo corretamente).
+
         gaussians._features_dc.data = orig_dc
-        print(f"🖼️ Imagens renderizadas salvas em: {images_dir}")
+        images_raw_dir = os.path.join(model_dir, "images_raw")
+        print(f"🖼️ Imagens padronizadas (cor homogênea por cluster) salvas em: {images_dir}")
+        print(f"🖼️ Imagens cruas (sem padronização de cor) salvas em: {images_raw_dir}")
     
     # ==========================================================
     # VISUALIZAÇÃO 3D
