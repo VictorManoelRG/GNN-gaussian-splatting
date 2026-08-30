@@ -711,7 +711,7 @@ def build_labels_with_deva_json_v2_black(
     propagate_to_neighbors=False,
     k_propagate=1,
     depth_rel_tol=0.015,
-    min_votes=5,
+    min_votes=3,
 ):
     """
     `gaussians` (GaussianModel) é usado apenas para a validação de cor opcional
@@ -1317,7 +1317,18 @@ def render_clusters(labels, name, gaussians, scene, pipe, background, args, devi
         flat_img = img_np.reshape(-1, 3).copy()
 
         # Só faz snap dos pixels que não são o fundo; o fundo (branco) fica intacto.
-        fg_mask = np.linalg.norm(flat_img - bg_np, axis=1) > 0.05
+        # FOREGROUND_DIST_THRESHOLD = 0.3 (era 0.05): pixels de névoa/floaters
+        # residuais (opacidade baixíssima) ficam bem perto do branco — na prática
+        # medi distância mediana ~0.12 do branco para essa névoa, contra um mínimo
+        # de ~0.43 para pixels de clusters sólidos de verdade. Um threshold de 0.05
+        # tratava qualquer leve tingimento como "confiante", forçando o snap de cor
+        # em pixels quase-brancos para a cor de PALETA mais próxima (geralmente uma
+        # cor pouco saturada), o que pintava a névoa inteira de uma única cor
+        # dominante cobrindo boa parte da cena. 0.3 fica seguramente abaixo do piso
+        # observado para objetos reais, então não arrisca apagar nenhum pixel
+        # legítimo — só a névoa de fundo.
+        FOREGROUND_DIST_THRESHOLD = 0.3
+        fg_mask = np.linalg.norm(flat_img - bg_np, axis=1) > FOREGROUND_DIST_THRESHOLD
         if np.any(fg_mask):
             flat_lab = rgb2lab(flat_img[fg_mask].reshape(1, -1, 3)).reshape(-1, 3)
             _, nearest_idx = color_tree.query(flat_lab)
@@ -2570,7 +2581,7 @@ def main():
     dyn_op_thresh, dyn_sc_thresh, final_count = compute_dynamic_filters(
         opacity_valid,
         max_scaling_valid,
-        target_count=100000
+        target_count=250000
     )
 
     args.opacity_threshold = dyn_op_thresh
