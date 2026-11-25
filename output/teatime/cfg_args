@@ -1,0 +1,1 @@
+Namespace(data_device='cuda', eval=False, images='images', model_path='output/teatime', n_views=100, num_classes=256, object_path='object_mask', random_init=False, resolution=1, sh_degree=3, source_path='/home/victor/Documentos/gaussian_grouping/gaussian-grouping/data/teatime', train_split=False, white_background=False)
