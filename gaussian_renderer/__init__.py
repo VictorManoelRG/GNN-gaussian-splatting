@@ -101,3 +101,83 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
             "visibility_filter" : radii > 0,
             "radii": radii,
             "render_object": rendered_objects}
+
+def render_uniform(viewpoint_camera, pc, pipe, bg_color, uniform_colors, device="cuda"):
+    """
+    Versão modificada do render que usa cores uniformes (override_color).
+    """
+    # Create zero tensor for screenspace points
+    screenspace_points = torch.zeros_like(pc.get_xyz, dtype=pc.get_xyz.dtype, requires_grad=True, device=device) + 0
+    try:
+        screenspace_points.retain_grad()
+    except:
+        pass
+
+    # Set up rasterization configuration
+    tanfovx = math.tan(viewpoint_camera.FoVx * 0.5)
+    tanfovy = math.tan(viewpoint_camera.FoVy * 0.5)
+
+    raster_settings = GaussianRasterizationSettings(
+        image_height=int(viewpoint_camera.image_height),
+        image_width=int(viewpoint_camera.image_width),
+        tanfovx=tanfovx,
+        tanfovy=tanfovy,
+        bg=bg_color,
+        scale_modifier=1.0,
+        viewmatrix=viewpoint_camera.world_view_transform,
+        projmatrix=viewpoint_camera.full_proj_transform,
+        sh_degree=pc.active_sh_degree,
+        campos=viewpoint_camera.camera_center,
+        prefiltered=False,
+        debug=pipe.debug
+    )
+
+    rasterizer = GaussianRasterizer(raster_settings=raster_settings)
+
+    means3D = pc.get_xyz
+    means2D = screenspace_points
+    opacity = pc.get_opacity
+
+    scales = pc.get_scaling
+    rotations = pc.get_rotation
+
+    # USAR override_color com cores uniformes
+    # Isso faz com que o rasterizador use as cores que passamos diretamente
+    colors_precomp = uniform_colors  # <-- CORES UNIFORMES AQUI!
+    
+    # Se temos menos cores que gaussianas (caso de mask_filter), ajustar
+    if colors_precomp.shape[0] != means3D.shape[0]:
+        # Isso deve ser tratado antes de chamar esta função
+        print(f"Warning: colors_precomp shape {colors_precomp.shape} != means3D shape {means3D.shape}")
+
+    # sh_objs=None vira torch.Tensor([]) (vazio, em CPU) dentro do rasterizer.
+    # O kernel CUDA deste fork (renderCUDA, forward.cu) lê
+    # obj_features[gaussian_id * NUM_OBJECTS + ch] incondicionalmente, sem
+    # checar null — ao contrário do buffer de cor, que tem fallback
+    # (`colors_precomp != nullptr ? colors_precomp : geomState.rgb`). Passar
+    # um tensor vazio/CPU aí é leitura inválida de ponteiro dentro do kernel,
+    # e é isso que aparece como "numel: integer multiplication overflow" (o
+    # processo CUDA fica com estado corrompido depois da leitura ilegal).
+    # Por isso sempre mandamos um tensor real, zerado, do tamanho certo.
+    dummy_sh_objs = torch.zeros(means3D.shape[0], 1, pc.num_objects, device=device)
+
+    # Rasterizar
+    rendered_image, radii, rendered_objects = rasterizer(
+        means3D=means3D,
+        means2D=means2D,
+        shs=None,  # Não usar SH
+        sh_objs=dummy_sh_objs,
+        colors_precomp=colors_precomp,  # <-- USAR CORES UNIFORMES
+        opacities=opacity,
+        scales=scales,
+        rotations=rotations,
+        cov3D_precomp=None
+    )
+
+    return {
+        "render": rendered_image,
+        "viewspace_points": screenspace_points,
+        "visibility_filter": radii > 0,
+        "radii": radii,
+        "render_object": rendered_objects
+    }

@@ -635,7 +635,7 @@ def build_labels_by_majority_vote(
     scene,
     xyz,
     masks_path,
-    min_votes=20,
+    min_votes=10,
     depth_tolerance=0.05,
     depth_rel_tol=0.015,
     flush_every=25,
@@ -2362,6 +2362,10 @@ def save_experiment_results(metrics, loss_history, output_dir, model_name="GAT",
             'Cabeças de Atenção (GAT)': metrics.get('GAT_Heads', 'N/A'),
             'Min Cluster Size': metrics.get('Min_Cluster_Size', 'N/A'),
             'KNN Reassign K': metrics.get('KNN_Reassign_K', 'N/A'),
+            'UMAP (dimensões)': metrics.get('UMAP_Dim', 'N/A'),
+            'UMAP n_neighbors': metrics.get('UMAP_N_Neighbors', 'N/A'),
+            'UMAP min_dist': metrics.get('UMAP_Min_Dist', 'N/A'),
+            'UMAP métrica': metrics.get('UMAP_Metric', 'N/A'),
             'Total de Gaussianas (Raw)': metrics.get('Raw_Gaussians', 'N/A'),
             'Gaussianas Filtradas': metrics.get('Filtered_Gaussians', 'N/A'),
         },
@@ -2818,6 +2822,30 @@ def main():
     # Default 0.0 (e não 0.1): este parâmetro estava comentado na chamada do
     # HDBSCAN, então o que rodava de fato era o padrão do HDBSCAN, que é 0.0.
     # Manter 0.0 preserva o comportamento já observado nos testes.
+    parser.add_argument("--umap_dim", default=0, type=int,
+                        help="Se > 0, reduz o embedding a esse número de dimensões com UMAP ANTES "
+                             "do HDBSCAN, e a clusterização passa a acontecer no espaço reduzido. "
+                             "0 (default) desliga o UMAP e clusteriza o embedding de 32 dimensões "
+                             "como antes, reproduzindo o comportamento anterior. Motivação: em 32 "
+                             "dimensões a estimativa de densidade sofre com concentração de "
+                             "distâncias, e cenas dominadas por uma superfície contínua (ex.: a "
+                             "mesa do ramen) viram um único bloco conectado, sem vales que o "
+                             "HDBSCAN possa cortar. Valores típicos: 5 a 10.")
+    parser.add_argument("--umap_n_neighbors", default=30, type=int,
+                        help="n_neighbors do UMAP. Controla o equilíbrio entre estrutura local e "
+                             "global: valores baixos (5-15) preservam vizinhanças finas e tendem a "
+                             "fragmentar, valores altos (30-100) preservam a estrutura global. "
+                             "Só tem efeito com --umap_dim > 0.")
+    parser.add_argument("--umap_min_dist", default=0.0, type=float,
+                        help="min_dist do UMAP. Para uso seguido de clusterização a documentação do "
+                             "UMAP recomenda 0.0, que permite empacotar os pontos de um mesmo grupo "
+                             "o mais junto possível e é justamente o que cria os vales de densidade "
+                             "que o HDBSCAN procura. Só tem efeito com --umap_dim > 0.")
+    parser.add_argument("--umap_metric", default="cosine", type=str,
+                        help="Métrica do UMAP. Default 'cosine', coerente com o treino: a loss "
+                             "compara os embeddings por similaridade de cosseno e o embedding é "
+                             "normalizado em L2 antes da clusterização. Só tem efeito com "
+                             "--umap_dim > 0.")
     parser.add_argument("--hdbscan_cluster_selection_epsilon", default=0.0, type=float,
                         help="cluster_selection_epsilon do HDBSCAN: funde, na árvore condensada, "
                              "clusters cuja distância (no espaço de embedding normalizado, L2) "
@@ -3593,6 +3621,41 @@ def main():
     # `args.min_cluster_size` — ou seja, a tabela dizia um valor e a execução
     # usava outro. Agora vêm dos argumentos, para o que é reportado ser o que
     # de fato rodou.
+    # ----------------------------------------------------------
+    # REDUÇÃO DE DIMENSIONALIDADE OPCIONAL (UMAP) ANTES DO HDBSCAN
+    # ----------------------------------------------------------
+    # `emb_cluster` é o espaço em que a clusterização acontece. Com --umap_dim 0
+    # (default) ele É o próprio `emb`, então nada muda em relação ao
+    # comportamento anterior. As métricas de validade (Silhouette e companhia)
+    # continuam sendo calculadas sobre `emb`, o embedding de 32 dimensões, para
+    # permanecerem comparáveis entre rodadas com e sem UMAP.
+    emb_cluster = emb
+    if args.umap_dim > 0:
+        try:
+            import umap
+        except ImportError:
+            raise SystemExit(
+                "--umap_dim > 0 exige o pacote umap-learn, que não está instalado.\n"
+                "Instale com: pip install umap-learn"
+            )
+        n_comp = min(args.umap_dim, emb.shape[1] - 1)
+        print(f"🗺️  UMAP: {emb.shape[1]} -> {n_comp} dimensões "
+              f"(n_neighbors={args.umap_n_neighbors}, min_dist={args.umap_min_dist}, "
+              f"metric={args.umap_metric})")
+        t_umap = time.time()
+        # random_state fixo torna o UMAP determinístico, ao custo de rodar em uma
+        # única thread. Sem isso, duas execuções da mesma configuração devolvem
+        # projeções diferentes e a clusterização deixa de ser comparável.
+        reducer = umap.UMAP(
+            n_components=n_comp,
+            n_neighbors=args.umap_n_neighbors,
+            min_dist=args.umap_min_dist,
+            metric=args.umap_metric,
+            random_state=args.seed,
+        )
+        emb_cluster = np.ascontiguousarray(reducer.fit_transform(emb), dtype=np.float32)
+        print(f"   concluído em {time.time() - t_umap:.1f}s")
+
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=args.min_cluster_size,
         min_samples=args.hdbscan_min_samples,
@@ -3602,14 +3665,16 @@ def main():
         # 'leaf' seleciona clusters mais miúdos/homogêneos e fragmentaria mais.
 
         prediction_data=False
-    ).fit(emb)
+    ).fit(emb_cluster)
 
     cluster_labels = clusterer.labels_
 
+    # A reatribuição de ruído roda no MESMO espaço da clusterização, para que a
+    # vizinhança usada no voto seja a mesma que definiu os clusters.
     cluster_labels = reassign_noise_knn_vectorized(
-        emb, 
-        cluster_labels, 
-        k=args.knn_reassign_k, 
+        emb_cluster,
+        cluster_labels,
+        k=args.knn_reassign_k,
         min_agreement=0.8
     )
 
@@ -3675,6 +3740,10 @@ def main():
         'Loss_Color_Exclude_Diff_Label': args.loss_color_exclude_diff_label,
         'HDBSCAN_Min_Samples': args.hdbscan_min_samples,
         'Target_Gaussians': args.target_gaussians,
+        'UMAP_Dim': args.umap_dim if args.umap_dim > 0 else 'desligado',
+        'UMAP_N_Neighbors': args.umap_n_neighbors if args.umap_dim > 0 else 'N/A',
+        'UMAP_Min_Dist': args.umap_min_dist if args.umap_dim > 0 else 'N/A',
+        'UMAP_Metric': args.umap_metric if args.umap_dim > 0 else 'N/A',
     }
 
     # Paleta única compartilhada entre a nuvem de pontos 3D e a renderização 2D,
@@ -3781,6 +3850,18 @@ def main():
                 torch.cuda.empty_cache()
             render_embedding_pca(emb, gaussians, scene, pipe, background,
                                  args, device, mask_filter)
+
+            # Com o UMAP ligado, quem o HDBSCAN enxerga é o espaço reduzido, e
+            # não o embedding de 32 dimensões. Renderizar os dois lado a lado
+            # separa "a rede não aprendeu" de "a rede aprendeu mas a densidade
+            # em 32D não tinha vales para cortar": a pasta PCA mostra o que a
+            # GNN produziu, a PCA_UMAP mostra o espaço em que a partição foi
+            # de fato decidida.
+            if args.umap_dim > 0:
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                render_embedding_pca(emb_cluster, gaussians, scene, pipe, background,
+                                     args, device, mask_filter, out_name="PCA_UMAP")
     
     # ==========================================================
     # MEDIÇÃO DE VRAM PICO

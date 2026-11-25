@@ -13,3 +13,31 @@ utils/*
 arguments/*
 *.mp4
 *.drawio
+exp_res/*
+__pycache__/
+
+# saídas de experimentos e testes (regeneráveis)
+experimentos_finais/
+teste_*/
+logs/
+logs_cenas/
+videos_*/
+
+# escrita dos artigos e rascunhos da tese (fora do git); só tese/ é versionada
+artigo_cvm/
+figuras/
+*.tex
+*.bib
+!tese/*.tex
+!tese/*.bib
+plano_tese.txt
+
+# dumps do visualizador Open3D
+DepthCamera_*.json
+RenderOption_*.json
+ScreenCamera_*.json
+ScreenCapture_*.png
+
+# configurações locais de editor
+.vscode/
+.claude/

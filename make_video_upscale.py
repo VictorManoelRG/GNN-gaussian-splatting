@@ -18,8 +18,8 @@ NOME = sys.argv[1]
 # Configurações
 # ==========================
 
-DIR1 = f"/home/victor/Documentos/gaussian_grouping/gaussian-grouping/data/{NOME}/images"
-DIR2 = f"/home/victor/Documentos/gaussian_grouping/gaussian-grouping/GAT/output_seg-{NOME}/gat"
+DIR1 = f"/home/victor/Documentos/gaussian_grouping/gaussian-grouping/data/waldo_kitchen/images"
+DIR2 = f"/home/victor/Documentos/gaussian_grouping/gaussian-grouping/output_seg/tests/waldo_kitchen_tests/gat_waldo_kitchen_reinserindoPontos "
 
 OUTPUT_VIDEO = f"comparacao_{NOME}.mp4"
 
