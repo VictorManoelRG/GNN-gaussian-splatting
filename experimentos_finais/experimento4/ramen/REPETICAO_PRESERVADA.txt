@@ -1,0 +1,14 @@
+repeticao 1 (semente 42)
+
+Configuração da loss contrastiva usada nesta cena (diferente da padrão):
+  --loss_pos_margin 0.05 --loss_neg_margin 0.05 --loss_temperature 0.04
+  (min_cluster_size mantido na referência: 500)
+
+Motivo: com a loss padrão (temperatura 0.05, margem positiva 0.2, margem
+negativa 0.1), o HDBSCAN colapsava a cena inteira em um único cluster
+mesmo no min_cluster_size de referência. As margens apertadas acima
+resolvem o colapso sem precisar reduzir o min_cluster_size (ver
+"As Duas Exceções: Ramen e Waldo Kitchen" no tese.tex).
+
+Resultados antigos (loss padrão, min_cluster_size=60) preservados em
+../ramen_backup_colapso/.

@@ -1,0 +1,121 @@
+{
+  "parametros": {
+    "cenas": [
+      "teatime",
+      "ramen",
+      "figurines",
+      "waldo_kitchen"
+    ],
+    "min_opacity": 0.5,
+    "min_obs": 5,
+    "depth_tol": 0.05,
+    "depth_rel_tol": 0.015,
+    "saida": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/consistencia_multivista"
+  },
+  "resultados": [
+    {
+      "cena": "teatime",
+      "cameras": 158,
+      "splats_opacas": 131417,
+      "corr_projecao_foto": 0.7071287499516693,
+      "nosso": {
+        "splats_avaliadas": 86298,
+        "obs_por_splat": 28.587278963591277,
+        "consistencia_media": 0.8986192304870411,
+        "splats_100pct_consistentes": 0.49132077220793063,
+        "splats_com_objeto_como_moda": 0.7563790586108601,
+        "consistencia_media_splats_de_objeto": 0.8890983572074762,
+        "desaparecimento_splats_de_objeto": 0.007076886894999174,
+        "troca_splats_de_objeto": 0.10382475589752471
+      },
+      "gg": {
+        "splats_avaliadas": 86298,
+        "obs_por_splat": 28.587278963591277,
+        "consistencia_media": 0.7335478555069058,
+        "splats_100pct_consistentes": 0.1576398062527521,
+        "splats_com_objeto_como_moda": 0.7707942246633758,
+        "consistencia_media_splats_de_objeto": 0.7063021575875664,
+        "desaparecimento_splats_de_objeto": 0.06174047496792502,
+        "troca_splats_de_objeto": 0.2319573674445086
+      }
+    },
+    {
+      "cena": "ramen",
+      "cameras": 131,
+      "splats_opacas": 109208,
+      "corr_projecao_foto": 0.3424649550736897,
+      "nosso": {
+        "splats_avaliadas": 93017,
+        "obs_por_splat": 36.53669759291312,
+        "consistencia_media": 0.8301313516800157,
+        "splats_100pct_consistentes": 0.3117279637055592,
+        "splats_com_objeto_como_moda": 0.9234333508928475,
+        "consistencia_media_splats_de_objeto": 0.8349260203464358,
+        "desaparecimento_splats_de_objeto": 0.01702206135416252,
+        "troca_splats_de_objeto": 0.14805191829940165
+      },
+      "gg": {
+        "splats_avaliadas": 93017,
+        "obs_por_splat": 36.53669759291312,
+        "consistencia_media": 0.7824629628737246,
+        "splats_100pct_consistentes": 0.20458625842587913,
+        "splats_com_objeto_como_moda": 0.9704140103421955,
+        "consistencia_media_splats_de_objeto": 0.7847410675484577,
+        "desaparecimento_splats_de_objeto": 0.03039726051275348,
+        "troca_splats_de_objeto": 0.18486167193878872
+      }
+    },
+    {
+      "cena": "figurines",
+      "cameras": 298,
+      "splats_opacas": 189338,
+      "corr_projecao_foto": 0.6177093274324901,
+      "nosso": {
+        "splats_avaliadas": 134410,
+        "obs_por_splat": 36.055226545643926,
+        "consistencia_media": 0.8578800420013523,
+        "splats_100pct_consistentes": 0.4054237035934826,
+        "splats_com_objeto_como_moda": 0.8769362398631054,
+        "consistencia_media_splats_de_objeto": 0.8505273849192037,
+        "desaparecimento_splats_de_objeto": 0.010223186563096356,
+        "troca_splats_de_objeto": 0.13924942851770017
+      },
+      "gg": {
+        "splats_avaliadas": 134410,
+        "obs_por_splat": 36.055226545643926,
+        "consistencia_media": 0.7487491199688479,
+        "splats_100pct_consistentes": 0.2259355702700692,
+        "splats_com_objeto_como_moda": 0.8729410014135853,
+        "consistencia_media_splats_de_objeto": 0.7464597562525292,
+        "desaparecimento_splats_de_objeto": 0.06745648659503342,
+        "troca_splats_de_objeto": 0.18608375715243736
+      }
+    },
+    {
+      "cena": "waldo_kitchen",
+      "cameras": 187,
+      "splats_opacas": 188385,
+      "corr_projecao_foto": 0.7025225268102792,
+      "nosso": {
+        "splats_avaliadas": 141235,
+        "obs_por_splat": 18.270386235706447,
+        "consistencia_media": 0.9180807928548285,
+        "splats_100pct_consistentes": 0.65207632668956,
+        "splats_com_objeto_como_moda": 0.8611038340354727,
+        "consistencia_media_splats_de_objeto": 0.9241616345686657,
+        "desaparecimento_splats_de_objeto": 0.016282571692950793,
+        "troca_splats_de_objeto": 0.05955579373838329
+      },
+      "gg": {
+        "splats_avaliadas": 141235,
+        "obs_por_splat": 18.270386235706447,
+        "consistencia_media": 0.7388675485986409,
+        "splats_100pct_consistentes": 0.15265337911990653,
+        "splats_com_objeto_como_moda": 0.7295287995185329,
+        "consistencia_media_splats_de_objeto": 0.7307672583164716,
+        "desaparecimento_splats_de_objeto": 0.12726893180573887,
+        "troca_splats_de_objeto": 0.1419638098777895
+      }
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+Looking for config file in output/ramen/cfg_args
+Config file found: output/ramen/cfg_args
+
+================================================================================
+🚀 EXPERIMENTO: ramen_r4
+📁 Diretório: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4
+📁 Modelo: GAT
+================================================================================
+
+💻 Dispositivo: cuda [11/09 15:40:29]
+Loading trained model at iteration 30000 [11/09 15:40:29]
+Reading camera 1/131Reading camera 2/131Reading camera 3/131Reading camera 4/131Reading camera 5/131Reading camera 6/131Reading camera 7/131Reading camera 8/131Reading camera 9/131Reading camera 10/131Reading camera 11/131Reading camera 12/131Reading camera 13/131Reading camera 14/131Reading camera 15/131Reading camera 16/131Reading camera 17/131Reading camera 18/131Reading camera 19/131Reading camera 20/131Reading camera 21/131Reading camera 22/131Reading camera 23/131Reading camera 24/131Reading camera 25/131Reading camera 26/131Reading camera 27/131Reading camera 28/131Reading camera 29/131Reading camera 30/131Reading camera 31/131Reading camera 32/131Reading camera 33/131Reading camera 34/131Reading camera 35/131Reading camera 36/131Reading camera 37/131Reading camera 38/131Reading camera 39/131Reading camera 40/131Reading camera 41/131Reading camera 42/131Reading camera 43/131Reading camera 44/131Reading camera 45/131Reading camera 46/131Reading camera 47/131Reading camera 48/131Reading camera 49/131Reading camera 50/131Reading camera 51/131Reading camera 52/131Reading camera 53/131Reading camera 54/131Reading camera 55/131Reading camera 56/131Reading camera 57/131Reading camera 58/131Reading camera 59/131Reading camera 60/131Reading camera 61/131Reading camera 62/131Reading camera 63/131Reading camera 64/131Reading camera 65/131Reading camera 66/131Reading camera 67/131Reading camera 68/131Reading camera 69/131Reading camera 70/131Reading camera 71/131Reading camera 72/131Reading camera 73/131Reading camera 74/131Reading camera 75/131Reading camera 76/131Reading camera 77/131Reading camera 78/131Reading camera 79/131Reading camera 80/131Reading camera 81/131Reading camera 82/131Reading camera 83/131Reading camera 84/131Reading camera 85/131Reading camera 86/131Reading camera 87/131Reading camera 88/131Reading camera 89/131Reading camera 90/131Reading camera 91/131Reading camera 92/131Reading camera 93/131Reading camera 94/131Reading camera 95/131Reading camera 96/131Reading camera 97/131Reading camera 98/131Reading camera 99/131Reading camera 100/131Reading camera 101/131Reading camera 102/131Reading camera 103/131Reading camera 104/131Reading camera 105/131Reading camera 106/131Reading camera 107/131Reading camera 108/131Reading camera 109/131Reading camera 110/131Reading camera 111/131Reading camera 112/131Reading camera 113/131Reading camera 114/131Reading camera 115/131Reading camera 116/131Reading camera 117/131Reading camera 118/131Reading camera 119/131Reading camera 120/131Reading camera 121/131Reading camera 122/131Reading camera 123/131Reading camera 124/131Reading camera 125/131Reading camera 126/131Reading camera 127/131Reading camera 128/131Reading camera 129/131Reading camera 130/131Reading camera 131/131 [11/09 15:40:29]
+Loading Training Cameras [11/09 15:40:29]
+Loading Test Cameras [11/09 15:40:29]
+🔍 Propagando máscaras para 183,619 Gaussianas por voto de maioria... [11/09 15:40:29]
+  Frame 50/131... [11/09 15:40:31]
+  Frame 100/131... [11/09 15:40:33]
+📉 Z-buffer: 11,488,140 → 6,055,656 projeções (47.3% descartadas por oclusão) [11/09 15:40:34]
+
+✅ Concluído: [11/09 15:40:34]
+  • Frames com máscara lida: 131/131 [11/09 15:40:34]
+  • Gaussianas rotuladas: 151,230/183,619 (82.4%) [11/09 15:40:34]
+  • Segmentos distintos atribuídos: 29 [11/09 15:40:34]
+  • Votos do vencedor: mediana=26 | média=33.6 | máx=127 [11/09 15:40:34]
+  • Gaussianas vetadas por maioria de fundo: 8,782 [11/09 15:40:34]
+  • Gaussianas com voto de objeto mas abaixo de min_votes=5: 20,798 [11/09 15:40:34]
+
+🎯 Calculando filtros dinâmicos para ~100,000 gaussianas... [11/09 15:40:34]
+   Total disponível: 151,230 [11/09 15:40:34]
+   ✅ Seleção concluída: [11/09 15:40:34]
+      Menor opacidade selecionada: 0.0995 [11/09 15:40:34]
+      Maior escala selecionada: 0.9868 [11/09 15:40:34]
+      Gaussianas resultantes: 100,000 (target: 100,000) [11/09 15:40:34]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 2,545/100,000 gaussianas removidas (2.54%) [11/09 15:40:34]
+   🔁 Iteração 1: target pedido=100,000 | antes da remoção de outliers=100,000 | REAL após outliers=97,455 [11/09 15:40:34]
+
+🎯 Calculando filtros dinâmicos para ~102,611 gaussianas... [11/09 15:40:34]
+   Total disponível: 151,230 [11/09 15:40:34]
+   ✅ Seleção concluída: [11/09 15:40:34]
+      Menor opacidade selecionada: 0.0770 [11/09 15:40:34]
+      Maior escala selecionada: 0.9868 [11/09 15:40:34]
+      Gaussianas resultantes: 102,611 (target: 102,611) [11/09 15:40:34]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 2,640/102,611 gaussianas removidas (2.57%) [11/09 15:40:35]
+   🔁 Iteração 2: target pedido=100,000 | antes da remoção de outliers=102,611 | REAL após outliers=99,971 [11/09 15:40:35]
+Rendering 29 discrete clusters... [11/09 15:40:35]
+  Cru (sem padronização de cor): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/debug_labels_2d_raw [11/09 15:40:35]
+  Padronizado (cor homogênea por cluster): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/debug_labels_2d [11/09 15:40:35]
+  Gaussianas totais: 183,619 [11/09 15:40:35]
+  Gaussianas ativas (opacity>0): 99,971 [11/09 15:40:35]
+  Gaussianas ocultas (opacity=0): 83,648 [11/09 15:40:35]
+📦 Total de Gaussianas na cena (Original): 183,619 [11/09 15:40:38]
+🎯 Total de Gaussianas rotuladas (DEVA != -1): 151,230 [11/09 15:40:38]
+✅ Total de Gaussianas final para treinamento (Filtradas): 99,971 [11/09 15:40:38]
+
+🎨 Features de cor: CIELAB isotrópico | escala=0.1010 (auto (mesma magnitude do bloco de cor da versão RGB)) | std global do Lab=29.71 [11/09 15:40:39]
+   1 unidade de feature de cor = 9.90 ΔE(76) [11/09 15:40:39]
+
+🔗 Construindo grafo geométrico... [11/09 15:40:39]
+  Vizinhos candidatos por nó: 6 (--graph_knn=7) [11/09 15:40:39]
+  Sigma geométrico: 0.0429 [11/09 15:40:39]
+  Sigma local (dist. ao 6º vizinho): mediana=0.0572 p5=0.0213 p95=0.1995 — razão p95/p5 = 9.4x (é essa variação de densidade que um limiar global ignora) [11/09 15:40:39]
+  Cor: CIELAB / ΔE ciede2000 | sigma_ΔE=6.00 [11/09 15:40:39]
+  ΔE entre vizinhos — p25=11.77 | mediana=25.96 | p75=45.84 | p90=73.78 [11/09 15:40:39]
+  Distance threshold: 0.0543 (local_scaling c=1 k=6 (limiar por par; mediana mostrada)) | ΔE threshold: 10.00 (limiar perceptual absoluto) [11/09 15:40:39]
+  Vizinhos aceitos pelo critério de distância: 76.8% [11/09 15:40:39]
+  Vizinhos aceitos pelo critério de cor: 22.3% [11/09 15:40:39]
+  ⚠️ O limiar de ΔE está podando a maior parte das arestas; muitos nós vão ficar com grau baixo ou isolados. Considere subir --edge_delta_e_threshold. [11/09 15:40:39]
+  Arestas no grafo: 114,958 [11/09 15:40:39]
+  Grau: média=1.15 mediana=1 máx=11 | nós isolados: 48,138 (48.15%) | grau 1: 22,807 (22.81%) [11/09 15:40:39]
+⏱️ Tempo de construção do grafo: 0.55s [11/09 15:40:39]
+🎨 Loss de cor: CIELAB | sigma=12.00 ΔE (ΔE=2.3/JND -> similaridade 0.98; ΔE=10 -> 0.71) [11/09 15:40:39]
+🧮 InfoNCE contra centróides de rótulo (robusto a rótulo errado) [11/09 15:40:39]
+🔧 Correções opcionais de loss (PCA borrado entre objetos): detach_centroids, nce_class_balanced, centroid_repulsion_weight=0.3 [11/09 15:40:39]
+🔬 [DIAG] Arestas do grafo: 111,654 same-label | 3,304 diff-label (2.87% diff) [11/09 15:40:39]
+🔬 [DIAG] 29 labels distintos | tamanho: min=1 max=34246 média=3447 [11/09 15:40:39]
+
+🎓 Treinando GAT com Early Stopping... [11/09 15:40:39]
+Epoch    0 | Loss: 5.8119 | Best: 5.8119 || pos=0.1087 neg=0.9924 nce=4.6386 (piso=3.367) cor=0.0536 cent_rep=0.2407 | ancoras=99971  <-- nce ACIMA do piso [11/09 15:40:39]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 5.8119 [11/09 15:40:39]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 4.2696 [11/09 15:40:39]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.5731 [11/09 15:40:39]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.4698 [11/09 15:40:39]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.3734 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.2918 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.2063 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.1519 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.1360 [11/09 15:40:40]
+Epoch   10 | Loss: 3.1056 | Best: 3.1056 || pos=0.1368 neg=0.9512 nce=1.9363 (piso=3.367) cor=0.0640 cent_rep=0.2710 | ancoras=99971 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.1056 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.0545 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.0194 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.9686 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.9412 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.8892 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.8187 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.8090 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7411 [11/09 15:40:40]
+Epoch   20 | Loss: 2.7038 | Best: 2.7038 || pos=0.1423 neg=0.9048 nce=1.5645 (piso=3.367) cor=0.0706 cent_rep=0.3073 | ancoras=99971 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7038 [11/09 15:40:40]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6748 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6585 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.5848 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.5542 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.5186 [11/09 15:40:41]
+Epoch   30 | Loss: 2.5025 | Best: 2.5025 || pos=0.1577 neg=0.8444 nce=1.3949 (piso=3.367) cor=0.0811 cent_rep=0.3515 | ancoras=99971 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.5025 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.4741 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.4432 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.4409 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.4048 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3969 [11/09 15:40:41]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3654 [11/09 15:40:42]
+Epoch   40 | Loss: 2.3854 | Best: 2.3654 || pos=0.1662 neg=0.8216 nce=1.2871 (piso=3.367) cor=0.0900 cent_rep=0.3687 | ancoras=99971 [11/09 15:40:42]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3534 [11/09 15:40:42]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:42]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3293 [11/09 15:40:42]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3079 [11/09 15:40:42]
+Epoch   50 | Loss: 2.3586 | Best: 2.3079 || pos=0.1587 neg=0.8217 nce=1.2716 (piso=3.367) cor=0.0914 cent_rep=0.3553 | ancoras=99971 [11/09 15:40:42]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2819 [11/09 15:40:43]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2807 [11/09 15:40:43]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2611 [11/09 15:40:43]
+Epoch   60 | Loss: 2.3258 | Best: 2.2611 || pos=0.1519 neg=0.8291 nce=1.2406 (piso=3.367) cor=0.0900 cent_rep=0.3475 | ancoras=99971 [11/09 15:40:43]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:43]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2497 [11/09 15:40:43]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2336 [11/09 15:40:43]
+Epoch   70 | Loss: 2.2593 | Best: 2.2336 || pos=0.1610 neg=0.8133 nce=1.1837 (piso=3.367) cor=0.0986 cent_rep=0.3375 | ancoras=99971 [11/09 15:40:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2135 [11/09 15:40:44]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:44]
+Epoch   80 | Loss: 2.2482 | Best: 2.2135 || pos=0.1645 neg=0.8055 nce=1.1751 (piso=3.367) cor=0.1022 cent_rep=0.3436 | ancoras=99971 [11/09 15:40:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1773 [11/09 15:40:44]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:45]
+Epoch   90 | Loss: 2.2424 | Best: 2.1773 || pos=0.1709 neg=0.7789 nce=1.1986 (piso=3.367) cor=0.1087 cent_rep=0.3133 | ancoras=99971 [11/09 15:40:45]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [11/09 15:40:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1756 [11/09 15:40:45]
+Epoch  100 | Loss: 2.2203 | Best: 2.1756 || pos=0.1541 neg=0.8154 nce=1.1549 (piso=3.367) cor=0.0979 cent_rep=0.3198 | ancoras=99971 [11/09 15:40:45]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1631 [11/09 15:40:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1507 [11/09 15:40:46]
+Epoch  110 | Loss: 2.1533 | Best: 2.1507 || pos=0.1493 neg=0.8217 nce=1.0851 (piso=3.367) cor=0.0965 cent_rep=0.3240 | ancoras=99971 [11/09 15:40:46]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1465 [11/09 15:40:46]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:46]
+Epoch  120 | Loss: 2.1883 | Best: 2.1465 || pos=0.1495 neg=0.8100 nce=1.1369 (piso=3.367) cor=0.0968 cent_rep=0.3063 | ancoras=99971 [11/09 15:40:47]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [11/09 15:40:47]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0932 [11/09 15:40:47]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [11/09 15:40:47]
+Epoch  130 | Loss: 2.1705 | Best: 2.0932 || pos=0.1613 neg=0.8046 nce=1.1155 (piso=3.367) cor=0.1036 cent_rep=0.2972 | ancoras=99971 [11/09 15:40:47]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [11/09 15:40:47]
+   ↳ [EarlyStopping] Sem melhora significativa há 15/20 épocas. [11/09 15:40:48]
+Epoch  140 | Loss: 2.1170 | Best: 2.0932 || pos=0.1577 neg=0.8057 nce=1.0620 (piso=3.367) cor=0.1003 cent_rep=0.3054 | ancoras=99971 [11/09 15:40:48]
+   ↳ [EarlyStopping] Sem melhora significativa há 20/20 épocas. [11/09 15:40:48]
+   🛑 [EarlyStopping] Gatilho ativado na época por falta de progresso. [11/09 15:40:48]
+   ✅ [EarlyStopping] Melhores pesos restaurados com sucesso (Melhor Loss: 2.0932). [11/09 15:40:48]
+⏱️ Tempo de treinamento do modelo: 8.96s [11/09 15:40:48]
+💾 VRAM real (NVML) durante o treino: 2.18 GB [11/09 15:40:48]
+
+📊 Clusterizando os novos embeddings com HDBSCAN... [11/09 15:40:48]
+
+🔁 Reatribuindo ruído via KNN nos Embeddings (K=25)... [11/09 15:41:06]
+   Pontos de ruído antes: 54,889 [11/09 15:41:06]
+   Pontos de ruído após reatribuição: 6,923 (reatribuídos: 47,966) [11/09 15:41:08]
+⏱️ Tempo do HDBSCAN (+ KNN Reassign): 19.51s [11/09 15:41:08]
+
+============================================================ [11/09 15:41:08]
+📊 AVALIAÇÃO DA SEGMENTAÇÃO 3D [11/09 15:41:08]
+============================================================ [11/09 15:41:08]
+
+📊 Avaliação Semi-Supervisionada: [11/09 15:41:08]
+  ARI: 0.2234 (0 = aleatório, 1 = perfeito) [11/09 15:41:08]
+  NMI: 0.4232 (0 = sem informação, 1 = perfeito) [11/09 15:41:08]
+  Clusters iniciais: 29 → Clusters refinados: 18 [11/09 15:41:08]
+
+📊 Coerência Interna dos Clusters: [11/09 15:41:08]
+  Silhouette Score: -0.0018 (amostrado com N=10000) [11/09 15:41:08]
+  Davies-Bouldin: 1.7341 (quanto menor, melhor) [11/09 15:41:08]
+  Calinski-Harabasz: 5271.36 (quanto maior, melhor) [11/09 15:41:08]
+  Clusters: 18 | Tamanho médio: 5169.3 ± 7316.5 [11/09 15:41:08]
+
+==================================================
+RENDER 2D
+================================================== [11/09 15:41:08]
+  🎯 Renderizando apenas Gaussianas filtradas... [11/09 15:41:08]
+  Gaussianas com cluster: 93,048 [11/09 15:41:08]
+  Tamanho das labels: 99971 [11/09 15:41:08]
+  Tamanho do mask_filter: 183619 [11/09 15:41:08]
+Rendering 18 discrete clusters... [11/09 15:41:08]
+  Cru (sem padronização de cor): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images_raw [11/09 15:41:08]
+  Padronizado (cor homogênea por cluster): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images [11/09 15:41:08]
+  Gaussianas totais: 183,619 [11/09 15:41:08]
+  Gaussianas ativas (opacity>0): 99,971 [11/09 15:41:08]
+  Gaussianas ocultas (opacity=0): 83,648 [11/09 15:41:08]
+🖼️ Imagens padronizadas (cor homogênea por cluster) salvas em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images [11/09 15:41:12]
+🖼️ Imagens cruas (sem padronização de cor) salvas em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images_raw [11/09 15:41:12]
+Rendering 18 clusters como coverage (sem decodificar cor)... [11/09 15:41:12]
+  Labels (fonte de verdade): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images_coverage_labels [11/09 15:41:12]
+  Preview colorido: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images_coverage [11/09 15:41:12]
+🎨 PCA do embedding: [11/09 15:41:14]
+   Amplitude (faixa p1-p99 da projeção): 1.4172 [11/09 15:41:14]
+   Variância explicada pelas 3 primeiras componentes: 65.93% (37.8%, 16.4%, 11.7%) [11/09 15:41:14]
+   Lembre: a imagem é normalizada por percentil, então colapso NÃO aparece como cor uniforme — use os números acima. [11/09 15:41:14]
+🖼️ Renderizando PCA do embedding para /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/PCA ... [11/09 15:41:14]
+✅ PCA do embedding salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/PCA [11/09 15:41:15]
+💾 Pico de VRAM reservada (allocator PyTorch, pipeline inteiro): 2.02 GB [11/09 15:41:15]
+💾 VRAM real (NVML, apenas durante o treino): 2.18 GB [11/09 15:41:15]
+📊 Tabela de métricas salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/GAT_metrics_20260911_154115.xlsx [11/09 15:41:15]
+📄 Relatório salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/GAT_report_20260911_154115.txt [11/09 15:41:15]
+📊 Curva de loss salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/GAT_loss_curve.png [11/09 15:41:15]
+☁️ Nuvem de pontos salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/pointclouds/gat_clusters.ply [11/09 15:41:15]
+
+================================================================================ [11/09 15:41:15]
+✅ EXPERIMENTO CONCLUÍDO [11/09 15:41:15]
+================================================================================ [11/09 15:41:15]
+📁 Diretório do experimento: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4 [11/09 15:41:15]
+📁 Modelo: GAT [11/09 15:41:15]
+📦 Gaussianas Originais (Cena): 183,619 [11/09 15:41:15]
+🎯 Gaussianas Filtradas (Treino): 99,971 [11/09 15:41:15]
+💾 VRAM Pico (allocator PyTorch, pipeline inteiro): 2.02 GB [11/09 15:41:15]
+💾 VRAM Real (NVML, durante o treino): 2.18 GB [11/09 15:41:15]
+⏱️ Tempo Grafo: 0.55s | Treino: 8.96s | HDBSCAN: 19.51s | Total: 29.02s [11/09 15:41:15]
+📊 Clusters iniciais (DEVA/SAM): 29 [11/09 15:41:15]
+📊 Clusters finais (HDBSCAN): 18 [11/09 15:41:15]
+📊 ARI: 0.2234 [11/09 15:41:15]
+📊 NMI: 0.4232 [11/09 15:41:15]
+📊 Silhouette: -0.0018 [11/09 15:41:15]
+📊 Davies-Bouldin: 1.7341 [11/09 15:41:15]
+-------------------------------------------------------------------------------- [11/09 15:41:15]
+📊 Tabela de métricas: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/GAT_metrics_20260911_154115.xlsx [11/09 15:41:15]
+📄 Relatório: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/GAT_report_20260911_154115.txt [11/09 15:41:15]
+📊 Curva de loss: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/GAT_loss_curve.png [11/09 15:41:15]
+☁️ Nuvem de pontos: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/pointclouds/gat_clusters.ply [11/09 15:41:15]
+🖼️ Imagens renderizadas: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/ramen_r4/gat/images [11/09 15:41:15]
+================================================================================ [11/09 15:41:15]
+ [11/09 15:41:15]

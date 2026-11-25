@@ -1,0 +1,208 @@
+Looking for config file in output/teatime/cfg_args
+Config file found: output/teatime/cfg_args
+
+================================================================================
+🚀 EXPERIMENTO: gcn_2_camadas_r5
+📁 Diretório: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5
+📁 Modelo: GCN-V2 (2 camadas)
+================================================================================
+
+💻 Dispositivo: cuda [09/09 22:40:26]
+Loading trained model at iteration 30000 [09/09 22:40:26]
+Reading camera 1/158Reading camera 2/158Reading camera 3/158Reading camera 4/158Reading camera 5/158Reading camera 6/158Reading camera 7/158Reading camera 8/158Reading camera 9/158Reading camera 10/158Reading camera 11/158Reading camera 12/158Reading camera 13/158Reading camera 14/158Reading camera 15/158Reading camera 16/158Reading camera 17/158Reading camera 18/158Reading camera 19/158Reading camera 20/158Reading camera 21/158Reading camera 22/158Reading camera 23/158Reading camera 24/158Reading camera 25/158Reading camera 26/158Reading camera 27/158Reading camera 28/158Reading camera 29/158Reading camera 30/158Reading camera 31/158Reading camera 32/158Reading camera 33/158Reading camera 34/158Reading camera 35/158Reading camera 36/158Reading camera 37/158Reading camera 38/158Reading camera 39/158Reading camera 40/158Reading camera 41/158Reading camera 42/158Reading camera 43/158Reading camera 44/158Reading camera 45/158Reading camera 46/158Reading camera 47/158Reading camera 48/158Reading camera 49/158Reading camera 50/158Reading camera 51/158Reading camera 52/158Reading camera 53/158Reading camera 54/158Reading camera 55/158Reading camera 56/158Reading camera 57/158Reading camera 58/158Reading camera 59/158Reading camera 60/158Reading camera 61/158Reading camera 62/158Reading camera 63/158Reading camera 64/158Reading camera 65/158Reading camera 66/158Reading camera 67/158Reading camera 68/158Reading camera 69/158Reading camera 70/158Reading camera 71/158Reading camera 72/158Reading camera 73/158Reading camera 74/158Reading camera 75/158Reading camera 76/158Reading camera 77/158Reading camera 78/158Reading camera 79/158Reading camera 80/158Reading camera 81/158Reading camera 82/158Reading camera 83/158Reading camera 84/158Reading camera 85/158Reading camera 86/158Reading camera 87/158Reading camera 88/158Reading camera 89/158Reading camera 90/158Reading camera 91/158Reading camera 92/158Reading camera 93/158Reading camera 94/158Reading camera 95/158Reading camera 96/158Reading camera 97/158Reading camera 98/158Reading camera 99/158Reading camera 100/158Reading camera 101/158Reading camera 102/158Reading camera 103/158Reading camera 104/158Reading camera 105/158Reading camera 106/158Reading camera 107/158Reading camera 108/158Reading camera 109/158Reading camera 110/158Reading camera 111/158Reading camera 112/158Reading camera 113/158Reading camera 114/158Reading camera 115/158Reading camera 116/158Reading camera 117/158Reading camera 118/158Reading camera 119/158Reading camera 120/158Reading camera 121/158Reading camera 122/158Reading camera 123/158Reading camera 124/158Reading camera 125/158Reading camera 126/158Reading camera 127/158Reading camera 128/158Reading camera 129/158Reading camera 130/158Reading camera 131/158Reading camera 132/158Reading camera 133/158Reading camera 134/158Reading camera 135/158Reading camera 136/158Reading camera 137/158Reading camera 138/158Reading camera 139/158Reading camera 140/158Reading camera 141/158Reading camera 142/158Reading camera 143/158Reading camera 144/158Reading camera 145/158Reading camera 146/158Reading camera 147/158Reading camera 148/158Reading camera 149/158Reading camera 150/158Reading camera 151/158Reading camera 152/158Reading camera 153/158Reading camera 154/158Reading camera 155/158Reading camera 156/158Reading camera 157/158Reading camera 158/158 [09/09 22:40:26]
+Loading Training Cameras [09/09 22:40:26]
+Loading Test Cameras [09/09 22:40:27]
+🔍 Propagando máscaras para 279,463 Gaussianas por voto de maioria... [09/09 22:40:27]
+  Frame 50/158... [09/09 22:40:29]
+  Frame 100/158... [09/09 22:40:30]
+  Frame 150/158... [09/09 22:40:32]
+📉 Z-buffer: 10,392,019 → 5,483,350 projeções (47.2% descartadas por oclusão) [09/09 22:40:33]
+
+✅ Concluído: [09/09 22:40:33]
+  • Frames com máscara lida: 158/158 [09/09 22:40:33]
+  • Gaussianas rotuladas: 119,822/279,463 (42.9%) [09/09 22:40:33]
+  • Segmentos distintos atribuídos: 92 [09/09 22:40:33]
+  • Votos do vencedor: mediana=18 | média=25.5 | máx=109 [09/09 22:40:33]
+  • Gaussianas vetadas por maioria de fundo: 99,895 [09/09 22:40:33]
+  • Gaussianas com voto de objeto mas abaixo de min_votes=5: 51,831 [09/09 22:40:33]
+
+📦 Bounding box aplicada (AABB, alinhada aos eixos) — preset da cena 'teatime': [09/09 22:40:33]
+   centro=[0.87771511 1.94553256 0.34934092] | largura=[7.83855629 6.98039675 7.24066257] [09/09 22:40:33]
+   Gaussianas dentro da caixa: 92,933/279,463 (33.3%) [09/09 22:40:33]
+   Com label DEVA válido E dentro da caixa: 83,570 (sem a caixa seriam 119,822) [09/09 22:40:33]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [09/09 22:40:33]
+   Total disponível: 83,570 [09/09 22:40:33]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [09/09 22:40:33]
+   Mantendo todas as gaussianas disponíveis [09/09 22:40:33]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [09/09 22:40:33]
+   🔁 Iteração 1: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [09/09 22:40:33]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [09/09 22:40:33]
+   Total disponível: 83,570 [09/09 22:40:33]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [09/09 22:40:33]
+   Mantendo todas as gaussianas disponíveis [09/09 22:40:33]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [09/09 22:40:33]
+   🔁 Iteração 2: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [09/09 22:40:33]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [09/09 22:40:33]
+   Total disponível: 83,570 [09/09 22:40:33]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [09/09 22:40:33]
+   Mantendo todas as gaussianas disponíveis [09/09 22:40:33]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [09/09 22:40:34]
+   🔁 Iteração 3: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [09/09 22:40:34]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [09/09 22:40:34]
+   Total disponível: 83,570 [09/09 22:40:34]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [09/09 22:40:34]
+   Mantendo todas as gaussianas disponíveis [09/09 22:40:34]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [09/09 22:40:34]
+   🔁 Iteração 4: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [09/09 22:40:34]
+Rendering 46 discrete clusters... [09/09 22:40:34]
+  Cru (sem padronização de cor): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/debug_labels_2d_raw [09/09 22:40:34]
+  Padronizado (cor homogênea por cluster): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/debug_labels_2d [09/09 22:40:34]
+  Gaussianas totais: 279,463 [09/09 22:40:34]
+  Gaussianas ativas (opacity>0): 80,067 [09/09 22:40:34]
+  Gaussianas ocultas (opacity=0): 199,396 [09/09 22:40:34]
+📦 Total de Gaussianas na cena (Original): 279,463 [09/09 22:40:37]
+🎯 Total de Gaussianas rotuladas (DEVA != -1): 119,822 [09/09 22:40:37]
+✅ Total de Gaussianas final para treinamento (Filtradas): 80,067 [09/09 22:40:37]
+
+🎨 Features de cor: CIELAB isotrópico | escala=0.1367 (auto (mesma magnitude do bloco de cor da versão RGB)) | std global do Lab=21.94 [09/09 22:40:37]
+   1 unidade de feature de cor = 7.31 ΔE(76) [09/09 22:40:37]
+
+🔗 Construindo grafo geométrico... [09/09 22:40:37]
+  Vizinhos candidatos por nó: 6 (--graph_knn=7) [09/09 22:40:37]
+  Sigma geométrico: 0.0275 [09/09 22:40:37]
+  Sigma local (dist. ao 6º vizinho): mediana=0.0359 p5=0.0125 p95=0.1178 — razão p95/p5 = 9.4x (é essa variação de densidade que um limiar global ignora) [09/09 22:40:37]
+  Cor: CIELAB / ΔE ciede2000 | sigma_ΔE=6.00 [09/09 22:40:37]
+  ΔE entre vizinhos — p25=6.01 | mediana=11.99 | p75=22.26 | p90=38.41 [09/09 22:40:37]
+  Distance threshold: 0.0341 (local_scaling c=1 k=6 (limiar por par; mediana mostrada)) | ΔE threshold: 10.00 (limiar perceptual absoluto) [09/09 22:40:37]
+  Vizinhos aceitos pelo critério de distância: 76.5% [09/09 22:40:37]
+  Vizinhos aceitos pelo critério de cor: 42.6% [09/09 22:40:37]
+  Arestas no grafo: 173,072 [09/09 22:40:37]
+  Grau: média=2.16 mediana=2 máx=10 | nós isolados: 20,442 (25.53%) | grau 1: 15,479 (19.33%) [09/09 22:40:37]
+  ⚠️ 20,442 nós isolados no modo GCN (add_self_loops=False): eles não recebem mensagem nenhuma e o embedding colapsa no bias. Suba --edge_delta_e_threshold para religá-los por um critério real, em vez de forçar arestas arbitrárias. [09/09 22:40:37]
+⏱️ Tempo de construção do grafo: 0.49s [09/09 22:40:37]
+🧠 Usando GaussianGCNV2 (2 camadas) [09/09 22:40:37]
+🎨 Loss de cor: CIELAB | sigma=12.00 ΔE (ΔE=2.3/JND -> similaridade 0.98; ΔE=10 -> 0.71) [09/09 22:40:37]
+🧮 InfoNCE contra centróides de rótulo (robusto a rótulo errado) [09/09 22:40:37]
+🔧 Correções opcionais de loss (PCA borrado entre objetos): detach_centroids, nce_class_balanced, centroid_repulsion_weight=0.3 [09/09 22:40:37]
+🔬 [DIAG] Arestas do grafo: 162,470 same-label | 10,602 diff-label (6.13% diff) [09/09 22:40:37]
+🔬 [DIAG] 46 labels distintos | tamanho: min=1 max=26587 média=1741 [09/09 22:40:37]
+
+🎓 Treinando GCN-V2 com Early Stopping... [09/09 22:40:37]
+Epoch    0 | Loss: 4.3051 | Best: 4.3051 || pos=0.0121 neg=0.3834 nce=3.8191 (piso=3.829) cor=0.0328 cent_rep=0.3015 | ancoras=80067 [09/09 22:40:37]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 4.3051 [09/09 22:40:37]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.7813 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.2897 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.0581 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.9003 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.8231 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.8132 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7817 [09/09 22:40:38]
+Epoch   10 | Loss: 2.8028 | Best: 2.7817 || pos=0.0172 neg=0.3719 nce=2.2594 (piso=3.829) cor=0.0394 cent_rep=0.5144 | ancoras=80067 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7751 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7392 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7158 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6916 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6904 [09/09 22:40:38]
+Epoch   20 | Loss: 2.7117 | Best: 2.6904 || pos=0.0155 neg=0.3766 nce=2.1767 (piso=3.829) cor=0.0423 cent_rep=0.4766 | ancoras=80067 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6805 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6774 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6696 [09/09 22:40:38]
+Epoch   30 | Loss: 2.6706 | Best: 2.6696 || pos=0.0094 neg=0.3957 nce=2.1254 (piso=3.829) cor=0.0389 cent_rep=0.4668 | ancoras=80067 [09/09 22:40:38]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6663 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6534 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6362 [09/09 22:40:38]
+Epoch   40 | Loss: 2.6461 | Best: 2.6362 || pos=0.0081 neg=0.3981 nce=2.1028 (piso=3.829) cor=0.0395 cent_rep=0.4567 | ancoras=80067 [09/09 22:40:38]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.6317 [09/09 22:40:38]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [09/09 22:40:39]
+Epoch   50 | Loss: 2.6691 | Best: 2.6317 || pos=0.0094 neg=0.3951 nce=2.1278 (piso=3.829) cor=0.0417 cent_rep=0.4560 | ancoras=80067 [09/09 22:40:39]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [09/09 22:40:39]
+   ↳ [EarlyStopping] Sem melhora significativa há 15/20 épocas. [09/09 22:40:39]
+Epoch   60 | Loss: 2.6691 | Best: 2.6317 || pos=0.0112 neg=0.3942 nce=2.1299 (piso=3.829) cor=0.0433 cent_rep=0.4461 | ancoras=80067 [09/09 22:40:39]
+   ↳ [EarlyStopping] Sem melhora significativa há 20/20 épocas. [09/09 22:40:39]
+   🛑 [EarlyStopping] Gatilho ativado na época por falta de progresso. [09/09 22:40:39]
+   ✅ [EarlyStopping] Melhores pesos restaurados com sucesso (Melhor Loss: 2.6317). [09/09 22:40:39]
+⏱️ Tempo de treinamento do modelo: 1.45s [09/09 22:40:39]
+💾 VRAM real (NVML) durante o treino: 0.83 GB [09/09 22:40:39]
+
+📊 Clusterizando os novos embeddings com HDBSCAN... [09/09 22:40:39]
+
+🔁 Reatribuindo ruído via KNN nos Embeddings (K=25)... [09/09 22:40:52]
+   Pontos de ruído antes: 18,366 [09/09 22:40:52]
+   Pontos de ruído após reatribuição: 2,650 (reatribuídos: 15,716) [09/09 22:40:53]
+⏱️ Tempo do HDBSCAN (+ KNN Reassign): 14.39s [09/09 22:40:53]
+
+============================================================ [09/09 22:40:53]
+📊 AVALIAÇÃO DA SEGMENTAÇÃO 3D [09/09 22:40:53]
+============================================================ [09/09 22:40:53]
+
+📊 Avaliação Semi-Supervisionada: [09/09 22:40:53]
+  ARI: 0.1273 (0 = aleatório, 1 = perfeito) [09/09 22:40:53]
+  NMI: 0.3995 (0 = sem informação, 1 = perfeito) [09/09 22:40:53]
+  Clusters iniciais: 46 → Clusters refinados: 15 [09/09 22:40:53]
+
+📊 Coerência Interna dos Clusters: [09/09 22:40:54]
+  Silhouette Score: 0.4472 (amostrado com N=10000) [09/09 22:40:54]
+  Davies-Bouldin: 1.2504 (quanto menor, melhor) [09/09 22:40:54]
+  Calinski-Harabasz: 10347.63 (quanto maior, melhor) [09/09 22:40:54]
+  Clusters: 15 | Tamanho médio: 5161.1 ± 6226.3 [09/09 22:40:54]
+
+==================================================
+RENDER 2D
+================================================== [09/09 22:40:54]
+  🎯 Renderizando apenas Gaussianas filtradas... [09/09 22:40:54]
+  Gaussianas com cluster: 77,417 [09/09 22:40:54]
+  Tamanho das labels: 80067 [09/09 22:40:54]
+  Tamanho do mask_filter: 279463 [09/09 22:40:54]
+Rendering 15 discrete clusters... [09/09 22:40:54]
+  Cru (sem padronização de cor): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images_raw [09/09 22:40:54]
+  Padronizado (cor homogênea por cluster): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images [09/09 22:40:54]
+  Gaussianas totais: 279,463 [09/09 22:40:54]
+  Gaussianas ativas (opacity>0): 80,067 [09/09 22:40:54]
+  Gaussianas ocultas (opacity=0): 199,396 [09/09 22:40:54]
+🖼️ Imagens padronizadas (cor homogênea por cluster) salvas em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images [09/09 22:40:57]
+🖼️ Imagens cruas (sem padronização de cor) salvas em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images_raw [09/09 22:40:57]
+Rendering 15 clusters como coverage (sem decodificar cor)... [09/09 22:40:57]
+  Labels (fonte de verdade): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images_coverage_labels [09/09 22:40:57]
+  Preview colorido: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images_coverage [09/09 22:40:57]
+🎨 PCA do embedding: [09/09 22:40:58]
+   Amplitude (faixa p1-p99 da projeção): 1.2476 [09/09 22:40:58]
+   Variância explicada pelas 3 primeiras componentes: 62.19% (31.2%, 16.9%, 14.0%) [09/09 22:40:58]
+   Lembre: a imagem é normalizada por percentil, então colapso NÃO aparece como cor uniforme — use os números acima. [09/09 22:40:58]
+🖼️ Renderizando PCA do embedding para /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/PCA ... [09/09 22:40:58]
+✅ PCA do embedding salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/PCA [09/09 22:40:59]
+💾 Pico de VRAM reservada (allocator PyTorch, pipeline inteiro): 0.68 GB [09/09 22:40:59]
+💾 VRAM real (NVML, apenas durante o treino): 0.83 GB [09/09 22:40:59]
+📊 Tabela de métricas salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/GCN-V2_metrics_20260909_224059.xlsx [09/09 22:40:59]
+📄 Relatório salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/GCN-V2_report_20260909_224059.txt [09/09 22:40:59]
+📊 Curva de loss salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/GCN-V2_loss_curve.png [09/09 22:41:00]
+☁️ Nuvem de pontos salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/pointclouds/gcn_clusters.ply [09/09 22:41:00]
+
+================================================================================ [09/09 22:41:00]
+✅ EXPERIMENTO CONCLUÍDO [09/09 22:41:00]
+================================================================================ [09/09 22:41:00]
+📁 Diretório do experimento: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5 [09/09 22:41:00]
+📁 Modelo: GCN-V2 [09/09 22:41:00]
+📦 Gaussianas Originais (Cena): 279,463 [09/09 22:41:00]
+🎯 Gaussianas Filtradas (Treino): 80,067 [09/09 22:41:00]
+💾 VRAM Pico (allocator PyTorch, pipeline inteiro): 0.68 GB [09/09 22:41:00]
+💾 VRAM Real (NVML, durante o treino): 0.83 GB [09/09 22:41:00]
+⏱️ Tempo Grafo: 0.49s | Treino: 1.45s | HDBSCAN: 14.39s | Total: 16.34s [09/09 22:41:00]
+📊 Clusters iniciais (DEVA/SAM): 46 [09/09 22:41:00]
+📊 Clusters finais (HDBSCAN): 15 [09/09 22:41:00]
+📊 ARI: 0.1273 [09/09 22:41:00]
+📊 NMI: 0.3995 [09/09 22:41:00]
+📊 Silhouette: 0.4472 [09/09 22:41:00]
+📊 Davies-Bouldin: 1.2504 [09/09 22:41:00]
+-------------------------------------------------------------------------------- [09/09 22:41:00]
+📊 Tabela de métricas: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/GCN-V2_metrics_20260909_224059.xlsx [09/09 22:41:00]
+📄 Relatório: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/GCN-V2_report_20260909_224059.txt [09/09 22:41:00]
+📊 Curva de loss: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/GCN-V2_loss_curve.png [09/09 22:41:00]
+☁️ Nuvem de pontos: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/pointclouds/gcn_clusters.ply [09/09 22:41:00]
+🖼️ Imagens renderizadas: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/comparação entre arquiteturas/gcn_2_camadas_r5/gcn/images [09/09 22:41:00]
+================================================================================ [09/09 22:41:00]
+ [09/09 22:41:00]

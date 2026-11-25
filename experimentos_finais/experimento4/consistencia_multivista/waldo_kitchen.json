@@ -1,0 +1,26 @@
+{
+  "cena": "waldo_kitchen",
+  "cameras": 187,
+  "splats_opacas": 188385,
+  "corr_projecao_foto": 0.7025225268102792,
+  "nosso": {
+    "splats_avaliadas": 141235,
+    "obs_por_splat": 18.270386235706447,
+    "consistencia_media": 0.9180807928548285,
+    "splats_100pct_consistentes": 0.65207632668956,
+    "splats_com_objeto_como_moda": 0.8611038340354727,
+    "consistencia_media_splats_de_objeto": 0.9241616345686657,
+    "desaparecimento_splats_de_objeto": 0.016282571692950793,
+    "troca_splats_de_objeto": 0.05955579373838329
+  },
+  "gg": {
+    "splats_avaliadas": 141235,
+    "obs_por_splat": 18.270386235706447,
+    "consistencia_media": 0.7388675485986409,
+    "splats_100pct_consistentes": 0.15265337911990653,
+    "splats_com_objeto_como_moda": 0.7295287995185329,
+    "consistencia_media_splats_de_objeto": 0.7307672583164716,
+    "desaparecimento_splats_de_objeto": 0.12726893180573887,
+    "troca_splats_de_objeto": 0.1419638098777895
+  }
+}

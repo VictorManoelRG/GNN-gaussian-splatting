@@ -1,0 +1,60 @@
+================================================================================
+🔍 BATCH EVALUATOR - Segmentação de Instâncias
+================================================================================
+📂 Ground Truth : /home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime
+📂 Predições    : /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/epoca20_r3/gat/images_coverage
+📄 Saída JSON   : /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/metricas/epoca20_r3_miou.json
+================================================================================
+
+📁 Encontradas 6 imagens no ground truth
+================================================================================
+🔄 Processando: frame_00107.jpg ↔ frame_00107.png
+🔄 Processando: frame_00025.jpg ↔ frame_00025.png
+🔄 Processando: frame_00043.jpg ↔ frame_00043.png
+🔄 Processando: frame_00129.jpg ↔ frame_00129.png
+🔄 Processando: frame_00002.jpg ↔ frame_00002.png
+🔄 Processando: frame_00140.jpg ↔ frame_00140.png
+
+📁 Relatório completo salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/metricas/epoca20_r3_miou.json
+
+================================================================================
+📊 MÉDIAS TOTAIS SOBRE TODAS AS IMAGENS
+================================================================================
+• Total de imagens processadas        : 6
+• Total de instâncias GT              : 62
+• Total de instâncias preditas        : 85
+• Média de instâncias GT por imagem   : 10.33
+• Média de instâncias preditas/imagem : 14.17
+• mIoU médio (todos os pares)         : 0.5317
+--------------------------------------------------------------------------------
+📌 MÉDIAS @ IoU >= 0.50:
+  - Precision média : 0.4329
+  - Recall médio    : 0.5905
+  - F1-Score médio  : 0.4982
+  - TP total        : 37
+  - FP total        : 48
+  - FN total        : 25
+--------------------------------------------------------------------------------
+📌 MÉDIAS @ IoU >= 0.75:
+  - Precision média : 0.2690
+  - Recall médio    : 0.3642
+  - F1-Score médio  : 0.3085
+  - TP total        : 23
+  - FP total        : 62
+  - FN total        : 39
+--------------------------------------------------------------------------------
+📌 PANOPTIC QUALITY MÉDIA @ IoU >= 0.50:
+  - PQ (Panoptic Quality)    : 0.3811
+  - SQ (Segmentation Quality): 0.7672
+  - RQ (Recognition Quality) : 0.4982
+--------------------------------------------------------------------------------
+📌 PANOPTIC QUALITY MÉDIA @ IoU >= 0.75:
+  - PQ (Panoptic Quality)    : 0.2642
+  - SQ (Segmentation Quality): 0.8584
+  - RQ (Recognition Quality) : 0.3085
+--------------------------------------------------------------------------------
+📌 VARREUDURA COCO:
+  - F1 Médio (IoU 0.50:0.95)  : 0.2920
+================================================================================
+
+✅ Processadas 6 imagens com sucesso!

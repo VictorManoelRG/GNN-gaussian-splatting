@@ -1,0 +1,1 @@
+repeticao 2 (semente 42)

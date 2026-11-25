@@ -1,0 +1,1365 @@
+{
+  "per_image": [
+    {
+      "image_name": "frame_00107",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00107.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/margens_relaxadas_r1/gat/images_coverage/frame_00107.png",
+      "n_gt_instances": 11,
+      "n_pred_instances": 19,
+      "mean_iou_all_matches": 0.7150960361676815,
+      "mean_f1_iou_50_95": 0.37333333333333335,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 9,
+          "fp": 10,
+          "fn": 2,
+          "precision": 0.47368421052631576,
+          "recall": 0.8181818181818182,
+          "f1": 0.6
+        },
+        {
+          "threshold": 0.55,
+          "tp": 8,
+          "fp": 11,
+          "fn": 3,
+          "precision": 0.42105263157894735,
+          "recall": 0.7272727272727273,
+          "f1": 0.5333333333333333
+        },
+        {
+          "threshold": 0.6,
+          "tp": 8,
+          "fp": 11,
+          "fn": 3,
+          "precision": 0.42105263157894735,
+          "recall": 0.7272727272727273,
+          "f1": 0.5333333333333333
+        },
+        {
+          "threshold": 0.65,
+          "tp": 6,
+          "fp": 13,
+          "fn": 5,
+          "precision": 0.3157894736842105,
+          "recall": 0.5454545454545454,
+          "f1": 0.39999999999999997
+        },
+        {
+          "threshold": 0.7,
+          "tp": 6,
+          "fp": 13,
+          "fn": 5,
+          "precision": 0.3157894736842105,
+          "recall": 0.5454545454545454,
+          "f1": 0.39999999999999997
+        },
+        {
+          "threshold": 0.75,
+          "tp": 6,
+          "fp": 13,
+          "fn": 5,
+          "precision": 0.3157894736842105,
+          "recall": 0.5454545454545454,
+          "f1": 0.39999999999999997
+        },
+        {
+          "threshold": 0.8,
+          "tp": 6,
+          "fp": 13,
+          "fn": 5,
+          "precision": 0.3157894736842105,
+          "recall": 0.5454545454545454,
+          "f1": 0.39999999999999997
+        },
+        {
+          "threshold": 0.85,
+          "tp": 4,
+          "fp": 15,
+          "fn": 7,
+          "precision": 0.21052631578947367,
+          "recall": 0.36363636363636365,
+          "f1": 0.26666666666666666
+        },
+        {
+          "threshold": 0.9,
+          "tp": 3,
+          "fp": 16,
+          "fn": 8,
+          "precision": 0.15789473684210525,
+          "recall": 0.2727272727272727,
+          "f1": 0.19999999999999998
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 19,
+          "fn": 11,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.4698974943357187,
+        "sq": 0.7831624905595312,
+        "rq": 0.6,
+        "tp": 9,
+        "fp": 10,
+        "fn": 2
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.35082197035961843,
+        "sq": 0.877054925899046,
+        "rq": 0.4,
+        "tp": 6,
+        "fp": 13,
+        "fn": 5
+      },
+      "matches_iou": [
+        {
+          "gt_index": 10,
+          "gt_category": "paper napkin",
+          "pred_color": [
+            22,
+            174,
+            229
+          ],
+          "iou": 0.9411
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "bear nose",
+          "pred_color": [
+            153,
+            85,
+            61
+          ],
+          "iou": 0.9041
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "apple",
+          "pred_color": [
+            229,
+            22,
+            122
+          ],
+          "iou": 0.9024
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "bag of cookies",
+          "pred_color": [
+            22,
+            229,
+            126
+          ],
+          "iou": 0.8551
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "plate",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.8466
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "stuffed bear",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.813
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "three cookies",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.6377
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "tea in a glass",
+          "pred_color": [
+            22,
+            229,
+            22
+          ],
+          "iou": 0.6052
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "coffee mug",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.5432
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "sheep",
+          "pred_color": [
+            134,
+            153,
+            61
+          ],
+          "iou": 0.4228
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "dall-e brand",
+          "pred_color": [
+            22,
+            126,
+            229
+          ],
+          "iou": 0.3948
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00025",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00025.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/margens_relaxadas_r1/gat/images_coverage/frame_00025.png",
+      "n_gt_instances": 11,
+      "n_pred_instances": 15,
+      "mean_iou_all_matches": 0.656765389865479,
+      "mean_f1_iou_50_95": 0.37692307692307697,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 10,
+          "fp": 5,
+          "fn": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.9090909090909091,
+          "f1": 0.7692307692307692
+        },
+        {
+          "threshold": 0.55,
+          "tp": 7,
+          "fp": 8,
+          "fn": 4,
+          "precision": 0.4666666666666667,
+          "recall": 0.6363636363636364,
+          "f1": 0.5384615384615385
+        },
+        {
+          "threshold": 0.6,
+          "tp": 7,
+          "fp": 8,
+          "fn": 4,
+          "precision": 0.4666666666666667,
+          "recall": 0.6363636363636364,
+          "f1": 0.5384615384615385
+        },
+        {
+          "threshold": 0.65,
+          "tp": 7,
+          "fp": 8,
+          "fn": 4,
+          "precision": 0.4666666666666667,
+          "recall": 0.6363636363636364,
+          "f1": 0.5384615384615385
+        },
+        {
+          "threshold": 0.7,
+          "tp": 6,
+          "fp": 9,
+          "fn": 5,
+          "precision": 0.4,
+          "recall": 0.5454545454545454,
+          "f1": 0.4615384615384615
+        },
+        {
+          "threshold": 0.75,
+          "tp": 6,
+          "fp": 9,
+          "fn": 5,
+          "precision": 0.4,
+          "recall": 0.5454545454545454,
+          "f1": 0.4615384615384615
+        },
+        {
+          "threshold": 0.8,
+          "tp": 4,
+          "fp": 11,
+          "fn": 7,
+          "precision": 0.26666666666666666,
+          "recall": 0.36363636363636365,
+          "f1": 0.30769230769230765
+        },
+        {
+          "threshold": 0.85,
+          "tp": 1,
+          "fp": 14,
+          "fn": 10,
+          "precision": 0.06666666666666667,
+          "recall": 0.09090909090909091,
+          "f1": 0.07692307692307691
+        },
+        {
+          "threshold": 0.9,
+          "tp": 1,
+          "fp": 14,
+          "fn": 10,
+          "precision": 0.06666666666666667,
+          "recall": 0.09090909090909091,
+          "f1": 0.07692307692307691
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 15,
+          "fn": 11,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.5557245606554054,
+        "sq": 0.722441928852027,
+        "rq": 0.7692307692307693,
+        "tp": 10,
+        "fp": 5,
+        "fn": 1
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.38093434213434857,
+        "sq": 0.8253577412910885,
+        "rq": 0.46153846153846156,
+        "tp": 6,
+        "fp": 9,
+        "fn": 5
+      },
+      "matches_iou": [
+        {
+          "gt_index": 10,
+          "gt_category": "bear nose",
+          "pred_color": [
+            153,
+            85,
+            61
+          ],
+          "iou": 0.9249
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "plate",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.8391
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "three cookies",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.8189
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "paper napkin",
+          "pred_color": [
+            22,
+            174,
+            229
+          ],
+          "iou": 0.8141
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "hooves",
+          "pred_color": [
+            242,
+            164,
+            109
+          ],
+          "iou": 0.7902
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "stuffed bear",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.7648
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "coffee",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.6796
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "bag of cookies",
+          "pred_color": [
+            22,
+            229,
+            126
+          ],
+          "iou": 0.5481
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "tea in a glass",
+          "pred_color": [
+            22,
+            229,
+            22
+          ],
+          "iou": 0.5286
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "sheep",
+          "pred_color": [
+            134,
+            153,
+            61
+          ],
+          "iou": 0.5159
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "coffee mug",
+          "pred_color": [
+            22,
+            126,
+            229
+          ],
+          "iou": 0.0
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00043",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00043.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/margens_relaxadas_r1/gat/images_coverage/frame_00043.png",
+      "n_gt_instances": 13,
+      "n_pred_instances": 15,
+      "mean_iou_all_matches": 0.5876124123023401,
+      "mean_f1_iou_50_95": 0.4000000000000001,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 9,
+          "fp": 6,
+          "fn": 4,
+          "precision": 0.6,
+          "recall": 0.6923076923076923,
+          "f1": 0.6428571428571429
+        },
+        {
+          "threshold": 0.55,
+          "tp": 9,
+          "fp": 6,
+          "fn": 4,
+          "precision": 0.6,
+          "recall": 0.6923076923076923,
+          "f1": 0.6428571428571429
+        },
+        {
+          "threshold": 0.6,
+          "tp": 8,
+          "fp": 7,
+          "fn": 5,
+          "precision": 0.5333333333333333,
+          "recall": 0.6153846153846154,
+          "f1": 0.5714285714285715
+        },
+        {
+          "threshold": 0.65,
+          "tp": 7,
+          "fp": 8,
+          "fn": 6,
+          "precision": 0.4666666666666667,
+          "recall": 0.5384615384615384,
+          "f1": 0.5
+        },
+        {
+          "threshold": 0.7,
+          "tp": 7,
+          "fp": 8,
+          "fn": 6,
+          "precision": 0.4666666666666667,
+          "recall": 0.5384615384615384,
+          "f1": 0.5
+        },
+        {
+          "threshold": 0.75,
+          "tp": 5,
+          "fp": 10,
+          "fn": 8,
+          "precision": 0.3333333333333333,
+          "recall": 0.38461538461538464,
+          "f1": 0.3571428571428571
+        },
+        {
+          "threshold": 0.8,
+          "tp": 5,
+          "fp": 10,
+          "fn": 8,
+          "precision": 0.3333333333333333,
+          "recall": 0.38461538461538464,
+          "f1": 0.3571428571428571
+        },
+        {
+          "threshold": 0.85,
+          "tp": 4,
+          "fp": 11,
+          "fn": 9,
+          "precision": 0.26666666666666666,
+          "recall": 0.3076923076923077,
+          "f1": 0.28571428571428575
+        },
+        {
+          "threshold": 0.9,
+          "tp": 2,
+          "fp": 13,
+          "fn": 11,
+          "precision": 0.13333333333333333,
+          "recall": 0.15384615384615385,
+          "f1": 0.14285714285714288
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 15,
+          "fn": 13,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.5048114354047238,
+        "sq": 0.7852622328517925,
+        "rq": 0.6428571428571429,
+        "tp": 9,
+        "fp": 6,
+        "fn": 4
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.3139401378415443,
+        "sq": 0.879032385956324,
+        "rq": 0.35714285714285715,
+        "tp": 5,
+        "fp": 10,
+        "fn": 8
+      },
+      "matches_iou": [
+        {
+          "gt_index": 4,
+          "gt_category": "paper napkin",
+          "pred_color": [
+            22,
+            174,
+            229
+          ],
+          "iou": 0.9211
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "apple",
+          "pred_color": [
+            229,
+            22,
+            122
+          ],
+          "iou": 0.9091
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "stuffed bear",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.8822
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "plate",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.8679
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "hooves",
+          "pred_color": [
+            242,
+            164,
+            109
+          ],
+          "iou": 0.8149
+        },
+        {
+          "gt_index": 10,
+          "gt_category": "coffee",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.7395
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "hooves",
+          "pred_color": [
+            242,
+            109,
+            211
+          ],
+          "iou": 0.7203
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "tea in a glass",
+          "pred_color": [
+            22,
+            229,
+            22
+          ],
+          "iou": 0.6229
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "bag of cookies",
+          "pred_color": [
+            22,
+            229,
+            126
+          ],
+          "iou": 0.5895
+        },
+        {
+          "gt_index": 11,
+          "gt_category": "three cookies",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.4517
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "hooves",
+          "pred_color": [
+            61,
+            153,
+            151
+          ],
+          "iou": 0.1199
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "coffee mug",
+          "pred_color": [
+            38,
+            153,
+            95
+          ],
+          "iou": 0.0
+        },
+        {
+          "gt_index": 12,
+          "gt_category": "three cookies",
+          "pred_color": [
+            0,
+            0,
+            0
+          ],
+          "iou": 0.0
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00129",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00129.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/margens_relaxadas_r1/gat/images_coverage/frame_00129.png",
+      "n_gt_instances": 7,
+      "n_pred_instances": 14,
+      "mean_iou_all_matches": 0.5967450567617185,
+      "mean_f1_iou_50_95": 0.2571428571428571,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 4,
+          "fp": 10,
+          "fn": 3,
+          "precision": 0.2857142857142857,
+          "recall": 0.5714285714285714,
+          "f1": 0.38095238095238093
+        },
+        {
+          "threshold": 0.55,
+          "tp": 4,
+          "fp": 10,
+          "fn": 3,
+          "precision": 0.2857142857142857,
+          "recall": 0.5714285714285714,
+          "f1": 0.38095238095238093
+        },
+        {
+          "threshold": 0.6,
+          "tp": 4,
+          "fp": 10,
+          "fn": 3,
+          "precision": 0.2857142857142857,
+          "recall": 0.5714285714285714,
+          "f1": 0.38095238095238093
+        },
+        {
+          "threshold": 0.65,
+          "tp": 3,
+          "fp": 11,
+          "fn": 4,
+          "precision": 0.21428571428571427,
+          "recall": 0.42857142857142855,
+          "f1": 0.2857142857142857
+        },
+        {
+          "threshold": 0.7,
+          "tp": 3,
+          "fp": 11,
+          "fn": 4,
+          "precision": 0.21428571428571427,
+          "recall": 0.42857142857142855,
+          "f1": 0.2857142857142857
+        },
+        {
+          "threshold": 0.75,
+          "tp": 3,
+          "fp": 11,
+          "fn": 4,
+          "precision": 0.21428571428571427,
+          "recall": 0.42857142857142855,
+          "f1": 0.2857142857142857
+        },
+        {
+          "threshold": 0.8,
+          "tp": 3,
+          "fp": 11,
+          "fn": 4,
+          "precision": 0.21428571428571427,
+          "recall": 0.42857142857142855,
+          "f1": 0.2857142857142857
+        },
+        {
+          "threshold": 0.85,
+          "tp": 2,
+          "fp": 12,
+          "fn": 5,
+          "precision": 0.14285714285714285,
+          "recall": 0.2857142857142857,
+          "f1": 0.19047619047619047
+        },
+        {
+          "threshold": 0.9,
+          "tp": 1,
+          "fp": 13,
+          "fn": 6,
+          "precision": 0.07142857142857142,
+          "recall": 0.14285714285714285,
+          "f1": 0.09523809523809523
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 14,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.31092337760683986,
+        "sq": 0.8161738662179547,
+        "rq": 0.38095238095238093,
+        "tp": 4,
+        "fp": 10,
+        "fn": 3
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.2506340353991568,
+        "sq": 0.8772191238970489,
+        "rq": 0.2857142857142857,
+        "tp": 3,
+        "fp": 11,
+        "fn": 4
+      },
+      "matches_iou": [
+        {
+          "gt_index": 1,
+          "gt_category": "apple",
+          "pred_color": [
+            229,
+            22,
+            122
+          ],
+          "iou": 0.9388
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "plate",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.8611
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "three cookies",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.8317
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "tea in a glass",
+          "pred_color": [
+            22,
+            229,
+            22
+          ],
+          "iou": 0.633
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "sheep",
+          "pred_color": [
+            134,
+            153,
+            61
+          ],
+          "iou": 0.4753
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "dall-e brand",
+          "pred_color": [
+            22,
+            126,
+            229
+          ],
+          "iou": 0.4372
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "yellow pouf",
+          "pred_color": [
+            22,
+            81,
+            229
+          ],
+          "iou": 0.0
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00002",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00002.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/margens_relaxadas_r1/gat/images_coverage/frame_00002.png",
+      "n_gt_instances": 11,
+      "n_pred_instances": 20,
+      "mean_iou_all_matches": 0.669386419843884,
+      "mean_f1_iou_50_95": 0.34838709677419355,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 8,
+          "fp": 12,
+          "fn": 3,
+          "precision": 0.4,
+          "recall": 0.7272727272727273,
+          "f1": 0.5161290322580645
+        },
+        {
+          "threshold": 0.55,
+          "tp": 8,
+          "fp": 12,
+          "fn": 3,
+          "precision": 0.4,
+          "recall": 0.7272727272727273,
+          "f1": 0.5161290322580645
+        },
+        {
+          "threshold": 0.6,
+          "tp": 7,
+          "fp": 13,
+          "fn": 4,
+          "precision": 0.35,
+          "recall": 0.6363636363636364,
+          "f1": 0.45161290322580644
+        },
+        {
+          "threshold": 0.65,
+          "tp": 7,
+          "fp": 13,
+          "fn": 4,
+          "precision": 0.35,
+          "recall": 0.6363636363636364,
+          "f1": 0.45161290322580644
+        },
+        {
+          "threshold": 0.7,
+          "tp": 7,
+          "fp": 13,
+          "fn": 4,
+          "precision": 0.35,
+          "recall": 0.6363636363636364,
+          "f1": 0.45161290322580644
+        },
+        {
+          "threshold": 0.75,
+          "tp": 7,
+          "fp": 13,
+          "fn": 4,
+          "precision": 0.35,
+          "recall": 0.6363636363636364,
+          "f1": 0.45161290322580644
+        },
+        {
+          "threshold": 0.8,
+          "tp": 5,
+          "fp": 15,
+          "fn": 6,
+          "precision": 0.25,
+          "recall": 0.45454545454545453,
+          "f1": 0.3225806451612903
+        },
+        {
+          "threshold": 0.85,
+          "tp": 4,
+          "fp": 16,
+          "fn": 7,
+          "precision": 0.2,
+          "recall": 0.36363636363636365,
+          "f1": 0.25806451612903225
+        },
+        {
+          "threshold": 0.9,
+          "tp": 1,
+          "fp": 19,
+          "fn": 10,
+          "precision": 0.05,
+          "recall": 0.09090909090909091,
+          "f1": 0.06451612903225806
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 20,
+          "fn": 11,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.4194081089352832,
+        "sq": 0.8126032110621112,
+        "rq": 0.5161290322580645,
+        "tp": 8,
+        "fp": 12,
+        "fn": 3
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.3813701266183062,
+        "sq": 0.8444624232262495,
+        "rq": 0.45161290322580644,
+        "tp": 7,
+        "fp": 13,
+        "fn": 4
+      },
+      "matches_iou": [
+        {
+          "gt_index": 5,
+          "gt_category": "paper napkin",
+          "pred_color": [
+            22,
+            174,
+            229
+          ],
+          "iou": 0.9011
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "bag of cookies",
+          "pred_color": [
+            22,
+            229,
+            126
+          ],
+          "iou": 0.8905
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "bear nose",
+          "pred_color": [
+            153,
+            85,
+            61
+          ],
+          "iou": 0.8859
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "apple",
+          "pred_color": [
+            229,
+            22,
+            122
+          ],
+          "iou": 0.862
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "plate",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.8171
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "three cookies",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.7989
+        },
+        {
+          "gt_index": 10,
+          "gt_category": "coffee",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.7557
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "tea in a glass",
+          "pred_color": [
+            22,
+            229,
+            22
+          ],
+          "iou": 0.5896
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "stuffed bear",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.4652
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "sheep",
+          "pred_color": [
+            242,
+            109,
+            120
+          ],
+          "iou": 0.3972
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "coffee mug",
+          "pred_color": [
+            22,
+            81,
+            229
+          ],
+          "iou": 0.0001
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00140",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/frame_00140.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/margens_relaxadas_r1/gat/images_coverage/frame_00140.png",
+      "n_gt_instances": 9,
+      "n_pred_instances": 11,
+      "mean_iou_all_matches": 0.7554241287302623,
+      "mean_f1_iou_50_95": 0.61,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 8,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.7272727272727273,
+          "recall": 0.8888888888888888,
+          "f1": 0.7999999999999999
+        },
+        {
+          "threshold": 0.55,
+          "tp": 8,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.7272727272727273,
+          "recall": 0.8888888888888888,
+          "f1": 0.7999999999999999
+        },
+        {
+          "threshold": 0.6,
+          "tp": 8,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.7272727272727273,
+          "recall": 0.8888888888888888,
+          "f1": 0.7999999999999999
+        },
+        {
+          "threshold": 0.65,
+          "tp": 8,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.7272727272727273,
+          "recall": 0.8888888888888888,
+          "f1": 0.7999999999999999
+        },
+        {
+          "threshold": 0.7,
+          "tp": 8,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.7272727272727273,
+          "recall": 0.8888888888888888,
+          "f1": 0.7999999999999999
+        },
+        {
+          "threshold": 0.75,
+          "tp": 6,
+          "fp": 5,
+          "fn": 3,
+          "precision": 0.5454545454545454,
+          "recall": 0.6666666666666666,
+          "f1": 0.6
+        },
+        {
+          "threshold": 0.8,
+          "tp": 6,
+          "fp": 5,
+          "fn": 3,
+          "precision": 0.5454545454545454,
+          "recall": 0.6666666666666666,
+          "f1": 0.6
+        },
+        {
+          "threshold": 0.85,
+          "tp": 5,
+          "fp": 6,
+          "fn": 4,
+          "precision": 0.45454545454545453,
+          "recall": 0.5555555555555556,
+          "f1": 0.5
+        },
+        {
+          "threshold": 0.9,
+          "tp": 4,
+          "fp": 7,
+          "fn": 5,
+          "precision": 0.36363636363636365,
+          "recall": 0.4444444444444444,
+          "f1": 0.39999999999999997
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 11,
+          "fn": 9,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.6796436815003242,
+        "sq": 0.8495546018754052,
+        "rq": 0.8,
+        "tp": 8,
+        "fp": 3,
+        "fn": 1
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.5366603338045982,
+        "sq": 0.8944338896743304,
+        "rq": 0.6,
+        "tp": 6,
+        "fp": 5,
+        "fn": 3
+      },
+      "matches_iou": [
+        {
+          "gt_index": 1,
+          "gt_category": "paper napkin",
+          "pred_color": [
+            22,
+            174,
+            229
+          ],
+          "iou": 0.9463
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "stuffed bear",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.9285
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "apple",
+          "pred_color": [
+            229,
+            22,
+            122
+          ],
+          "iou": 0.9228
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "bag of cookies",
+          "pred_color": [
+            22,
+            229,
+            126
+          ],
+          "iou": 0.9051
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "plate",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.8527
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "three cookies",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.8113
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "coffee",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.723
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "tea in a glass",
+          "pred_color": [
+            22,
+            229,
+            22
+          ],
+          "iou": 0.7068
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "coffee mug",
+          "pred_color": [
+            0,
+            0,
+            0
+          ],
+          "iou": 0.0024
+        }
+      ]
+    }
+  ],
+  "aggregated": {
+    "total_images": 6,
+    "total_gt_instances": 62,
+    "total_pred_instances": 94,
+    "mean_gt_instances_per_image": 10.333333333333334,
+    "mean_pred_instances_per_image": 15.666666666666666,
+    "mean_iou_all_matches": 0.6635049072785608,
+    "mean_f1_iou_50_95": 0.3942977273622435,
+    "mean_precision_50": 0.5255563150299992,
+    "mean_recall_50": 0.7678617678617679,
+    "mean_f1_50": 0.6181948875497262,
+    "total_tp_50": 48,
+    "total_fp_50": 46,
+    "total_fn_50": 14,
+    "mean_precision_75": 0.3598105111263006,
+    "mean_recall_75": 0.5345210345210345,
+    "mean_f1_75": 0.4260014179369018,
+    "total_tp_75": 33,
+    "total_fp_75": 61,
+    "total_fn_75": 29,
+    "mean_pq_50": 0.4900681097397159,
+    "mean_sq_50": 0.7948663885698036,
+    "mean_rq_50": 0.6181948875497262,
+    "mean_pq_75": 0.3690601576929287,
+    "mean_sq_75": 0.8662600816573477,
+    "mean_rq_75": 0.4260014179369018
+  }
+}

@@ -1,0 +1,1 @@
+repeticao 4 (semente 42) -- sem recorte, 187 cameras, mcs 500

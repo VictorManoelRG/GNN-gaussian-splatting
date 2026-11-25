@@ -1,0 +1,578 @@
+{
+  "per_image": [
+    {
+      "image_name": "frame_00089",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/waldo_kitchen/frame_00089.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/waldo_kitchen_r5/gat/images_coverage/frame_00089.png",
+      "n_gt_instances": 7,
+      "n_pred_instances": 26,
+      "mean_iou_all_matches": 0.25521194724545665,
+      "mean_f1_iou_50_95": 0.0,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.55,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.6,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.65,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.7,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.75,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.8,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.85,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.9,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 26,
+          "fn": 7,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.0,
+        "sq": 0.0,
+        "rq": 0.0,
+        "tp": 0,
+        "fp": 26,
+        "fn": 7
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.0,
+        "sq": 0.0,
+        "rq": 0.0,
+        "tp": 0,
+        "fp": 26,
+        "fn": 7
+      },
+      "matches_iou": [
+        {
+          "gt_index": 4,
+          "gt_category": "knife",
+          "pred_color": [
+            109,
+            180,
+            242
+          ],
+          "iou": 0.4903
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "cabinet",
+          "pred_color": [
+            242,
+            188,
+            109
+          ],
+          "iou": 0.4029
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "knife",
+          "pred_color": [
+            22,
+            229,
+            212
+          ],
+          "iou": 0.2789
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "knife",
+          "pred_color": [
+            153,
+            229,
+            22
+          ],
+          "iou": 0.2582
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "knife",
+          "pred_color": [
+            153,
+            64,
+            61
+          ],
+          "iou": 0.2282
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "knife",
+          "pred_color": [
+            0,
+            0,
+            191
+          ],
+          "iou": 0.1236
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "ketchup",
+          "pred_color": [
+            22,
+            222,
+            229
+          ],
+          "iou": 0.0044
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00053",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/waldo_kitchen/frame_00053.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/waldo_kitchen_r5/gat/images_coverage/frame_00053.png",
+      "n_gt_instances": 8,
+      "n_pred_instances": 49,
+      "mean_iou_all_matches": 0.32867867706521836,
+      "mean_f1_iou_50_95": 0.007017543859649122,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 2,
+          "fp": 47,
+          "fn": 6,
+          "precision": 0.04081632653061224,
+          "recall": 0.25,
+          "f1": 0.07017543859649122
+        },
+        {
+          "threshold": 0.55,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.6,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.65,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.7,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.75,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.8,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.85,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.9,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 49,
+          "fn": 8,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.03715332499430869,
+        "sq": 0.5294348811688989,
+        "rq": 0.07017543859649122,
+        "tp": 2,
+        "fp": 47,
+        "fn": 6
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.0,
+        "sq": 0.0,
+        "rq": 0.0,
+        "tp": 0,
+        "fp": 49,
+        "fn": 8
+      },
+      "matches_iou": [
+        {
+          "gt_index": 4,
+          "gt_category": "toaster",
+          "pred_color": [
+            22,
+            229,
+            78
+          ],
+          "iou": 0.5488
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "pour-over vessel",
+          "pred_color": [
+            0,
+            188,
+            191
+          ],
+          "iou": 0.51
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "yellow desk",
+          "pred_color": [
+            165,
+            0,
+            191
+          ],
+          "iou": 0.4421
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "knife",
+          "pred_color": [
+            153,
+            229,
+            22
+          ],
+          "iou": 0.3511
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "Stainless steel pots",
+          "pred_color": [
+            184,
+            229,
+            22
+          ],
+          "iou": 0.2462
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "knife",
+          "pred_color": [
+            153,
+            64,
+            61
+          ],
+          "iou": 0.2274
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "ottolenghi",
+          "pred_color": [
+            134,
+            153,
+            61
+          ],
+          "iou": 0.1791
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "knife",
+          "pred_color": [
+            0,
+            0,
+            191
+          ],
+          "iou": 0.1247
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00066",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/waldo_kitchen/frame_00066.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/waldo_kitchen_r5/gat/images_coverage/frame_00066.png",
+      "n_gt_instances": 4,
+      "n_pred_instances": 19,
+      "mean_iou_all_matches": 0.49893706598947507,
+      "mean_f1_iou_50_95": 0.11304347826086955,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 2,
+          "fp": 17,
+          "fn": 2,
+          "precision": 0.10526315789473684,
+          "recall": 0.5,
+          "f1": 0.17391304347826086
+        },
+        {
+          "threshold": 0.55,
+          "tp": 2,
+          "fp": 17,
+          "fn": 2,
+          "precision": 0.10526315789473684,
+          "recall": 0.5,
+          "f1": 0.17391304347826086
+        },
+        {
+          "threshold": 0.6,
+          "tp": 2,
+          "fp": 17,
+          "fn": 2,
+          "precision": 0.10526315789473684,
+          "recall": 0.5,
+          "f1": 0.17391304347826086
+        },
+        {
+          "threshold": 0.65,
+          "tp": 2,
+          "fp": 17,
+          "fn": 2,
+          "precision": 0.10526315789473684,
+          "recall": 0.5,
+          "f1": 0.17391304347826086
+        },
+        {
+          "threshold": 0.7,
+          "tp": 2,
+          "fp": 17,
+          "fn": 2,
+          "precision": 0.10526315789473684,
+          "recall": 0.5,
+          "f1": 0.17391304347826086
+        },
+        {
+          "threshold": 0.75,
+          "tp": 2,
+          "fp": 17,
+          "fn": 2,
+          "precision": 0.10526315789473684,
+          "recall": 0.5,
+          "f1": 0.17391304347826086
+        },
+        {
+          "threshold": 0.8,
+          "tp": 1,
+          "fp": 18,
+          "fn": 3,
+          "precision": 0.05263157894736842,
+          "recall": 0.25,
+          "f1": 0.08695652173913043
+        },
+        {
+          "threshold": 0.85,
+          "tp": 0,
+          "fp": 19,
+          "fn": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.9,
+          "tp": 0,
+          "fp": 19,
+          "fn": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 19,
+          "fn": 4,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.13670361032114042,
+        "sq": 0.7860457593465575,
+        "rq": 0.17391304347826086,
+        "tp": 2,
+        "fp": 17,
+        "fn": 2
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.13670361032114042,
+        "sq": 0.7860457593465575,
+        "rq": 0.17391304347826086,
+        "tp": 2,
+        "fp": 17,
+        "fn": 2
+      },
+      "matches_iou": [
+        {
+          "gt_index": 1,
+          "gt_category": "refrigerator",
+          "pred_color": [
+            38,
+            112,
+            153
+          ],
+          "iou": 0.8176
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "pot",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.7545
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "plastic ladle",
+          "pred_color": [
+            191,
+            146,
+            0
+          ],
+          "iou": 0.4237
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "spatula",
+          "pred_color": [
+            22,
+            22,
+            229
+          ],
+          "iou": 0.0
+        }
+      ]
+    }
+  ],
+  "aggregated": {
+    "total_images": 3,
+    "total_gt_instances": 19,
+    "total_pred_instances": 94,
+    "mean_gt_instances_per_image": 6.333333333333333,
+    "mean_pred_instances_per_image": 31.333333333333332,
+    "mean_iou_all_matches": 0.3609425634333833,
+    "mean_f1_iou_50_95": 0.040020340706839554,
+    "mean_precision_50": 0.048693161475116355,
+    "mean_recall_50": 0.25,
+    "mean_f1_50": 0.08136282735825069,
+    "total_tp_50": 4,
+    "total_fp_50": 90,
+    "total_fn_50": 15,
+    "mean_precision_75": 0.03508771929824561,
+    "mean_recall_75": 0.16666666666666666,
+    "mean_f1_75": 0.057971014492753624,
+    "total_tp_75": 2,
+    "total_fp_75": 92,
+    "total_fn_75": 17,
+    "mean_pq_50": 0.05795231177181637,
+    "mean_sq_50": 0.43849354683848546,
+    "mean_rq_50": 0.08136282735825069,
+    "mean_pq_75": 0.045567870107046805,
+    "mean_sq_75": 0.26201525311551915,
+    "mean_rq_75": 0.057971014492753624
+  }
+}

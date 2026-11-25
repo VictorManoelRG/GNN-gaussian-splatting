@@ -17,15 +17,20 @@ exp_res/*
 __pycache__/
 
 # saídas de experimentos e testes (regeneráveis)
-experimentos_finais/
-teste_*/
-logs/
-logs_cenas/
-videos_*/
+# de experimentos_finais/ só entram máscaras, segmentações, nuvens 3D e métricas
+experimentos_finais/**/*.npy
+experimentos_finais/**/images_raw/
+experimentos_finais/**/PCA/
+experimentos_finais/**/debug_labels_2d/
+experimentos_finais/**/debug_labels_2d_raw/
+/teste_*/
+/logs/
+/logs_cenas/
+/videos_*/
 
 # escrita dos artigos e rascunhos da tese (fora do git); só tese/ é versionada
-artigo_cvm/
-figuras/
+/artigo_cvm/
+/figuras/
 *.tex
 *.bib
 !tese/*.tex

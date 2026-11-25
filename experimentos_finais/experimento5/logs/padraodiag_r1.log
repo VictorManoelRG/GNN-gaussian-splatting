@@ -1,0 +1,303 @@
+Looking for config file in output/teatime/cfg_args
+Config file found: output/teatime/cfg_args
+
+================================================================================
+🚀 EXPERIMENTO: padraodiag_r1
+📁 Diretório: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1
+📁 Modelo: GAT
+================================================================================
+
+💻 Dispositivo: cuda [12/09 12:47:33]
+Loading trained model at iteration 30000 [12/09 12:47:33]
+Reading camera 1/158Reading camera 2/158Reading camera 3/158Reading camera 4/158Reading camera 5/158Reading camera 6/158Reading camera 7/158Reading camera 8/158Reading camera 9/158Reading camera 10/158Reading camera 11/158Reading camera 12/158Reading camera 13/158Reading camera 14/158Reading camera 15/158Reading camera 16/158Reading camera 17/158Reading camera 18/158Reading camera 19/158Reading camera 20/158Reading camera 21/158Reading camera 22/158Reading camera 23/158Reading camera 24/158Reading camera 25/158Reading camera 26/158Reading camera 27/158Reading camera 28/158Reading camera 29/158Reading camera 30/158Reading camera 31/158Reading camera 32/158Reading camera 33/158Reading camera 34/158Reading camera 35/158Reading camera 36/158Reading camera 37/158Reading camera 38/158Reading camera 39/158Reading camera 40/158Reading camera 41/158Reading camera 42/158Reading camera 43/158Reading camera 44/158Reading camera 45/158Reading camera 46/158Reading camera 47/158Reading camera 48/158Reading camera 49/158Reading camera 50/158Reading camera 51/158Reading camera 52/158Reading camera 53/158Reading camera 54/158Reading camera 55/158Reading camera 56/158Reading camera 57/158Reading camera 58/158Reading camera 59/158Reading camera 60/158Reading camera 61/158Reading camera 62/158Reading camera 63/158Reading camera 64/158Reading camera 65/158Reading camera 66/158Reading camera 67/158Reading camera 68/158Reading camera 69/158Reading camera 70/158Reading camera 71/158Reading camera 72/158Reading camera 73/158Reading camera 74/158Reading camera 75/158Reading camera 76/158Reading camera 77/158Reading camera 78/158Reading camera 79/158Reading camera 80/158Reading camera 81/158Reading camera 82/158Reading camera 83/158Reading camera 84/158Reading camera 85/158Reading camera 86/158Reading camera 87/158Reading camera 88/158Reading camera 89/158Reading camera 90/158Reading camera 91/158Reading camera 92/158Reading camera 93/158Reading camera 94/158Reading camera 95/158Reading camera 96/158Reading camera 97/158Reading camera 98/158Reading camera 99/158Reading camera 100/158Reading camera 101/158Reading camera 102/158Reading camera 103/158Reading camera 104/158Reading camera 105/158Reading camera 106/158Reading camera 107/158Reading camera 108/158Reading camera 109/158Reading camera 110/158Reading camera 111/158Reading camera 112/158Reading camera 113/158Reading camera 114/158Reading camera 115/158Reading camera 116/158Reading camera 117/158Reading camera 118/158Reading camera 119/158Reading camera 120/158Reading camera 121/158Reading camera 122/158Reading camera 123/158Reading camera 124/158Reading camera 125/158Reading camera 126/158Reading camera 127/158Reading camera 128/158Reading camera 129/158Reading camera 130/158Reading camera 131/158Reading camera 132/158Reading camera 133/158Reading camera 134/158Reading camera 135/158Reading camera 136/158Reading camera 137/158Reading camera 138/158Reading camera 139/158Reading camera 140/158Reading camera 141/158Reading camera 142/158Reading camera 143/158Reading camera 144/158Reading camera 145/158Reading camera 146/158Reading camera 147/158Reading camera 148/158Reading camera 149/158Reading camera 150/158Reading camera 151/158Reading camera 152/158Reading camera 153/158Reading camera 154/158Reading camera 155/158Reading camera 156/158Reading camera 157/158Reading camera 158/158 [12/09 12:47:33]
+Loading Training Cameras [12/09 12:47:33]
+Loading Test Cameras [12/09 12:47:33]
+🔍 Propagando máscaras para 279,463 Gaussianas por voto de maioria... [12/09 12:47:34]
+  Frame 50/158... [12/09 12:47:36]
+  Frame 100/158... [12/09 12:47:37]
+  Frame 150/158... [12/09 12:47:39]
+📉 Z-buffer: 10,392,019 → 5,483,350 projeções (47.2% descartadas por oclusão) [12/09 12:47:39]
+
+✅ Concluído: [12/09 12:47:39]
+  • Frames com máscara lida: 158/158 [12/09 12:47:39]
+  • Gaussianas rotuladas: 119,822/279,463 (42.9%) [12/09 12:47:39]
+  • Segmentos distintos atribuídos: 92 [12/09 12:47:39]
+  • Votos do vencedor: mediana=18 | média=25.5 | máx=109 [12/09 12:47:39]
+  • Gaussianas vetadas por maioria de fundo: 99,895 [12/09 12:47:39]
+  • Gaussianas com voto de objeto mas abaixo de min_votes=5: 51,831 [12/09 12:47:39]
+
+📦 Bounding box aplicada (AABB, alinhada aos eixos) — preset da cena 'teatime': [12/09 12:47:39]
+   centro=[0.87771511 1.94553256 0.34934092] | largura=[7.83855629 6.98039675 7.24066257] [12/09 12:47:39]
+   Gaussianas dentro da caixa: 92,933/279,463 (33.3%) [12/09 12:47:39]
+   Com label DEVA válido E dentro da caixa: 83,570 (sem a caixa seriam 119,822) [12/09 12:47:39]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [12/09 12:47:39]
+   Total disponível: 83,570 [12/09 12:47:39]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [12/09 12:47:39]
+   Mantendo todas as gaussianas disponíveis [12/09 12:47:39]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [12/09 12:47:40]
+   🔁 Iteração 1: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [12/09 12:47:40]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [12/09 12:47:40]
+   Total disponível: 83,570 [12/09 12:47:40]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [12/09 12:47:40]
+   Mantendo todas as gaussianas disponíveis [12/09 12:47:40]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [12/09 12:47:40]
+   🔁 Iteração 2: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [12/09 12:47:40]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [12/09 12:47:40]
+   Total disponível: 83,570 [12/09 12:47:40]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [12/09 12:47:40]
+   Mantendo todas as gaussianas disponíveis [12/09 12:47:40]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [12/09 12:47:40]
+   🔁 Iteração 3: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [12/09 12:47:40]
+
+🎯 Calculando filtros dinâmicos para ~83,570 gaussianas... [12/09 12:47:40]
+   Total disponível: 83,570 [12/09 12:47:40]
+   ⚠️ Total (83,570) já é menor que o target (83,570) [12/09 12:47:40]
+   Mantendo todas as gaussianas disponíveis [12/09 12:47:40]
+  🧹 Remoção de floaters (outlier espacial, k=16, std_ratio=2.0): 3,503/83,570 gaussianas removidas (4.19%) [12/09 12:47:41]
+   🔁 Iteração 4: target pedido=250,000 | antes da remoção de outliers=83,570 | REAL após bbox+outliers=80,067 [12/09 12:47:41]
+Rendering 46 discrete clusters... [12/09 12:47:41]
+  Cru (sem padronização de cor): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/debug_labels_2d_raw [12/09 12:47:41]
+  Padronizado (cor homogênea por cluster): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/debug_labels_2d [12/09 12:47:41]
+  Gaussianas totais: 279,463 [12/09 12:47:41]
+  Gaussianas ativas (opacity>0): 80,067 [12/09 12:47:41]
+  Gaussianas ocultas (opacity=0): 199,396 [12/09 12:47:41]
+📦 Total de Gaussianas na cena (Original): 279,463 [12/09 12:47:44]
+🎯 Total de Gaussianas rotuladas (DEVA != -1): 119,822 [12/09 12:47:44]
+✅ Total de Gaussianas final para treinamento (Filtradas): 80,067 [12/09 12:47:44]
+
+🎨 Features de cor: CIELAB isotrópico | escala=0.1367 (auto (mesma magnitude do bloco de cor da versão RGB)) | std global do Lab=21.94 [12/09 12:47:44]
+   1 unidade de feature de cor = 7.31 ΔE(76) [12/09 12:47:44]
+
+🔗 Construindo grafo geométrico... [12/09 12:47:44]
+  Vizinhos candidatos por nó: 6 (--graph_knn=7) [12/09 12:47:44]
+  Sigma geométrico: 0.0275 [12/09 12:47:44]
+  Sigma local (dist. ao 6º vizinho): mediana=0.0359 p5=0.0125 p95=0.1178 — razão p95/p5 = 9.4x (é essa variação de densidade que um limiar global ignora) [12/09 12:47:44]
+  Cor: CIELAB / ΔE ciede2000 | sigma_ΔE=6.00 [12/09 12:47:44]
+  ΔE entre vizinhos — p25=6.01 | mediana=11.99 | p75=22.26 | p90=38.41 [12/09 12:47:44]
+  Distance threshold: 0.0341 (local_scaling c=1 k=6 (limiar por par; mediana mostrada)) | ΔE threshold: 10.00 (limiar perceptual absoluto) [12/09 12:47:44]
+  Vizinhos aceitos pelo critério de distância: 76.5% [12/09 12:47:44]
+  Vizinhos aceitos pelo critério de cor: 42.6% [12/09 12:47:44]
+  Arestas no grafo: 173,072 [12/09 12:47:44]
+  Grau: média=2.16 mediana=2 máx=10 | nós isolados: 20,442 (25.53%) | grau 1: 15,479 (19.33%) [12/09 12:47:44]
+⏱️ Tempo de construção do grafo: 0.50s [12/09 12:47:44]
+🎨 Loss de cor: CIELAB | sigma=12.00 ΔE (ΔE=2.3/JND -> similaridade 0.98; ΔE=10 -> 0.71) [12/09 12:47:44]
+🧮 InfoNCE contra centróides de rótulo (robusto a rótulo errado) [12/09 12:47:44]
+🔧 Correções opcionais de loss (PCA borrado entre objetos): detach_centroids, nce_class_balanced, centroid_repulsion_weight=0.3 [12/09 12:47:44]
+🔬 [DIAG] Arestas do grafo: 162,470 same-label | 10,602 diff-label (6.13% diff) [12/09 12:47:44]
+🔬 [DIAG] 46 labels distintos | tamanho: min=1 max=26587 média=1741 [12/09 12:47:44]
+
+🎓 Treinando GAT com Early Stopping... [12/09 12:47:44]
+Epoch    0 | Loss: 3.4498 | Best: 3.4498 || pos=0.0100 neg=0.7943 nce=2.6004 (piso=3.829) cor=0.0326 cent_rep=0.1503 | ancoras=80067 [12/09 12:47:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 3.4498 [12/09 12:47:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.7442 [12/09 12:47:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.4548 [12/09 12:47:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3814 [12/09 12:47:44]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3797 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.3227 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2746 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2135 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.2098 [12/09 12:47:45]
+Epoch   10 | Loss: 2.1919 | Best: 2.1919 || pos=0.0299 neg=0.7672 nce=1.3312 (piso=3.829) cor=0.0399 cent_rep=0.2119 | ancoras=80067 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1919 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1846 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1375 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.1068 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0949 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0636 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0482 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0230 [12/09 12:47:45]
+Epoch   20 | Loss: 2.0114 | Best: 2.0114 || pos=0.0360 neg=0.7410 nce=1.1647 (piso=3.829) cor=0.0444 cent_rep=0.2321 | ancoras=80067 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0114 [12/09 12:47:45]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 2.0053 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9829 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9590 [12/09 12:47:46]
+Epoch   30 | Loss: 1.9554 | Best: 1.9554 || pos=0.0539 neg=0.6864 nce=1.1445 (piso=3.829) cor=0.0543 cent_rep=0.2351 | ancoras=80067 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9554 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9526 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9347 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9239 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9108 [12/09 12:47:46]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.9010 [12/09 12:47:47]
+Epoch   40 | Loss: 1.9251 | Best: 1.9010 || pos=0.0586 neg=0.6739 nce=1.1261 (piso=3.829) cor=0.0573 cent_rep=0.2220 | ancoras=80067 [12/09 12:47:47]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:47]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.8910 [12/09 12:47:47]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.8646 [12/09 12:47:47]
+Epoch   50 | Loss: 1.8644 | Best: 1.8644 || pos=0.0686 neg=0.6507 nce=1.0819 (piso=3.829) cor=0.0625 cent_rep=0.2105 | ancoras=80067 [12/09 12:47:47]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.8644 [12/09 12:47:47]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.8354 [12/09 12:47:47]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:48]
+Epoch   60 | Loss: 1.8458 | Best: 1.8354 || pos=0.0707 neg=0.6455 nce=1.0696 (piso=3.829) cor=0.0629 cent_rep=0.1996 | ancoras=80067 [12/09 12:47:48]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:48]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.8138 [12/09 12:47:48]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:48]
+Epoch   70 | Loss: 1.8131 | Best: 1.8131 || pos=0.0813 neg=0.6231 nce=1.0511 (piso=3.829) cor=0.0694 cent_rep=0.1918 | ancoras=80067 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.8131 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7897 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7880 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7745 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7702 [12/09 12:47:49]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:49]
+Epoch   80 | Loss: 1.7715 | Best: 1.7702 || pos=0.0890 neg=0.6041 nce=1.0192 (piso=3.829) cor=0.0751 cent_rep=0.1973 | ancoras=80067 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7684 [12/09 12:47:49]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7290 [12/09 12:47:50]
+Epoch   90 | Loss: 1.7378 | Best: 1.7290 || pos=0.0826 neg=0.6100 nce=0.9896 (piso=3.829) cor=0.0714 cent_rep=0.1855 | ancoras=80067 [12/09 12:47:50]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:50]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7267 [12/09 12:47:50]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:50]
+Epoch  100 | Loss: 1.7303 | Best: 1.7267 || pos=0.0841 neg=0.6087 nce=0.9840 (piso=3.829) cor=0.0704 cent_rep=0.1781 | ancoras=80067 [12/09 12:47:50]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7104 [12/09 12:47:50]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:51]
+Epoch  110 | Loss: 1.7717 | Best: 1.7104 || pos=0.0862 neg=0.6033 nce=1.0311 (piso=3.829) cor=0.0717 cent_rep=0.1701 | ancoras=80067 [12/09 12:47:51]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:51]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7088 [12/09 12:47:51]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7085 [12/09 12:47:51]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.7010 [12/09 12:47:51]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6901 [12/09 12:47:51]
+Epoch  120 | Loss: 1.7103 | Best: 1.6901 || pos=0.0842 neg=0.6157 nce=0.9597 (piso=3.829) cor=0.0709 cent_rep=0.1689 | ancoras=80067 [12/09 12:47:52]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6748 [12/09 12:47:52]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:52]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6741 [12/09 12:47:52]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6611 [12/09 12:47:52]
+Epoch  130 | Loss: 1.6929 | Best: 1.6611 || pos=0.0892 neg=0.5933 nce=0.9611 (piso=3.829) cor=0.0760 cent_rep=0.1646 | ancoras=80067 [12/09 12:47:52]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6474 [12/09 12:47:52]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:53]
+Epoch  140 | Loss: 1.6892 | Best: 1.6474 || pos=0.0830 neg=0.6013 nce=0.9557 (piso=3.829) cor=0.0712 cent_rep=0.1638 | ancoras=80067 [12/09 12:47:53]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6226 [12/09 12:47:53]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:53]
+Epoch  150 | Loss: 1.6266 | Best: 1.6226 || pos=0.0951 neg=0.5741 nce=0.9092 (piso=3.829) cor=0.0756 cent_rep=0.1605 | ancoras=80067 [12/09 12:47:53]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:53]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.6023 [12/09 12:47:54]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:54]
+Epoch  160 | Loss: 1.6522 | Best: 1.6023 || pos=0.0955 neg=0.5799 nce=0.9275 (piso=3.829) cor=0.0769 cent_rep=0.1646 | ancoras=80067 [12/09 12:47:54]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:54]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5884 [12/09 12:47:54]
+Epoch  170 | Loss: 1.6016 | Best: 1.5884 || pos=0.0893 neg=0.5896 nce=0.8765 (piso=3.829) cor=0.0729 cent_rep=0.1539 | ancoras=80067 [12/09 12:47:55]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:55]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5827 [12/09 12:47:55]
+Epoch  180 | Loss: 1.6011 | Best: 1.5827 || pos=0.0960 neg=0.5754 nce=0.8840 (piso=3.829) cor=0.0765 cent_rep=0.1522 | ancoras=80067 [12/09 12:47:55]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:55]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:56]
+Epoch  190 | Loss: 1.6358 | Best: 1.5827 || pos=0.0969 neg=0.5697 nce=0.9195 (piso=3.829) cor=0.0759 cent_rep=0.1659 | ancoras=80067 [12/09 12:47:56]
+   ↳ [EarlyStopping] Sem melhora significativa há 15/20 épocas. [12/09 12:47:56]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5739 [12/09 12:47:56]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:56]
+Epoch  200 | Loss: 1.5900 | Best: 1.5739 || pos=0.0952 neg=0.5742 nce=0.8731 (piso=3.829) cor=0.0761 cent_rep=0.1582 | ancoras=80067 [12/09 12:47:56]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5636 [12/09 12:47:56]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5587 [12/09 12:47:57]
+Epoch  210 | Loss: 1.6141 | Best: 1.5587 || pos=0.0967 neg=0.5706 nce=0.9001 (piso=3.829) cor=0.0751 cent_rep=0.1553 | ancoras=80067 [12/09 12:47:57]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:57]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:57]
+Epoch  220 | Loss: 1.5869 | Best: 1.5587 || pos=0.0992 neg=0.5620 nce=0.8786 (piso=3.829) cor=0.0772 cent_rep=0.1572 | ancoras=80067 [12/09 12:47:58]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5406 [12/09 12:47:58]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:58]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5363 [12/09 12:47:58]
+Epoch  230 | Loss: 1.5504 | Best: 1.5363 || pos=0.1009 neg=0.5608 nce=0.8432 (piso=3.829) cor=0.0775 cent_rep=0.1518 | ancoras=80067 [12/09 12:47:58]
+   ↳ [EarlyStopping] Melhora detectada! Loss: 1.5236 [12/09 12:47:58]
+   ↳ [EarlyStopping] Sem melhora significativa há 5/20 épocas. [12/09 12:47:59]
+Epoch  240 | Loss: 1.5341 | Best: 1.5236 || pos=0.1022 neg=0.5522 nce=0.8363 (piso=3.829) cor=0.0784 cent_rep=0.1447 | ancoras=80067 [12/09 12:47:59]
+   ↳ [EarlyStopping] Sem melhora significativa há 10/20 épocas. [12/09 12:47:59]
+   ↳ [EarlyStopping] Sem melhora significativa há 15/20 épocas. [12/09 12:47:59]
+Epoch  250 | Loss: 1.5630 | Best: 1.5236 || pos=0.0977 neg=0.5688 nce=0.8525 (piso=3.829) cor=0.0746 cent_rep=0.1465 | ancoras=80067 [12/09 12:47:59]
+   ↳ [EarlyStopping] Sem melhora significativa há 20/20 épocas. [12/09 12:47:59]
+   🛑 [EarlyStopping] Gatilho ativado na época por falta de progresso. [12/09 12:47:59]
+   ✅ [EarlyStopping] Melhores pesos restaurados com sucesso (Melhor Loss: 1.5236). [12/09 12:47:59]
+⏱️ Tempo de treinamento do modelo: 15.31s [12/09 12:47:59]
+💾 VRAM real (NVML) durante o treino: 2.53 GB [12/09 12:47:59]
+
+============================================================ [12/09 12:47:59]
+🔬 DIAGNÓSTICO DO EMBEDDING [12/09 12:47:59]
+============================================================ [12/09 12:47:59]
+  Similaridade média INTRA-rótulo : +0.5388 (desvio 0.3022) [12/09 12:47:59]
+  Similaridade média INTER-rótulo : +0.1409 (desvio 0.3452) [12/09 12:48:00]
+  Margem de separação             : +0.3979 [12/09 12:48:00]
+  Âncoras com positivo mais difícil PIOR que o negativo mais difícil: 91.9% (148/161)   ⚠️ mineração hard impossível de vencer [12/09 12:48:00]
+  Estabilidade do HDBSCAN (subamostra de 30,000 pontos, min_cluster_size=187): [12/09 12:48:00]
+    min_samples=3                        ->  18 clusters |  37.9% ruído [12/09 12:48:03]
+    min_samples=10                       ->  19 clusters |  43.0% ruído [12/09 12:48:06]
+    min_samples=25                       ->  15 clusters |  45.8% ruído [12/09 12:48:10]
+    min_samples=50                       ->  13 clusters |  49.3% ruído [12/09 12:48:13]
+    min_samples=None (=min_cluster_size) ->  11 clusters |  52.5% ruído [12/09 12:48:18]
+  Se o nº de clusters desaba ao subir min_samples, o embedding é um contínuo
+  sem vales de densidade — o corte do HDBSCAN é arbitrário. [12/09 12:48:18]
+============================================================ [12/09 12:48:18]
+
+📊 Clusterizando os novos embeddings com HDBSCAN... [12/09 12:48:18]
+
+🔁 Reatribuindo ruído via KNN nos Embeddings (K=25)... [12/09 12:48:33]
+   Pontos de ruído antes: 30,139 [12/09 12:48:33]
+   Pontos de ruído após reatribuição: 3,593 (reatribuídos: 26,546) [12/09 12:48:34]
+⏱️ Tempo do HDBSCAN (+ KNN Reassign): 16.62s [12/09 12:48:34]
+
+============================================================ [12/09 12:48:34]
+📊 AVALIAÇÃO DA SEGMENTAÇÃO 3D [12/09 12:48:34]
+============================================================ [12/09 12:48:34]
+
+📊 Avaliação Semi-Supervisionada: [12/09 12:48:34]
+  ARI: 0.3161 (0 = aleatório, 1 = perfeito) [12/09 12:48:34]
+  NMI: 0.6063 (0 = sem informação, 1 = perfeito) [12/09 12:48:34]
+  Clusters iniciais: 46 → Clusters refinados: 18 [12/09 12:48:34]
+
+📊 Coerência Interna dos Clusters: [12/09 12:48:35]
+  Silhouette Score: 0.1436 (amostrado com N=10000) [12/09 12:48:35]
+  Davies-Bouldin: 1.5534 (quanto menor, melhor) [12/09 12:48:35]
+  Calinski-Harabasz: 7735.44 (quanto maior, melhor) [12/09 12:48:35]
+  Clusters: 18 | Tamanho médio: 4248.6 ± 5308.1 [12/09 12:48:35]
+
+==================================================
+RENDER 2D
+================================================== [12/09 12:48:35]
+  🎯 Renderizando apenas Gaussianas filtradas... [12/09 12:48:35]
+  Gaussianas com cluster: 76,474 [12/09 12:48:35]
+  Tamanho das labels: 80067 [12/09 12:48:35]
+  Tamanho do mask_filter: 279463 [12/09 12:48:35]
+Rendering 18 discrete clusters... [12/09 12:48:35]
+  Cru (sem padronização de cor): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images_raw [12/09 12:48:35]
+  Padronizado (cor homogênea por cluster): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images [12/09 12:48:35]
+  Gaussianas totais: 279,463 [12/09 12:48:35]
+  Gaussianas ativas (opacity>0): 80,067 [12/09 12:48:35]
+  Gaussianas ocultas (opacity=0): 199,396 [12/09 12:48:35]
+🖼️ Imagens padronizadas (cor homogênea por cluster) salvas em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images [12/09 12:48:38]
+🖼️ Imagens cruas (sem padronização de cor) salvas em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images_raw [12/09 12:48:38]
+Rendering 18 clusters como coverage (sem decodificar cor)... [12/09 12:48:38]
+  Labels (fonte de verdade): /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images_coverage_labels [12/09 12:48:38]
+  Preview colorido: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images_coverage [12/09 12:48:38]
+🎨 PCA do embedding: [12/09 12:48:40]
+   Amplitude (faixa p1-p99 da projeção): 1.4473 [12/09 12:48:40]
+   Variância explicada pelas 3 primeiras componentes: 66.49% (32.0%, 21.7%, 12.7%) [12/09 12:48:40]
+   Lembre: a imagem é normalizada por percentil, então colapso NÃO aparece como cor uniforme — use os números acima. [12/09 12:48:40]
+🖼️ Renderizando PCA do embedding para /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/PCA ... [12/09 12:48:40]
+✅ PCA do embedding salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/PCA [12/09 12:48:41]
+💾 Pico de VRAM reservada (allocator PyTorch, pipeline inteiro): 2.38 GB [12/09 12:48:41]
+💾 VRAM real (NVML, apenas durante o treino): 2.53 GB [12/09 12:48:41]
+📊 Tabela de métricas salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/GAT_metrics_20260912_124841.xlsx [12/09 12:48:41]
+📄 Relatório salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/GAT_report_20260912_124841.txt [12/09 12:48:41]
+📊 Curva de loss salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/GAT_loss_curve.png [12/09 12:48:41]
+☁️ Nuvem de pontos salva em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/pointclouds/gat_clusters.ply [12/09 12:48:41]
+
+================================================================================ [12/09 12:48:41]
+✅ EXPERIMENTO CONCLUÍDO [12/09 12:48:41]
+================================================================================ [12/09 12:48:41]
+📁 Diretório do experimento: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1 [12/09 12:48:41]
+📁 Modelo: GAT [12/09 12:48:41]
+📦 Gaussianas Originais (Cena): 279,463 [12/09 12:48:41]
+🎯 Gaussianas Filtradas (Treino): 80,067 [12/09 12:48:41]
+💾 VRAM Pico (allocator PyTorch, pipeline inteiro): 2.38 GB [12/09 12:48:41]
+💾 VRAM Real (NVML, durante o treino): 2.53 GB [12/09 12:48:41]
+⏱️ Tempo Grafo: 0.50s | Treino: 15.31s | HDBSCAN: 16.62s | Total: 32.43s [12/09 12:48:41]
+📊 Clusters iniciais (DEVA/SAM): 46 [12/09 12:48:41]
+📊 Clusters finais (HDBSCAN): 18 [12/09 12:48:41]
+📊 ARI: 0.3161 [12/09 12:48:41]
+📊 NMI: 0.6063 [12/09 12:48:41]
+📊 Silhouette: 0.1436 [12/09 12:48:41]
+📊 Davies-Bouldin: 1.5534 [12/09 12:48:41]
+-------------------------------------------------------------------------------- [12/09 12:48:41]
+📊 Tabela de métricas: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/GAT_metrics_20260912_124841.xlsx [12/09 12:48:41]
+📄 Relatório: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/GAT_report_20260912_124841.txt [12/09 12:48:41]
+📊 Curva de loss: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/GAT_loss_curve.png [12/09 12:48:41]
+☁️ Nuvem de pontos: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/pointclouds/gat_clusters.ply [12/09 12:48:41]
+🖼️ Imagens renderizadas: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento5/padraodiag_r1/gat/images [12/09 12:48:41]
+================================================================================ [12/09 12:48:41]
+ [12/09 12:48:41]

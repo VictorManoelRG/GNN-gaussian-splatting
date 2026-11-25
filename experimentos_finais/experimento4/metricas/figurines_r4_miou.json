@@ -1,0 +1,1077 @@
+{
+  "per_image": [
+    {
+      "image_name": "frame_00105",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/figurines/frame_00105.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/figurines_r4/gat/images_coverage/frame_00105.png",
+      "n_gt_instances": 13,
+      "n_pred_instances": 34,
+      "mean_iou_all_matches": 0.5118072904058857,
+      "mean_f1_iou_50_95": 0.18723404255319148,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 8,
+          "fp": 26,
+          "fn": 5,
+          "precision": 0.23529411764705882,
+          "recall": 0.6153846153846154,
+          "f1": 0.3404255319148936
+        },
+        {
+          "threshold": 0.55,
+          "tp": 8,
+          "fp": 26,
+          "fn": 5,
+          "precision": 0.23529411764705882,
+          "recall": 0.6153846153846154,
+          "f1": 0.3404255319148936
+        },
+        {
+          "threshold": 0.6,
+          "tp": 7,
+          "fp": 27,
+          "fn": 6,
+          "precision": 0.20588235294117646,
+          "recall": 0.5384615384615384,
+          "f1": 0.2978723404255319
+        },
+        {
+          "threshold": 0.65,
+          "tp": 6,
+          "fp": 28,
+          "fn": 7,
+          "precision": 0.17647058823529413,
+          "recall": 0.46153846153846156,
+          "f1": 0.25531914893617025
+        },
+        {
+          "threshold": 0.7,
+          "tp": 4,
+          "fp": 30,
+          "fn": 9,
+          "precision": 0.11764705882352941,
+          "recall": 0.3076923076923077,
+          "f1": 0.1702127659574468
+        },
+        {
+          "threshold": 0.75,
+          "tp": 3,
+          "fp": 31,
+          "fn": 10,
+          "precision": 0.08823529411764706,
+          "recall": 0.23076923076923078,
+          "f1": 0.12765957446808512
+        },
+        {
+          "threshold": 0.8,
+          "tp": 3,
+          "fp": 31,
+          "fn": 10,
+          "precision": 0.08823529411764706,
+          "recall": 0.23076923076923078,
+          "f1": 0.12765957446808512
+        },
+        {
+          "threshold": 0.85,
+          "tp": 2,
+          "fp": 32,
+          "fn": 11,
+          "precision": 0.058823529411764705,
+          "recall": 0.15384615384615385,
+          "f1": 0.0851063829787234
+        },
+        {
+          "threshold": 0.9,
+          "tp": 2,
+          "fp": 32,
+          "fn": 11,
+          "precision": 0.058823529411764705,
+          "recall": 0.15384615384615385,
+          "f1": 0.0851063829787234
+        },
+        {
+          "threshold": 0.95,
+          "tp": 1,
+          "fp": 33,
+          "fn": 12,
+          "precision": 0.029411764705882353,
+          "recall": 0.07692307692307693,
+          "f1": 0.0425531914893617
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.25768819003639865,
+        "sq": 0.756959058231921,
+        "rq": 0.3404255319148936,
+        "tp": 8,
+        "fp": 26,
+        "fn": 5
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.11568591513848772,
+        "sq": 0.9062063352514872,
+        "rq": 0.1276595744680851,
+        "tp": 3,
+        "fp": 31,
+        "fn": 10
+      },
+      "matches_iou": [
+        {
+          "gt_index": 7,
+          "gt_category": "red apple",
+          "pred_color": [
+            177,
+            109,
+            242
+          ],
+          "iou": 0.9564
+        },
+        {
+          "gt_index": 11,
+          "gt_category": "rubber duck with buoy",
+          "pred_color": [
+            229,
+            60,
+            22
+          ],
+          "iou": 0.9242
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "jake",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.838
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "old camera",
+          "pred_color": [
+            229,
+            215,
+            22
+          ],
+          "iou": 0.7269
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "pumpkin",
+          "pred_color": [
+            130,
+            0,
+            191
+          ],
+          "iou": 0.696
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "green toy chair",
+          "pred_color": [
+            100,
+            61,
+            153
+          ],
+          "iou": 0.6858
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "green apple",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.6351
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "rubber duck with hat",
+          "pred_color": [
+            38,
+            126,
+            153
+          ],
+          "iou": 0.5932
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "tesla door handle",
+          "pred_color": [
+            229,
+            122,
+            22
+          ],
+          "iou": 0.4725
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "rubics cube",
+          "pred_color": [
+            191,
+            0,
+            9
+          ],
+          "iou": 0.077
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "pink ice cream",
+          "pred_color": [
+            22,
+            81,
+            229
+          ],
+          "iou": 0.0456
+        },
+        {
+          "gt_index": 12,
+          "gt_category": "pirate hat",
+          "pred_color": [
+            0,
+            0,
+            0
+          ],
+          "iou": 0.0027
+        },
+        {
+          "gt_index": 10,
+          "gt_category": "spatula",
+          "pred_color": [
+            0,
+            188,
+            191
+          ],
+          "iou": 0.0
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00195",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/figurines/frame_00195.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/figurines_r4/gat/images_coverage/frame_00195.png",
+      "n_gt_instances": 16,
+      "n_pred_instances": 35,
+      "mean_iou_all_matches": 0.38252608269420835,
+      "mean_f1_iou_50_95": 0.12941176470588234,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 7,
+          "fp": 28,
+          "fn": 9,
+          "precision": 0.2,
+          "recall": 0.4375,
+          "f1": 0.27450980392156865
+        },
+        {
+          "threshold": 0.55,
+          "tp": 6,
+          "fp": 29,
+          "fn": 10,
+          "precision": 0.17142857142857143,
+          "recall": 0.375,
+          "f1": 0.23529411764705876
+        },
+        {
+          "threshold": 0.6,
+          "tp": 6,
+          "fp": 29,
+          "fn": 10,
+          "precision": 0.17142857142857143,
+          "recall": 0.375,
+          "f1": 0.23529411764705876
+        },
+        {
+          "threshold": 0.65,
+          "tp": 3,
+          "fp": 32,
+          "fn": 13,
+          "precision": 0.08571428571428572,
+          "recall": 0.1875,
+          "f1": 0.11764705882352938
+        },
+        {
+          "threshold": 0.7,
+          "tp": 3,
+          "fp": 32,
+          "fn": 13,
+          "precision": 0.08571428571428572,
+          "recall": 0.1875,
+          "f1": 0.11764705882352938
+        },
+        {
+          "threshold": 0.75,
+          "tp": 3,
+          "fp": 32,
+          "fn": 13,
+          "precision": 0.08571428571428572,
+          "recall": 0.1875,
+          "f1": 0.11764705882352938
+        },
+        {
+          "threshold": 0.8,
+          "tp": 2,
+          "fp": 33,
+          "fn": 14,
+          "precision": 0.05714285714285714,
+          "recall": 0.125,
+          "f1": 0.0784313725490196
+        },
+        {
+          "threshold": 0.85,
+          "tp": 2,
+          "fp": 33,
+          "fn": 14,
+          "precision": 0.05714285714285714,
+          "recall": 0.125,
+          "f1": 0.0784313725490196
+        },
+        {
+          "threshold": 0.9,
+          "tp": 1,
+          "fp": 34,
+          "fn": 15,
+          "precision": 0.02857142857142857,
+          "recall": 0.0625,
+          "f1": 0.0392156862745098
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 35,
+          "fn": 16,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.19658704894232118,
+        "sq": 0.7161385354327414,
+        "rq": 0.27450980392156865,
+        "tp": 7,
+        "fp": 28,
+        "fn": 9
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.10214427404299262,
+        "sq": 0.8682263293654372,
+        "rq": 0.11764705882352941,
+        "tp": 3,
+        "fp": 32,
+        "fn": 13
+      },
+      "matches_iou": [
+        {
+          "gt_index": 4,
+          "gt_category": "green toy chair",
+          "pred_color": [
+            100,
+            61,
+            153
+          ],
+          "iou": 0.9232
+        },
+        {
+          "gt_index": 11,
+          "gt_category": "rubber duck with buoy",
+          "pred_color": [
+            229,
+            60,
+            22
+          ],
+          "iou": 0.8822
+        },
+        {
+          "gt_index": 13,
+          "gt_category": "miffy",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.7992
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "green apple",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.6435
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "toy elephant",
+          "pred_color": [
+            191,
+            0,
+            181
+          ],
+          "iou": 0.6132
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "old camera",
+          "pred_color": [
+            229,
+            215,
+            22
+          ],
+          "iou": 0.6122
+        },
+        {
+          "gt_index": 15,
+          "gt_category": "rubber duck with hat",
+          "pred_color": [
+            38,
+            126,
+            153
+          ],
+          "iou": 0.5394
+        },
+        {
+          "gt_index": 14,
+          "gt_category": "bag",
+          "pred_color": [
+            22,
+            81,
+            229
+          ],
+          "iou": 0.3919
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "toy cat statue",
+          "pred_color": [
+            109,
+            117,
+            242
+          ],
+          "iou": 0.3484
+        },
+        {
+          "gt_index": 10,
+          "gt_category": "waldo",
+          "pred_color": [
+            191,
+            0,
+            79
+          ],
+          "iou": 0.2071
+        },
+        {
+          "gt_index": 12,
+          "gt_category": "pirate hat",
+          "pred_color": [
+            0,
+            191,
+            86
+          ],
+          "iou": 0.0658
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "rubics cube",
+          "pred_color": [
+            153,
+            38,
+            133
+          ],
+          "iou": 0.059
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "pink ice cream",
+          "pred_color": [
+            61,
+            153,
+            151
+          ],
+          "iou": 0.0214
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "pink ice cream",
+          "pred_color": [
+            0,
+            0,
+            0
+          ],
+          "iou": 0.0138
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "porcelain hand",
+          "pred_color": [
+            0,
+            191,
+            143
+          ],
+          "iou": 0.0
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "spatula",
+          "pred_color": [
+            0,
+            114,
+            191
+          ],
+          "iou": 0.0
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00041",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/figurines/frame_00041.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/figurines_r4/gat/images_coverage/frame_00041.png",
+      "n_gt_instances": 17,
+      "n_pred_instances": 31,
+      "mean_iou_all_matches": 0.4932107790002508,
+      "mean_f1_iou_50_95": 0.2375,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 10,
+          "fp": 21,
+          "fn": 7,
+          "precision": 0.3225806451612903,
+          "recall": 0.5882352941176471,
+          "f1": 0.41666666666666663
+        },
+        {
+          "threshold": 0.55,
+          "tp": 10,
+          "fp": 21,
+          "fn": 7,
+          "precision": 0.3225806451612903,
+          "recall": 0.5882352941176471,
+          "f1": 0.41666666666666663
+        },
+        {
+          "threshold": 0.6,
+          "tp": 8,
+          "fp": 23,
+          "fn": 9,
+          "precision": 0.25806451612903225,
+          "recall": 0.47058823529411764,
+          "f1": 0.3333333333333333
+        },
+        {
+          "threshold": 0.65,
+          "tp": 7,
+          "fp": 24,
+          "fn": 10,
+          "precision": 0.22580645161290322,
+          "recall": 0.4117647058823529,
+          "f1": 0.29166666666666663
+        },
+        {
+          "threshold": 0.7,
+          "tp": 6,
+          "fp": 25,
+          "fn": 11,
+          "precision": 0.1935483870967742,
+          "recall": 0.35294117647058826,
+          "f1": 0.25
+        },
+        {
+          "threshold": 0.75,
+          "tp": 5,
+          "fp": 26,
+          "fn": 12,
+          "precision": 0.16129032258064516,
+          "recall": 0.29411764705882354,
+          "f1": 0.20833333333333331
+        },
+        {
+          "threshold": 0.8,
+          "tp": 5,
+          "fp": 26,
+          "fn": 12,
+          "precision": 0.16129032258064516,
+          "recall": 0.29411764705882354,
+          "f1": 0.20833333333333331
+        },
+        {
+          "threshold": 0.85,
+          "tp": 4,
+          "fp": 27,
+          "fn": 13,
+          "precision": 0.12903225806451613,
+          "recall": 0.23529411764705882,
+          "f1": 0.16666666666666666
+        },
+        {
+          "threshold": 0.9,
+          "tp": 2,
+          "fp": 29,
+          "fn": 15,
+          "precision": 0.06451612903225806,
+          "recall": 0.11764705882352941,
+          "f1": 0.08333333333333333
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 31,
+          "fn": 17,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.31676764405450025,
+        "sq": 0.7602423457308006,
+        "rq": 0.4166666666666667,
+        "tp": 10,
+        "fp": 21,
+        "fn": 7
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.18198930111249,
+        "sq": 0.873548645339952,
+        "rq": 0.20833333333333334,
+        "tp": 5,
+        "fp": 26,
+        "fn": 12
+      },
+      "matches_iou": [
+        {
+          "gt_index": 6,
+          "gt_category": "rubber duck with buoy",
+          "pred_color": [
+            229,
+            60,
+            22
+          ],
+          "iou": 0.9195
+        },
+        {
+          "gt_index": 11,
+          "gt_category": "red apple",
+          "pred_color": [
+            177,
+            109,
+            242
+          ],
+          "iou": 0.9083
+        },
+        {
+          "gt_index": 16,
+          "gt_category": "miffy",
+          "pred_color": [
+            109,
+            242,
+            233
+          ],
+          "iou": 0.8672
+        },
+        {
+          "gt_index": 13,
+          "gt_category": "jake",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.851
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "red toy chair",
+          "pred_color": [
+            61,
+            153,
+            151
+          ],
+          "iou": 0.8218
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "green apple",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.7454
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "toy elephant",
+          "pred_color": [
+            191,
+            0,
+            181
+          ],
+          "iou": 0.6773
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "rubber duck with hat",
+          "pred_color": [
+            38,
+            126,
+            153
+          ],
+          "iou": 0.6468
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "old camera",
+          "pred_color": [
+            229,
+            215,
+            22
+          ],
+          "iou": 0.5985
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "tesla door handle",
+          "pred_color": [
+            229,
+            122,
+            22
+          ],
+          "iou": 0.5667
+        },
+        {
+          "gt_index": 10,
+          "gt_category": "pikachu",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.4561
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "waldo",
+          "pred_color": [
+            191,
+            0,
+            79
+          ],
+          "iou": 0.1494
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "pink ice cream",
+          "pred_color": [
+            22,
+            81,
+            229
+          ],
+          "iou": 0.1386
+        },
+        {
+          "gt_index": 15,
+          "gt_category": "pirate hat",
+          "pred_color": [
+            0,
+            191,
+            86
+          ],
+          "iou": 0.0382
+        },
+        {
+          "gt_index": 4,
+          "gt_category": "porcelain hand",
+          "pred_color": [
+            0,
+            0,
+            0
+          ],
+          "iou": 0.0
+        },
+        {
+          "gt_index": 12,
+          "gt_category": "spatula",
+          "pred_color": [
+            22,
+            126,
+            229
+          ],
+          "iou": 0.0
+        },
+        {
+          "gt_index": 14,
+          "gt_category": "toy cat statue",
+          "pred_color": [
+            0,
+            191,
+            143
+          ],
+          "iou": 0.0
+        }
+      ]
+    },
+    {
+      "image_name": "frame_00152",
+      "gt_file": "/home/victor/Downloads/lear_ovs/lerf_ovs/label/figurines/frame_00152.jpg",
+      "pred_file": "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/figurines_r4/gat/images_coverage/frame_00152.png",
+      "n_gt_instances": 11,
+      "n_pred_instances": 33,
+      "mean_iou_all_matches": 0.4401583924027472,
+      "mean_f1_iou_50_95": 0.14090909090909093,
+      "precision_recall_f1_by_threshold": [
+        {
+          "threshold": 0.5,
+          "tp": 5,
+          "fp": 28,
+          "fn": 6,
+          "precision": 0.15151515151515152,
+          "recall": 0.45454545454545453,
+          "f1": 0.22727272727272727
+        },
+        {
+          "threshold": 0.55,
+          "tp": 5,
+          "fp": 28,
+          "fn": 6,
+          "precision": 0.15151515151515152,
+          "recall": 0.45454545454545453,
+          "f1": 0.22727272727272727
+        },
+        {
+          "threshold": 0.6,
+          "tp": 5,
+          "fp": 28,
+          "fn": 6,
+          "precision": 0.15151515151515152,
+          "recall": 0.45454545454545453,
+          "f1": 0.22727272727272727
+        },
+        {
+          "threshold": 0.65,
+          "tp": 5,
+          "fp": 28,
+          "fn": 6,
+          "precision": 0.15151515151515152,
+          "recall": 0.45454545454545453,
+          "f1": 0.22727272727272727
+        },
+        {
+          "threshold": 0.7,
+          "tp": 4,
+          "fp": 29,
+          "fn": 7,
+          "precision": 0.12121212121212122,
+          "recall": 0.36363636363636365,
+          "f1": 0.18181818181818182
+        },
+        {
+          "threshold": 0.75,
+          "tp": 3,
+          "fp": 30,
+          "fn": 8,
+          "precision": 0.09090909090909091,
+          "recall": 0.2727272727272727,
+          "f1": 0.13636363636363635
+        },
+        {
+          "threshold": 0.8,
+          "tp": 3,
+          "fp": 30,
+          "fn": 8,
+          "precision": 0.09090909090909091,
+          "recall": 0.2727272727272727,
+          "f1": 0.13636363636363635
+        },
+        {
+          "threshold": 0.85,
+          "tp": 1,
+          "fp": 32,
+          "fn": 10,
+          "precision": 0.030303030303030304,
+          "recall": 0.09090909090909091,
+          "f1": 0.045454545454545456
+        },
+        {
+          "threshold": 0.9,
+          "tp": 0,
+          "fp": 33,
+          "fn": 11,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        {
+          "threshold": 0.95,
+          "tp": 0,
+          "fp": 33,
+          "fn": 11,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      ],
+      "panoptic_quality_iou50": {
+        "pq": 0.17639233364679507,
+        "sq": 0.7761262680458983,
+        "rq": 0.22727272727272727,
+        "tp": 5,
+        "fp": 28,
+        "fn": 6
+      },
+      "panoptic_quality_iou75": {
+        "pq": 0.11337357569931951,
+        "sq": 0.8314062217950098,
+        "rq": 0.13636363636363635,
+        "tp": 3,
+        "fp": 30,
+        "fn": 8
+      },
+      "matches_iou": [
+        {
+          "gt_index": 4,
+          "gt_category": "jake",
+          "pred_color": [
+            200,
+            242,
+            109
+          ],
+          "iou": 0.8541
+        },
+        {
+          "gt_index": 8,
+          "gt_category": "red apple",
+          "pred_color": [
+            177,
+            109,
+            242
+          ],
+          "iou": 0.8274
+        },
+        {
+          "gt_index": 2,
+          "gt_category": "toy elephant",
+          "pred_color": [
+            191,
+            0,
+            181
+          ],
+          "iou": 0.8127
+        },
+        {
+          "gt_index": 3,
+          "gt_category": "green apple",
+          "pred_color": [
+            153,
+            61,
+            104
+          ],
+          "iou": 0.7137
+        },
+        {
+          "gt_index": 0,
+          "gt_category": "rubber duck with hat",
+          "pred_color": [
+            38,
+            126,
+            153
+          ],
+          "iou": 0.6727
+        },
+        {
+          "gt_index": 6,
+          "gt_category": "pikachu",
+          "pred_color": [
+            229,
+            22,
+            222
+          ],
+          "iou": 0.4876
+        },
+        {
+          "gt_index": 5,
+          "gt_category": "toy cat statue",
+          "pred_color": [
+            109,
+            117,
+            242
+          ],
+          "iou": 0.1865
+        },
+        {
+          "gt_index": 9,
+          "gt_category": "waldo",
+          "pred_color": [
+            191,
+            0,
+            9
+          ],
+          "iou": 0.1174
+        },
+        {
+          "gt_index": 1,
+          "gt_category": "rubics cube",
+          "pred_color": [
+            191,
+            178,
+            0
+          ],
+          "iou": 0.1105
+        },
+        {
+          "gt_index": 10,
+          "gt_category": "pirate hat",
+          "pred_color": [
+            0,
+            191,
+            86
+          ],
+          "iou": 0.0591
+        },
+        {
+          "gt_index": 7,
+          "gt_category": "porcelain hand",
+          "pred_color": [
+            0,
+            31,
+            191
+          ],
+          "iou": 0.0
+        }
+      ]
+    }
+  ],
+  "aggregated": {
+    "total_images": 4,
+    "total_gt_instances": 57,
+    "total_pred_instances": 133,
+    "mean_gt_instances_per_image": 14.25,
+    "mean_pred_instances_per_image": 33.25,
+    "mean_iou_all_matches": 0.456925636125773,
+    "mean_f1_iou_50_95": 0.1737637245420412,
+    "mean_precision_50": 0.22734747858087515,
+    "mean_recall_50": 0.5239163410119293,
+    "mean_f1_50": 0.314718682443964,
+    "total_tp_50": 30,
+    "total_fp_50": 103,
+    "total_fn_50": 27,
+    "mean_precision_75": 0.10653724833041722,
+    "mean_recall_75": 0.24627853763883176,
+    "mean_f1_75": 0.14750090074714606,
+    "total_tp_75": 14,
+    "total_fp_75": 119,
+    "total_fn_75": 43,
+    "mean_pq_50": 0.2368588041700038,
+    "mean_sq_50": 0.7523665518603404,
+    "mean_rq_50": 0.31471868244396406,
+    "mean_pq_75": 0.12829826649832246,
+    "mean_sq_75": 0.8698468829379715,
+    "mean_rq_75": 0.14750090074714606
+  }
+}

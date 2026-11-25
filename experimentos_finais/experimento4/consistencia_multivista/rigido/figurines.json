@@ -1,0 +1,26 @@
+{
+  "cena": "figurines",
+  "cameras": 298,
+  "splats_opacas": 172486,
+  "corr_projecao_foto": 0.6219111108793864,
+  "nosso": {
+    "splats_avaliadas": 115884,
+    "obs_por_splat": 31.113302958130543,
+    "consistencia_media": 0.8505686017708916,
+    "splats_100pct_consistentes": 0.4103672638155397,
+    "splats_com_objeto_como_moda": 0.8769717993855924,
+    "consistencia_media_splats_de_objeto": 0.8429782740650805,
+    "desaparecimento_splats_de_objeto": 0.010492514998846765,
+    "troca_splats_de_objeto": 0.14652921093607266
+  },
+  "gg": {
+    "splats_avaliadas": 115884,
+    "obs_por_splat": 31.113302958130543,
+    "consistencia_media": 0.7389709463568981,
+    "splats_100pct_consistentes": 0.22502675088881985,
+    "splats_com_objeto_como_moda": 0.8730799765282524,
+    "consistencia_media_splats_de_objeto": 0.7363675564329099,
+    "desaparecimento_splats_de_objeto": 0.0669508664040342,
+    "troca_splats_de_objeto": 0.19668157716305598
+  }
+}

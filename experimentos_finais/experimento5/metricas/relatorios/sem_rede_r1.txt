@@ -1,0 +1,65 @@
+================================================================================
+RELATÓRIO DE EXPERIMENTO - GAT
+Data: 2026-09-12 12:40:21
+================================================================================
+
+
+Métricas de Clusterização 3D:
+----------------------------------------
+  ARI (Adjusted Rand Index)               : 0.2306
+  NMI (Normalized Mutual Info)            : 0.4551
+  Silhouette Score                        : 0.2197580635547638
+  Davies-Bouldin Index                    : 1.8425
+  Calinski-Harabasz                       : 26403.0718
+
+Estatísticas dos Clusters:
+----------------------------------------
+  Clusters Iniciais (DEVA/SAM)            : 46
+  Clusters Finais (HDBSCAN)               : 12
+  Pontos Válidos                          : 74781
+  Tamanho Médio dos Clusters              : 6231.7500
+  Desvio Padrão dos Clusters              : 5425.8979
+
+Métricas Espaciais:
+----------------------------------------
+  Distância Intra-Cluster Média           : 1.4486
+
+Configuração do Experimento:
+----------------------------------------
+  Modelo                                  : gat
+  GCN Depth                               : N/A
+  Cabeças de Atenção (GAT)                : 8
+  Min Cluster Size                        : 500
+  KNN Reassign K                          : 25
+  UMAP (dimensões)                        : desligado
+  UMAP n_neighbors                        : N/A
+  UMAP min_dist                           : N/A
+  UMAP métrica                            : N/A
+  Total de Gaussianas (Raw)               : 279463
+  Gaussianas Filtradas                    : 80067
+
+Desempenho Computacional:
+----------------------------------------
+  Tempo de Construção do Grafo            : 0.50s
+  Tempo de Construção do Grafo (segundos) : 0.5000
+  Tempo de Treinamento                    : 0.00s
+  Tempo de Treinamento (segundos)         : 0.0000
+  Tempo HDBSCAN                           : 4.00s
+  Tempo HDBSCAN (segundos)                : 4.0000
+  Tempo Total                             : 4.51s
+  Tempo Total (segundos)                  : 4.5100
+  Pico de VRAM Reservada (GB)             : 1.0200
+  VRAM Real Durante o Treino - NVML (GB)  : 0.5200
+
+Resumo do Treinamento:
+----------------------------------------
+  Épocas Treinadas                        : 0
+  Loss Final                              : N/A
+  Melhor Loss                             : N/A
+  Época do Melhor Loss                    : N/A
+
+================================================================================
+HISTÓRICO DE LOSS
+================================================================================
+   Época |         Loss
+------------------------

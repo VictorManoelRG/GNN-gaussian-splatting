@@ -1,0 +1,123 @@
+================================================================================
+RELATÓRIO DE EXPERIMENTO - GCN-V2
+Data: 2026-09-09 22:40:59
+================================================================================
+
+
+Métricas de Clusterização 3D:
+----------------------------------------
+  ARI (Adjusted Rand Index)               : 0.1273
+  NMI (Normalized Mutual Info)            : 0.3995
+  Silhouette Score                        : 0.4471639096736908
+  Davies-Bouldin Index                    : 1.2504
+  Calinski-Harabasz                       : 10347.6307
+
+Estatísticas dos Clusters:
+----------------------------------------
+  Clusters Iniciais (DEVA/SAM)            : 46
+  Clusters Finais (HDBSCAN)               : 15
+  Pontos Válidos                          : 77417
+  Tamanho Médio dos Clusters              : 5161.1333
+  Desvio Padrão dos Clusters              : 6226.2946
+
+Métricas Espaciais:
+----------------------------------------
+  Distância Intra-Cluster Média           : 1.1379
+
+Configuração do Experimento:
+----------------------------------------
+  Modelo                                  : gcn
+  GCN Depth                               : v2
+  Cabeças de Atenção (GAT)                : 8
+  Min Cluster Size                        : 500
+  KNN Reassign K                          : 25
+  Total de Gaussianas (Raw)               : 279463
+  Gaussianas Filtradas                    : 80067
+
+Desempenho Computacional:
+----------------------------------------
+  Tempo de Construção do Grafo            : 0.49s
+  Tempo de Construção do Grafo (segundos) : 0.4900
+  Tempo de Treinamento                    : 1.45s
+  Tempo de Treinamento (segundos)         : 1.4500
+  Tempo HDBSCAN                           : 14.39s
+  Tempo HDBSCAN (segundos)                : 14.3900
+  Tempo Total                             : 16.34s
+  Tempo Total (segundos)                  : 16.3400
+  Pico de VRAM Reservada (GB)             : 0.6800
+  VRAM Real Durante o Treino - NVML (GB)  : 0.8300
+
+Resumo do Treinamento:
+----------------------------------------
+  Épocas Treinadas                        : 62
+  Loss Final                              : 2.6512
+  Melhor Loss                             : 2.6317
+  Época do Melhor Loss                    : 42
+
+================================================================================
+HISTÓRICO DE LOSS
+================================================================================
+   Época |         Loss
+------------------------
+       1 |     4.305077
+       2 |     3.781346
+       3 |     3.289697
+       4 |     3.058125
+       5 |     2.900292
+       6 |     2.823084
+       7 |     2.813236
+       8 |     2.781710
+       9 |     2.847694
+      10 |     2.818268
+      11 |     2.802828
+      12 |     2.775126
+      13 |     2.739211
+      14 |     2.757027
+      15 |     2.715810
+      16 |     2.733746
+      17 |     2.718789
+      18 |     2.691550
+      19 |     2.726262
+      20 |     2.690404
+      21 |     2.711747
+      22 |     2.693373
+      23 |     2.680479
+      24 |     2.681469
+      25 |     2.677367
+      26 |     2.669554
+      27 |     2.692918
+      28 |     2.673089
+      29 |     2.689161
+      30 |     2.669899
+      31 |     2.670586
+      32 |     2.666297
+      33 |     2.676428
+      34 |     2.677439
+      35 |     2.666767
+      36 |     2.671434
+      37 |     2.653430
+      38 |     2.684384
+      39 |     2.660575
+      40 |     2.636157
+      41 |     2.646140
+      42 |     2.631728
+      43 |     2.652012
+      44 |     2.674052
+      45 |     2.639349
+      46 |     2.648768
+      47 |     2.646945
+      48 |     2.643963
+      49 |     2.632031
+      50 |     2.665971
+      51 |     2.669125
+      52 |     2.666573
+      53 |     2.661470
+      54 |     2.669255
+      55 |     2.674494
+      56 |     2.671316
+      57 |     2.675797
+      58 |     2.665319
+      59 |     2.657196
+      60 |     2.660229
+      61 |     2.669090
+      62 |     2.651172

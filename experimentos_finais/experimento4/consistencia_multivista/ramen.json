@@ -1,0 +1,26 @@
+{
+  "cena": "ramen",
+  "cameras": 131,
+  "splats_opacas": 109208,
+  "corr_projecao_foto": 0.3424649550736897,
+  "nosso": {
+    "splats_avaliadas": 93017,
+    "obs_por_splat": 36.53669759291312,
+    "consistencia_media": 0.8301313516800157,
+    "splats_100pct_consistentes": 0.3117279637055592,
+    "splats_com_objeto_como_moda": 0.9234333508928475,
+    "consistencia_media_splats_de_objeto": 0.8349260203464358,
+    "desaparecimento_splats_de_objeto": 0.01702206135416252,
+    "troca_splats_de_objeto": 0.14805191829940165
+  },
+  "gg": {
+    "splats_avaliadas": 93017,
+    "obs_por_splat": 36.53669759291312,
+    "consistencia_media": 0.7824629628737246,
+    "splats_100pct_consistentes": 0.20458625842587913,
+    "splats_com_objeto_como_moda": 0.9704140103421955,
+    "consistencia_media_splats_de_objeto": 0.7847410675484577,
+    "desaparecimento_splats_de_objeto": 0.03039726051275348,
+    "troca_splats_de_objeto": 0.18486167193878872
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "cena": "teatime",
+  "cameras": 158,
+  "splats_opacas": 131417,
+  "corr_projecao_foto": 0.7071287499516693,
+  "nosso": {
+    "splats_avaliadas": 86298,
+    "obs_por_splat": 28.587278963591277,
+    "consistencia_media": 0.8986192304870411,
+    "splats_100pct_consistentes": 0.49132077220793063,
+    "splats_com_objeto_como_moda": 0.7563790586108601,
+    "consistencia_media_splats_de_objeto": 0.8890983572074762,
+    "desaparecimento_splats_de_objeto": 0.007076886894999174,
+    "troca_splats_de_objeto": 0.10382475589752471
+  },
+  "gg": {
+    "splats_avaliadas": 86298,
+    "obs_por_splat": 28.587278963591277,
+    "consistencia_media": 0.7335478555069058,
+    "splats_100pct_consistentes": 0.1576398062527521,
+    "splats_com_objeto_como_moda": 0.7707942246633758,
+    "consistencia_media_splats_de_objeto": 0.7063021575875664,
+    "desaparecimento_splats_de_objeto": 0.06174047496792502,
+    "troca_splats_de_objeto": 0.2319573674445086
+  }
+}

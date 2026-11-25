@@ -1,0 +1,54 @@
+================================================================================
+🔍 BATCH EVALUATOR - Segmentação de Instâncias
+================================================================================
+📂 Ground Truth : /home/victor/Downloads/lear_ovs/lerf_ovs/label/figurines
+📂 Predições    : /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/figurines_r5/gat/images_coverage
+📄 Saída JSON   : /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/metricas/figurines_r5_miou.json
+================================================================================
+
+📁 Encontradas 4 imagens no ground truth
+================================================================================
+
+📁 Relatório completo salvo em: /home/victor/Documentos/gaussian_grouping/gaussian-grouping/experimentos_finais/experimento4/metricas/figurines_r5_miou.json
+
+================================================================================
+📊 MÉDIAS TOTAIS SOBRE TODAS AS IMAGENS
+================================================================================
+• Total de imagens processadas        : 4
+• Total de instâncias GT              : 57
+• Total de instâncias preditas        : 124
+• Média de instâncias GT por imagem   : 14.25
+• Média de instâncias preditas/imagem : 31.00
+• mIoU médio (todos os pares)         : 0.4240
+--------------------------------------------------------------------------------
+📌 MÉDIAS @ IoU >= 0.50:
+  - Precision média : 0.2176
+  - Recall médio    : 0.4636
+  - F1-Score médio  : 0.2944
+  - TP total        : 27
+  - FP total        : 97
+  - FN total        : 30
+--------------------------------------------------------------------------------
+📌 MÉDIAS @ IoU >= 0.75:
+  - Precision média : 0.1065
+  - Recall médio    : 0.2190
+  - F1-Score médio  : 0.1424
+  - TP total        : 13
+  - FP total        : 111
+  - FN total        : 44
+--------------------------------------------------------------------------------
+📌 PANOPTIC QUALITY MÉDIA @ IoU >= 0.50:
+  - PQ (Panoptic Quality)    : 0.2181
+  - SQ (Segmentation Quality): 0.7414
+  - RQ (Recognition Quality) : 0.2944
+--------------------------------------------------------------------------------
+📌 PANOPTIC QUALITY MÉDIA @ IoU >= 0.75:
+  - PQ (Panoptic Quality)    : 0.1201
+  - SQ (Segmentation Quality): 0.8500
+  - RQ (Recognition Quality) : 0.1424
+--------------------------------------------------------------------------------
+📌 VARREUDURA COCO:
+  - F1 Médio (IoU 0.50:0.95)  : 0.1547
+================================================================================
+
+✅ Processadas 4 imagens com sucesso!

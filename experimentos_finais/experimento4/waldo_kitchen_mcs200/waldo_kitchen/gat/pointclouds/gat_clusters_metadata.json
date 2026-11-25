@@ -1,0 +1,11 @@
+{
+  "model_type": "gat",
+  "gcn_depth": "N/A",
+  "gat_heads": 8,
+  "min_cluster_size": 200,
+  "n_clusters": 179,
+  "raw_gaussians": 438020,
+  "filtered_gaussians": 225348,
+  "max_vram_gb": 6.828125,
+  "training_vram_nvml_gb": 6.982421875
+}
