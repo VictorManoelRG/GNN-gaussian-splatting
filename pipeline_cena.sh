@@ -24,7 +24,7 @@ CENA="${1:?uso: pipeline_cena.sh <nome-da-cena> [fator-de-resize]}"
 # o fator 9 leva a ~231 px, um pouco acima delas mas ainda leve o bastante
 # para o SAM e o DEVA caberem nos 8 GB da placa.
 FATOR="${2:-9}"
-RAIZ="/home/victor/Documentos/gaussian_grouping/gaussian-grouping"
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DADOS="${RAIZ}/data/${CENA}"
 LOGS="${RAIZ}/logs_cenas"
 

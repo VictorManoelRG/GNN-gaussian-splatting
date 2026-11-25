@@ -25,8 +25,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-RAIZ = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping"
-GT = "/home/victor/Downloads/lear_ovs/lerf_ovs/label"
+RAIZ = os.path.dirname(os.path.abspath(__file__))
+GT = os.path.join(RAIZ, "data", "lerf_ovs", "label")
 CENAS = ["teatime", "ramen", "figurines", "waldo_kitchen"]
 
 

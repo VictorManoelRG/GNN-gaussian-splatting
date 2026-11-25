@@ -14,11 +14,11 @@
 # ============================================================================
 set -u
 
-RAIZ="/home/victor/Documentos/gaussian_grouping/gaussian-grouping"
+RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SAIDA="${RAIZ}/experimentos_finais/experimento5"
 LOGS="${SAIDA}/logs"
 METRICAS="${SAIDA}/metricas"
-GT="/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime"
+GT="${RAIZ}/data/lerf_ovs/label/teatime"
 DEVA="${RAIZ}/Tracking-Anything-with-DEVA/example/output_gaussian_dataset/teatime"
 
 mkdir -p "${LOGS}" "${METRICAS}"

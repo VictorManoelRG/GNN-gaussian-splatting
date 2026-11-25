@@ -1,1 +1,1 @@
-Namespace(data_device='cuda', eval=False, images='images', model_path='output/ramen', n_views=100, num_classes=256, object_path='object_mask', random_init=False, resolution=1, sh_degree=3, source_path='/home/victor/Documentos/gaussian_grouping/gaussian-grouping/data/ramen', train_split=False, white_background=False)
+Namespace(data_device='cuda', eval=False, images='images', model_path='output/ramen', n_views=100, num_classes=256, object_path='object_mask', random_init=False, resolution=1, sh_degree=3, source_path='data/ramen', train_split=False, white_background=False)

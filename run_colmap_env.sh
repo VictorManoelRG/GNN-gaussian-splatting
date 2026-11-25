@@ -16,17 +16,20 @@
 #
 # Uso: ./run_colmap_env.sh python convert.py -s data/bonsai
 # ============================================================================
-CONDA_ENV=/home/victor/miniconda3/envs/gaussian_grouping
+USUARIO="$(id -un)"
+UID_ATUAL="$(id -u)"
+CASA="$(getent passwd "${USUARIO}" | cut -d: -f6)"
+CONDA_ENV="${CONDA_ENV:-${CASA}/miniconda3/envs/gaussian_grouping}"
 
 exec env -i \
   PATH="${CONDA_ENV}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-  HOME=/home/victor \
-  USER=victor \
+  HOME="${CASA}" \
+  USER="${USUARIO}" \
   SHELL=/bin/bash \
   LANG=C.UTF-8 \
   DISPLAY="${DISPLAY:-:0}" \
-  XAUTHORITY=/run/user/1000/gdm/Xauthority \
-  XDG_RUNTIME_DIR=/run/user/1000 \
+  XAUTHORITY="/run/user/${UID_ATUAL}/gdm/Xauthority" \
+  XDG_RUNTIME_DIR="/run/user/${UID_ATUAL}" \
   CONDA_PREFIX="${CONDA_ENV}" \
   CONDA_DEFAULT_ENV=gaussian_grouping \
   "$@"

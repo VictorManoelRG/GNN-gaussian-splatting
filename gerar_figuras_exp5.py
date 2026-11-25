@@ -25,7 +25,7 @@ RAIZ = os.path.dirname(os.path.abspath(__file__))
 EXP5 = os.path.join(RAIZ, "experimentos_finais", "experimento5")
 EXP1 = os.path.join(RAIZ, "experimentos_finais", "experimento1")
 FRAME = "frame_00002"
-ORIGINAL = f"/home/victor/Downloads/lear_ovs/lerf_ovs/label/teatime/{FRAME}.jpg"
+ORIGINAL = os.path.join(RAIZ, "data", "lerf_ovs", "label", "teatime", f"{FRAME}.jpg")
 
 # chave -> (título no painel, pasta da rodada preservada)
 # A r1 é a repetição preservada das rodadas novas; no Exp. 1 a pasta `padrao`

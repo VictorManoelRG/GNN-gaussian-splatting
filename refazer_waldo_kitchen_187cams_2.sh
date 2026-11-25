@@ -24,8 +24,8 @@
 set -u -o pipefail
 
 CENA=waldo_kitchen
-ROOT=/home/victor/Documentos/gaussian_grouping/gaussian-grouping
-GT=/home/victor/Downloads/lear_ovs/lerf_ovs/label/$CENA
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GT=$ROOT/data/lerf_ovs/label/$CENA
 DEVA=Tracking-Anything-with-DEVA/example/output_gaussian_dataset/$CENA
 MCS="${1:?uso: refazer_waldo_kitchen_187cams_2.sh <min_cluster_size>}"
 GGDIR=$ROOT/experimentos_finais/experimento4/gaussian_grouping
@@ -84,7 +84,7 @@ import json, os, glob, shutil
 s = "waldo_kitchen"
 cams = json.load(open(f"output/{s}/cameras.json"))
 inv = {e["img_name"]: e["id"] for e in cams}
-gt = sorted(os.path.basename(p)[:-5] for p in glob.glob(f"/home/victor/Downloads/lear_ovs/lerf_ovs/label/{s}/*.json"))
+gt = sorted(os.path.basename(p)[:-5] for p in glob.glob(f"data/lerf_ovs/label/{s}/*.json"))
 dst = f"experimentos_finais/experimento4/gaussian_grouping/{s}"; os.makedirs(dst, exist_ok=True)
 for f in gt:
     shutil.copy(f"output/{s}/train/ours_30000/objects_pred/{inv[f]:05d}.png", f"{dst}/{f}.png")

@@ -32,7 +32,7 @@ import cv2
 import numpy as np
 from plyfile import PlyData
 
-RAIZ = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping"
+RAIZ = os.path.dirname(os.path.abspath(__file__))
 STRIDE = 1 << 24  # rótulo = cor RGB empacotada em 24 bits
 
 
