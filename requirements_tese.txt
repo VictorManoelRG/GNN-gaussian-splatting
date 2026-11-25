@@ -1,0 +1,40 @@
+# Dependências Python do método da tese (GNN + HDBSCAN), dos scripts de
+# métricas e do Gaussian Grouping, com as versões exatas do ambiente conda
+# "gaussian_grouping" usado nos experimentos (Python 3.8.20, CUDA 11.8).
+# O passo a passo completo está em docs/install.md, seção "Ambiente da tese".
+#
+# Instale antes o PyTorch pelo índice do CUDA 11.8:
+#   pip install torch==2.0.1 torchvision==0.15.2 --index-url https://download.pytorch.org/whl/cu118
+# e depois este arquivo, com o índice de wheels do PyG:
+#   pip install -r requirements_tese.txt -f https://data.pyg.org/whl/torch-2.0.0+cu118.html
+
+# Gaussian Grouping
+plyfile==0.8.1
+tqdm==4.67.3
+scipy==1.10.0
+wandb==0.24.2
+opencv-contrib-python==5.0.0.93
+scikit-learn==1.3.2
+lpips==0.1.4
+
+# GNN, grafo e clusterização (train_gnn_final_version.py)
+torch-geometric==2.6.1
+torch-scatter==2.1.2+pt20cu118
+torch-sparse==0.6.18+pt20cu118
+torch-cluster==1.6.3+pt20cu118
+hdbscan==0.8.40
+umap-learn==0.5.7
+scikit-image==0.21.0
+numpy==1.24.4
+pandas==2.0.3
+openpyxl==3.1.5
+matplotlib==3.7.5
+pillow==10.4.0
+nvidia-ml-py==13.610.43
+
+# Métricas (calculate_miou_claude_full_table.py)
+pycocotools==2.0.7
+
+# Utilitários opcionais: view_pointcloud.py
+open3d==0.19.0
+# make_video_upscale.py também precisa de: basicsr==1.4.2 realesrgan==0.3.0
