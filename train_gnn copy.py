@@ -2587,7 +2587,7 @@ def main():
 
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=args.min_cluster_size,
-        min_samples=5,
+        min_samples=1,
         prediction_data=False
     ).fit(emb)
 
@@ -2597,7 +2597,7 @@ def main():
     #     emb, 
     #     cluster_labels, 
     #     k=args.knn_reassign_k, 
-    #     min_agreement=0.85
+    #     min_agreement=0.9
     # )
 
     t_hdbscan_end = time.time()

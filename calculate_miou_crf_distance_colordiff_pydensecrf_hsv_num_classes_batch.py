@@ -304,7 +304,7 @@ def process_directory(input_dir, output_folder_name="pydensecrf_results", mode="
 
 
 if __name__ == "__main__":
-    INPUT_DIR = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/gat_8heads/gat/images"
+    INPUT_DIR = "/home/victor/Documentos/gaussian_grouping/gaussian-grouping/exp_res/gat_8heads/gat/images_raw"
 
     # mode="instance" -> Cada objeto espacialmente isolado ganha uma cor única.
     # spatial_weight=0.2 -> Peso da posição (X,Y). Valores altos (ex: 1) fragmentam demais.
