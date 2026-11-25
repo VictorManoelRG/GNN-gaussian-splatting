@@ -1,0 +1,1523 @@
+%% abtex2-modelo-trabalho-academico.tex
+%% Versão adaptada para qualificação de mestrado
+
+\input{preambulo}
+
+% Pacotes adicionais
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{makecell}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{bookmark} % Pacote para melhor controle dos bookmarks
+\usepackage{placeins} % \FloatBarrier: impede que figuras passem para a seção seguinte
+
+% Configurações
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+% ---- compila o índice ----
+\makeindex
+
+% ---- Início do documento ----
+\begin{document}
+% Retira espaço extra obsoleto entre as frases.
+\frenchspacing
+
+% ---- ELEMENTOS PRÉ-TEXTUAIS ----
+
+
+% --- Capa (sem numeração) ---
+\imprimircapa
+
+
+% --- Folha de rosto (sem numeração) ---
+\imprimirfolhaderosto
+
+
+\pagestyle{plain}
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+ \begin{fichacatalografica}
+    \vspace*{\fill}
+    \begin{center}
+        \textsc{Inclua aqui o pdf com a ficha catalogr\'{a}fica fornecida pela BAE.}
+    \end{center}
+    \vspace*{\fill}
+% --- --- ---
+    %\includepdf{ficha-catalografica.pdf}
+ \end{fichacatalografica}
+% ---
+
+% ---
+
+% --- Inserir folha de aprova\c{c}\~{a}o ---
+%\includepdf{folha_de_assinaturas_oficial.pdf}
+
+% Isto \'{e} um exemplo de Folha de aprova\c{c}\~{a}o, elemento obrigat\'{o}rio da NBR
+% 14724/2011 (se\c{c}\~{a}o 4.2.1.3). Voc\^{e} pode utilizar este modelo at\'{e} a aprova\c{c}\~{a}o
+% do trabalho. Ap\'{o}s isso, substitua todo o conte\'{u}do deste arquivo por uma
+% imagem da p\'{a}gina assinada pela banca com o comando abaixo:
+
+% --- Na vers\~{a}o final, exclua essas linhas e insira o \includepdf
+\newpage
+\vspace*{\fill}
+\begin{center}
+    \textsc{Inclua aqui a folha de assinaturas.}
+\end{center}
+\vspace*{\fill}
+\newpage
+% --- --- ---
+%\includepdf[pagecommand={\thispagestyle{plain}}]{folha-assinaturas.pdf}	
+\cleardoublepage
+
+% ---
+
+%% --- Dedicat\'{o}ria ---
+\begin{dedicatoria}
+    \vspace*{\fill}
+    \centering
+    \noindent
+    \textit{Dedico esta tese \`{a} todo mundo.}
+    \vspace*{\fill}
+\end{dedicatoria}
+%% ---
+
+%% --- Agradecimentos ---
+\begin{agradecimentos}
+	Escreva seus agradecimentos.
+    
+    
+	\lipsum[1-3]
+\end{agradecimentos}
+
+
+% --- Resumo em português ---
+\begin{resumo}
+    Este trabalho apresenta uma pesquisa de mestrado sobre segmentação de instâncias em 3D Gaussian Splatting, utilizando Graph Neural Networks (GNNs). A 3D Gaussian Splatting permite a renderização de novos pontos de vista de cenas complexas em tempo real e com alta fidelidade visual, utilizando \emph{splats} dispostas no espaço tridimensional para realizar essa tarefa. Trabalhos recentes exploram a propagação de semântica, edição de cenas e até integração com robótica, mas a segmentação de instâncias ainda possui muitos desafios em aberto devido à dificuldade de entender a distribuição das \emph{splats} no espaço 3D e aos múltiplos atributos que possuem (posição, covariância, opacidade, cor). A metodologia proposta utiliza as máscaras 2D do SAM, com identidades mantidas entre as imagens pelo DEVA, para atribuir rótulos iniciais às \emph{splats}, que são então modeladas como nós de um grafo construído a partir da proximidade espacial e da similaridade de cor. Sobre esse grafo, são avaliadas duas arquiteturas, uma Graph Attention Network (GAT) e uma Graph Convolutional Network (GCN), treinadas com uma função de perda contrastiva que combina margens sobre as arestas, a InfoNCE calculada contra os centroides de cada rótulo e a repulsão entre centroides. Os \emph{embeddings} resultantes são agrupados pelo HDBSCAN, gerando a segmentação das instâncias em 3D e as máscaras 2D renderizadas. O método foi avaliado nas quatro cenas do \emph{dataset} LERF-OVS, com métricas de clusterização 3D e de segmentação de instâncias 2D, e comparado ao Gaussian Grouping. Os resultados mostram que a GAT supera a GCN e que, na cena Teatime limitada aos objetos anotados, o treinamento da rede eleva o mIoU de 0,45, obtido ao clusterizar diretamente as \emph{features} de entrada, para 0,66. Na comparação com o Gaussian Grouping, o método proposto obteve melhor desempenho na cena Teatime (PQ de 0,35 contra 0,18), mas foi superado nas outras três cenas, o que indica que a vantagem ainda não se generaliza para cenas mais complexas. 
+
+    \vspace{\onelineskip}
+
+    \noindent\textbf{Palavras-chave}: Gaussian Splatting; Segmentação de Instâncias; Graph Neural Networks; Graph Attention Networks; Visão Computacional.
+    
+    \vspace{\onelineskip}
+    \vspace{\onelineskip}
+    
+    \begin{otherlanguage*}{english}
+    \begin{center}{\ABNTEXchapterfont\huge Abstract}\end{center}
+    
+    This work presents a master's research on instance segmentation in 3D Gaussian Splatting using Graph Neural Networks (GNNs). 3D Gaussian Splatting enables real-time novel view synthesis of complex scenes with high visual fidelity, using \emph{splats} arranged in 3D space as primitives. Recent works explore semantic propagation, scene editing, and robotics integration, but instance segmentation remains challenging due to the difficulty of understanding the distribution of \emph{splats} in 3D space and their multiple attributes (position, covariance, opacity, color). The proposed methodology uses 2D masks from SAM, with identities kept consistent across images by DEVA, to assign initial labels to the \emph{splats}, which are then modeled as nodes of a graph built from spatial proximity and color similarity. Two architectures are evaluated on this graph, a Graph Attention Network (GAT) and a Graph Convolutional Network (GCN), both trained with a contrastive loss that combines margins over the graph edges, an InfoNCE term computed against the centroid of each label, and a repulsion term between centroids. The resulting embeddings are clustered with HDBSCAN, producing the 3D instance segmentation and the rendered 2D masks. The method was evaluated on the four scenes of the LERF-OVS dataset, with 3D clustering and 2D instance segmentation metrics, and compared with Gaussian Grouping. The results show that the GAT outperforms the GCN and that, on the Teatime scene restricted to the annotated objects, training the network raises the mIoU from 0.45, obtained by clustering the input features directly, to 0.66. Compared with Gaussian Grouping, the proposed method achieved better performance on the Teatime scene (PQ of 0.35 versus 0.18), but was outperformed on the other three scenes, which indicates that its advantage does not yet generalize to more complex scenes.
+    
+    \vspace{\onelineskip}
+    
+    \noindent\textbf{Keywords}: Gaussian Splatting; Instance Segmentation; Graph Neural Networks; Graph Attention Networks; Computer Vision.
+    \end{otherlanguage*}
+\end{resumo}
+
+% --- Lista de ilustrações ---
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+
+% --- Lista de tabelas ---
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+
+% --- Lista de abreviaturas e siglas ---
+\begin{siglas}
+    \item[3DGS] 3D Gaussian Splatting
+    \item[ARI] Adjusted Rand Index
+    \item[CIEDE2000] Fórmula de diferença de cor da Commission Internationale de l'Éclairage, publicada em 2000
+    \item[CIELAB] Espaço de cor L*a*b* da Commission Internationale de l'Éclairage
+    \item[CLIP] Contrastive Language-Image Pre-training
+    \item[CUDA] Compute Unified Device Architecture
+    \item[DBSCAN] Density-Based Spatial Clustering of Applications with Noise
+    \item[DEVA] Decoupled Video Segmentation Approach
+    \item[ELU] Exponential Linear Unit
+    \item[FN] False Negatives
+    \item[FP] False Positives
+    \item[FPS] Frames Per Second
+    \item[GAT] Graph Attention Network
+    \item[GCN] Graph Convolutional Network
+    \item[GNN] Graph Neural Network
+    \item[GPU] Graphics Processing Unit
+    \item[HDBSCAN] Hierarchical Density-Based Spatial Clustering of Applications with Noise
+    \item[InfoNCE] Information Noise-Contrastive Estimation
+    \item[IoU] Intersection over Union
+    \item[KNN] K-Nearest Neighbors
+    \item[LERF] Language Embedded Radiance Fields
+    \item[LERF-OVS] LERF Open-Vocabulary Segmentation
+    \item[mIoU] mean Intersection over Union
+    \item[MLP] Multilayer Perceptron
+    \item[NCE] Noise-Contrastive Estimation
+    \item[NeRF] Neural Radiance Fields
+    \item[NMI] Normalized Mutual Information
+    \item[NVML] NVIDIA Management Library
+    \item[PQ] Panoptic Quality
+    \item[RAM] Random Access Memory
+    \item[RGB] Red, Green, Blue
+    \item[RI] Rand Index
+    \item[RQ] Recognition Quality
+    \item[SAM] Segment Anything Model
+    \item[SfM] Structure from Motion
+    \item[SH] Spherical Harmonics
+    \item[SLAM] Simultaneous Localization and Mapping
+    \item[SQ] Segmentation Quality
+    \item[SSD] Solid-State Drive
+    \item[TP] True Positives
+    \item[VRAM] Video Random Access Memory
+\end{siglas}
+
+% --- Sumário ---
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+% --- Fim dos elementos pré-textuais com numeração romana ---
+% --- Início da numeração arábica (a partir da Introdução) ---
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ---- ELEMENTOS TEXTUAIS ----
+\textual
+
+% ============================================================
+% CAPÍTULO 1: INTRODUÇÃO
+% ============================================================
+\chapter{INTRODUÇÃO}
+
+Uma técnica para a construção de modelos 3D a partir de imagens, chamada de 3D Gaussian Splatting\cite{kerbl20233d} vem chamando a atenção devido a sua capacidade de reconstruir ambientes complexos com boa qualidade visual e de renderizá-los em tempo real. Nessa técnica, a cena é representada por um conjunto de primitivas chamadas de \emph{splats}, inicializadas a partir da nuvem de pontos esparsa obtida pelo COLMAP\cite{Schonberger_2016_CVPR}. Cada \emph{splat} pode ser vista como uma nuvem semi-transparente em formato elipsoidal flutuando no espaço e ocupando um pequeno volume. O \emph{splat} é uma distribuição de probabilidade que ``pinta'' o espaço ao seu redor com uma certa cor e opacidade que decai suavemente a partir do centro. Cada \emph{splat} possui atributos geométricos (posição, covariância) e fotométricos (cor, opacidade, coeficientes SH), que contribuem para a renderização da cena sob qualquer novo ponto de vista. Essas primitivas são otimizadas a partir de um conjunto de imagens de treinamento representando um ambiente, de modo que, ao final do processo, cada \emph{splat} obtém seus atributos ajustados para representar a cena.
+
+Apesar de avanços, muitos desafios ainda são enfrentados para a realização da tarefa de segmentação de objetos em \emph{splats}, já que estes estão dispostos no espaço 3D e possuem diversos atributos distintos. Trabalhos recentes na área utilizam propagação de \emph{embeddings} seguida de clusterização (K-Means, DBSCAN, HDBSCAN). Porém, essas abordagens tratam cada \emph{splat} de forma isolada ou apenas por similaridade de atributos, sem modelar explicitamente as relações geométricas e estruturais entre primitivas vizinhas.
+
+Pensando nisso, as \textit{Graph Neural Networks} (GNNs)\cite{scarselli2008graph} surgem como fortes candidatas para a segmentação de instâncias, pois representam naturalmente conexões entre pontos no espaço 3D. A ideia central é utilizar as informações de cada \emph{splat} (com seus atributos de posição, cor, covariância e opacidade) nas redes em grafos para explorar a relação entre suas vizinhas. Uma GNN, ao propagar informações ao longo das arestas, pode aprender a agrupar primitivas que pertencem ao mesmo objeto e distinguir aquelas de objetos diferentes, usando as conexões do grafo para explorar a estrutura local e global da cena.
+
+Este trabalho propõe o uso de redes neurais em grafo, uma \textit{Graph Attention Network} (GAT)\cite{velivckovic2017graph}, que aprende pesos de atenção adaptativos, e uma \textit{Graph Convolutional Network} (GCN)\cite{kipf2016semi}, que agregam informações dos nós vizinhos para atualizar a representação de cada nó. Isso permite que o modelo em grafo atribua maior importância às \emph{splats} vizinhas que são mais relevantes para a segmentação de uma instância. Essa capacidade é particularmente útil em cenas com oclusões, variações de densidade e objetos de tamanhos variáveis. Acreditamos que a modelagem explícita das relações de vizinhança por meio das GATs e GCNs possa mitigar problemas comuns em abordagens baseadas puramente em clusterização, como fragmentação excessiva e fusão de objetos distintos, potencialmente superando o desempenho dessas metodologias.
+
+\section{Objetivos do Trabalho}
+
+O objetivo deste trabalho é usar as \emph{splats}, previamente treinadas e otimizadas para a renderização de cenas, como nós de uma rede neural em grafo (GNNs). A metodologia visa utilizar modelos de segmentação 2D como o DEVA (\textit{Decoupled Video Segmentation Approach})\cite{cheng2023tracking} e o SAM (\textit{Segment Anything Model})\cite{kirillov2023segment} para projetar labels de instâncias nas \emph{splats}, e com isso, aplicar aprendizado com supervisão fraca (supervisão de modelos já treinados, que seriam o SAM e DEVA) para agrupá-las. 
+
+Usando uma GNN para o treinamento, é possível construir um grafo de vizinhanças que ligam \emph{splats} por meio de limiares de acordo com suas características. O número de vizinhos que cada \emph{splat} pode ter é definido na etapa de construção do grafo, assim como o peso das arestas que conectam cada nó, que é definido pela similaridade de cor e distância espacial.
+
+O método é avaliado com duas arquiteturas de redes neurais em grafos. A principal é uma \textit{Graph Attention Network} (GAT)\cite{velivckovic2017graph}, composta por 2 camadas de atenção em sequência (GATConv → BatchNorm → ELU), com 4 ou 8 cabeças de atenção na primeira camada, que aprende pesos distintos para cada vizinho de um nó. A segunda é uma \textit{Graph Convolutional Network} (GCN)\cite{kipf2016semi}, avaliada com 2 e 4 camadas convolucionais (GCNConv → LayerNorm → ELU) e conexões residuais, que agrega a informação dos vizinhos ponderando-a apenas pelos pesos fixos das arestas. Ambas as redes são treinadas com a mesma \emph{loss} contrastiva, composta por duas escalas, uma local e outra global: a local atua sobre as arestas do grafo por meio de margens, forçando a atração de \emph{splats} vizinhas com o mesmo label e repelindo as de labels distintos; e a global utiliza a técnica de InfoNCE\cite{oord2018representation} contra centroides, em que cada label é representado pela média dos \textit{embeddings} de suas \emph{splats}, e cada \emph{splat} é atraída ao centroide do seu próprio label e afastada dos centroides dos demais. Somado a isso, um termo de repulsão afasta os centroides entre si, otimizando a separação global.
+
+Após o treinamento, a GNN gera representações latentes (\emph{embeddings} de identidade) para cada \emph{splat}. Essas representações podem ser utilizadas por algoritmos de clusterização, como o DBSCAN, HDBSCAN e K-Means para a extração de instância 3D. Com isso, não se obtém apenas a segmentação volumétrica dos objetos, mas também a capacidade de obter segmentações 2D juntamente com as renderizações de novos pontos de vista.
+
+Para a avaliação dos resultados, é possível utilizar métricas que mensuram a qualidade dos clusters gerados no espaço 3D, como: o ARI (\textit{Adjusted Rand Index})\cite{hubert1985comparing}, que mede a similaridade entre dois agrupamentos, tomando em conta o quão aleatório foi a clusterização; a NMI (\textit{Normalized Mutual Information})\cite{strehl2002cluster}, que mede quanta informação é compartilhada entre os clusters de referência e o final; e o \textit{Silhouette Score}\cite{rousseeuw1987silhouettes}, que mede o quão coesos e bem separados estão os \textit{clusters} formados. Também é necessário haver métricas que avaliam a qualidade da segmentação 2D, como: IoU (\textit{Intersection over Union})\cite{everingham2010pascal}, que calcula a sobreposição entre a máscara renderizada e a máscara do \textit{ground truth}; a precisão (\textit{precision}), que indica a fração das instâncias preditas que correspondem corretamente a uma instância do \textit{ground truth}; o \textit{recall}, que indica a fração das instâncias do \textit{ground truth} que foram encontradas pelo método; e a \textit{Panoptic Quality} (PQ)\cite{kirillov2019panoptic}, que combina a qualidade da delimitação das máscaras correspondidas \textit{(Segmentation Quality)} com a capacidade de reconhecer e contar corretamente as instâncias \textit{(Recognition Quality)}.
+
+
+\section{Justificativa}
+
+A síntese de novas vistas em tempo real tornou-se um dos pilares das pesquisas contemporâneas em visão computacional. Alguns frameworks, como o COLMAP\cite{Schonberger_2016_CVPR}, que utilizam técnicas de SfM (\textit{Structure from Motion}), são usados para reconstruir cenários a partir de pareamento de características extraídas de múltiplas imagens, para estimar as poses das câmeras e realizar a triangulação de pontos no espaço 3D, resultando em uma nuvem de pontos esparsa.
+
+Embora já existissem trabalhos baseados em aprendizado de máquina que renderizam novos pontos de vista a partir de imagens, o NeRF\cite{mildenhall2021nerf} revolucionou essa área ao utilizar redes neurais MLP (\textit{Multilayer Perceptron}) para representar uma cena como um campo de radiância neural. Porém, apesar da alta qualidade obtida, ainda havia problemas com artefatos na renderização e tempo de inferência muito alto.
+
+Nesse contexto, surgiu o \textit{3D Gaussian Splatting} propondo uma alternativa utilizando \emph{splats} dispostas no espaço 3D para representar cenas. Diferente do NeRF\cite{mildenhall2021nerf}, o método se sobressai por ter um tempo de inferência menor e qualidade de renderização superior, e tudo isso exigindo baixo custo computacional. A técnica foi introduzida no trabalho \textit{3D Gaussian Splatting for Real-Time Radiance Field Rendering}\cite{kerbl20233d}, estabelecendo um novo marco na renderização realista e em tempo real.
+
+Depois dessa publicação, muitas outras pesquisas surgiram propondo novas soluções utilizando \emph{splats}. Entre essas contribuições, destacam-se melhorias significativas na qualidade de renderização, bem como o desenvolvimento de técnicas voltadas à resolução de problemas específicos. Dentre esses trabalhos, podem ser mencionados o \textit{Gaussian Grouping}\cite{ye2024gaussian}, responsável pela atribuição de um vetor de identidade às \emph{splats}, representando a qual instância elas estão associadas; o \textit{LangSplat}\cite{Qin_2024_CVPR}, que constrói um campo semântico nas \emph{splats}, permitindo \textit{queries} textuais; e o \textit{Gaussian Splatting SLAM}\cite{matsuki2024gaussian}, que realiza o rastreamento da câmera e o mapeamento do ambiente utilizando apenas as primitivas.
+
+A proposta desse trabalho segue uma linha parecida ao \textit{Gaussian Grouping}\cite{ye2024gaussian}, com o objetivo de utilizar as representações associadas às \emph{splats} para realizar segmentação de instâncias na cena. Partindo do princípio que \emph{splats} são pontos no espaço 3D que possuem características de posição, cor, opacidade e formato, as \textit{Graph Neural Networks} (GNNs)\cite{scarselli2008graph} seriam ótimas candidatas a conseguir realizar segmentações na cena. Isso é motivado por conta de que as GNNs são inspiradas em grafos, e cada \emph{splat} poderia ser usada como um nó na rede, que se conectam com outras, formando sua vizinhança.
+
+O \textit{Gaussian Grouping}\cite{ye2024gaussian} surge como uma extensão do algoritmo original de \textit{3D Gaussian Splatting}, que por meio de supervisão fraca, otimiza as \emph{splats} simultaneamente para forçar a convergência de \textit{embeddings} de identidade no espaço latente. O processo de treinamento estabelecido é dividido em três etapas independentes. Primeiramente, há a extração dos rótulos/segmentos pelo modelo SAM\cite{kirillov2023segment} para cada elemento do conjunto de dados (imagens). Em seguida, o rastreamento temporal é garantido pelo \textit{framework} DEVA\cite{cheng2023tracking}, que realiza o \textit{tracking} das instâncias em diferentes pontos de vista, para manter a identidade unitária daquela entidade. E por último, um processo de otimização é aplicado, garantindo reconstrução fotorrealista fidedigna, e também a convergência de \textit{embeddings} de instância.
+
+O treinamento das \emph{splats} leva em conta aspectos de aparência visual e convergência de \textit{embeddings} de instância. Assim, elas sofrem otimização através de uma \emph{loss} de reconstrução, garantindo que a cena continue fotorrealista, e também uma \emph{loss} de agrupamento, que utiliza as \textit{labels} do SAM/DEVA como supervisão fraca para forçar os \textit{embeddings} das \emph{splats} a convergirem para grupos consistentes, realizando assim a segmentação de instância.
+
+Diferente dessa abordagem, a proposta deste trabalho é utilizar a capacidade das GNNs\cite{scarselli2008graph} de fazerem correlações espaciais e cromáticas nas \emph{splats}, utilizando as conexões do grafo para estabelecer relações locais e globais. A introdução de uma função de perda híbrida, que combina restrições de margem locais com a métrica InfoNCE\cite{oord2018representation} e a repulsão entre centroides, permite uma estruturação do espaço latente mais robusta, gerando boas segmentações no processo de aprendizado.
+
+% ============================================================
+% CAPÍTULO 2: REVISÃO BIBLIOGRÁFICA
+% ============================================================
+\chapter{REVISÃO BIBLIOGRÁFICA}
+
+A representação de cenas 3D a partir de imagens 2D avançou significativamente nos últimos anos, e métodos convencionais como malhas e nuvem de pontos evoluíram para procedimentos que usam redes neurais para montagem da cena tridimensional, como exemplo o trabalho NeRF, proposto por \citeauthor{mildenhall2021nerf}. Mais recentemente o \textit{3D Gaussian Splatting}, desenvolvido por \citeauthor{kerbl20233d}, ganhou destaque por conta de seus resultados promissores tratando-se de qualidade visual de renderização e velocidade na inferência. No entanto, a segmentação semântica e por instância nessas representações ainda é um problema em aberto e pouco explorado, principalmente quando se trata de anotações visuais caras.
+
+Esta revisão bibliográfica está dividida em quatro temáticas principais. Primeiramente, na Seção~\ref{sec:rev_representacao_3d}, apresentamos as representações 3D para renderização neural, com ênfase no \textit{3D Gaussian Splatting}. Após isso, na Seção~\ref{sec:rev_segmentacao_splats}, discutimos os métodos existentes para segmentação de instâncias em cenas representadas por \emph{splats}, identificando seus pontos fortes e limitações. Muitos desses métodos utilizam como supervisão máscaras 2D geradas por modelos como o SAM, proposto por \citeauthor{kirillov2023segment}, e o DEVA, apresentado por \citeauthor{cheng2023tracking}. A Seção~\ref{sec:rev_outras_aplicacoes} apresenta outras aplicações construídas sobre o \textit{3D Gaussian Splatting}, nas áreas de linguagem e robótica. Por fim, na Seção~\ref{sec:rev_gnn_contrastivo}, revisamos o uso de redes neurais em grafos (GNNs)\cite{scarselli2008graph} e \emph{losses} contrastivas\cite{oord2018representation} para refinamento de \textit{labels} em nuvens de pontos, e discutimos como esses temas se combinam na base metodológica da proposta deste trabalho.
+
+\section{Uso de Redes Neurais para Representação 3D}
+\label{sec:rev_representacao_3d}
+
+Antes de abordarmos métodos que realizam segmentação de instâncias nas cenas 3D, será citada a base na qual eles operam. Nesta seção, são revisadas as principais abordagens que tratam a renderização de cenas usando métodos neurais, como a \textit{3D Gaussian Splatting}, proposta por \citeauthor{kerbl20233d}, base deste trabalho.
+
+As \textit{NeRFs}, propostas por \citeauthor{mildenhall2021nerf}, têm como objetivo a síntese de novos pontos de vista de cenas complexas, sendo representadas por meio de uma rede neural MLP (\textit{Multilayer Perceptron}), cujos \textit{inputs} são coordenadas 5D de localização espacial (x, y, z) e a direção do ponto de vista ($\theta$, $\phi$), e tem como resultado a densidade volumétrica e a radiância emitida por determinado ponto de vista. Os autores também introduziram a otimização através da diferenciação da renderização de volume, havendo apenas um conjunto de dados compostos por imagens e suas respectivas poses. Mas, apesar da qualidade, as \textit{NeRFs} exigem alto custo computacional e renderizam em baixa taxa de quadros por segundo (FPS).
+
+Para superar essas limitações, \citeauthor{kerbl20233d} propuseram o \textit{3D Gaussian Splatting}, que representa a cena com um conjunto de \emph{splats} anisotrópicas dispostas tridimensionalmente, e cada uma com parâmetros de posição, covariância, opacidade e coeficientes harmônicos esféricos para cor. A renderização ocorre por \textit{splatting} rasterizado, projetando as \emph{splats} para o plano da câmera, tornando-se elipses 2D que contribuem para os pixels da imagem. A eficiência do método vem do uso otimizado da GPU: o rasterizador é implementado com núcleos CUDA (\textit{Compute Unified Device Architecture}, plataforma da NVIDIA para computação paralela em GPUs), realizando diferenciação automática, permitindo processamento paralelo de milhões de \emph{splats}. Essa técnica apresentou ganho expressivo na velocidade de renderização, enquanto manteve a qualidade comparável às \textit{NeRFs}.
+
+\section{Segmentação de Instâncias em Cenas Representadas por \emph{Splats}}
+\label{sec:rev_segmentacao_splats}
+
+A segmentação de instâncias e objetos em cenas representadas por \emph{splats} tem recebido crescente atenção da comunidade de visão computacional, desde o \textit{3D Gaussian Splatting}, proposto por \citeauthor{kerbl20233d}, devido ao seu potencial para aplicações em edição de cenas, realidade aumentada e robótica. Muitos desses métodos realizam o aprendizado por meio de supervisão de modelos 2D que segmentam objetos em imagens, como o SAM, desenvolvido por \citeauthor{kirillov2023segment}. Outras abordagens utilizam as \textit{features} das \emph{splats} em algoritmos de clusterização para obter segmentações de instâncias, como o GaussianCut\cite{jain2024gaussiancut}. A seguir, revisamos os principais métodos de segmentação em \emph{splats} 3D.
+
+O \textit{Gaussian Grouping}\cite{ye2024gaussian} foi um dos primeiros trabalhos a estender o \textit{3D Gaussian Splatting} para segmentação de instâncias. A ideia central do projeto é associar \textit{embeddings} de identidade a cada \emph{splat} que representa a cena, permitindo que elas se agrupem de acordo com a instância a qual pertencem. O vetor de identidade é obtido por meio da otimização durante a renderização diferenciável, utilizando máscaras 2D do SAM\cite{kirillov2023segment} e \textit{tracking} do DEVA\cite{cheng2023tracking} como supervisão. Como resultado, após o treinamento, é possível segmentar objetos individualmente na cena, assim como editá-los (remover ou alterar a cor de um objeto da cena).
+
+O \textit{Feature 3DGS}\cite{Zhou_2024_CVPR} propõe aprender, para cada \emph{splat}, um vetor de \textit{features} semânticas. Durante o treinamento, a cena é renderizada tanto como uma imagem RGB quanto como um mapa de \textit{features}. Este mapa é comparado com as \textit{features} extraídas de modelos 2D pré-treinados (SAM e LSeg, baseado no CLIP) aplicados às imagens originais, utilizando uma \emph{loss} L1. Esse processo é caracterizado como \textit{teacher-student distillation}, em que modelos 2D ensinam como representar o conhecimento semântico nas \emph{splats}. Como resultado, é possível realizar tarefas como segmentação semântica, segmentação \textit{promptable} (\textit{segment anything}) e edição de cenas 3D guiada por texto.
+
+Diferentemente das duas abordagens anteriores, o \textit{GaussianCut}\cite{jain2024gaussiancut} introduziu uma nova metodologia de segmentação de instâncias em \emph{splats} 3D. A ideia chave desse trabalho é representar as \emph{splats} como um grafo, e utilizar o algoritmo \textit{graph cut} para minimizar uma função de energia que combina \textit{inputs} do usuário (cliques, rabiscos ou texto) com propriedades intrínsecas da cena. Como resultado, é possível obter uma separação do que é \textit{background} e \textit{foreground}. A vantagem dessa abordagem é que, diferentemente de outros métodos, não há treinamento da representação: a segmentação é feita iterativamente por meio das ações do usuário. Por isso, o método é mais rápido que abordagens que exigem re-treino por cena.
+
+\section{Outras Aplicações Utilizando 3DGS}
+\label{sec:rev_outras_aplicacoes}
+
+Além do nicho de segmentação por instâncias, apresentado na seção anterior, há outras aplicações que podem ser estendidas utilizando as \emph{splats} como base. Serão apresentadas duas aplicações que ganharam destaque nas áreas de linguagem e robótica.
+
+O \textit{LangSplat}\cite{Qin_2024_CVPR} foi um marco por utilizar as \emph{splats} 3D para a inserção de um campo semântico, que suporta \textit{queries} precisas e eficientes de textos em espaços 3D. Cada \emph{splat} armazena \textit{features} de linguagem extraídas através do modelo CLIP\cite{radford2021learning}, permitindo consultas textuais abertas na cena 3D (e.g.: ``cadeiras vermelhas''). Ao adotar uma técnica de \textit{splatting} para renderizar características da linguagem, esse método torna-se expressivamente mais rápido comparado com o tempo de renderização das NeRFs\cite{mildenhall2021nerf}.
+
+O \textit{Gaussian Splatting SLAM}\cite{matsuki2024gaussian} foi um trabalho introduzido que usa as primitivas como a única representação 3D para rastreamento preciso, mapeamento e renderização em alta qualidade. Diferentemente do 3DGS original, que requer poses precisas de um sistema \textit{offline} de \textit{Structure from Motion} (SfM)\cite{Schonberger_2016_CVPR}, este método realiza o rastreamento da câmera por otimização direta. O sistema opera em tempo real (3 fps) e alcança resultados de alta qualidade em síntese de novos pontos de vista, estimativa de trajetória e reconstrução de objetos.
+
+\section{Redes Neurais em Grafos e Aprendizado Contrastivo}
+\label{sec:rev_gnn_contrastivo}
+
+Assim como discutido nas seções anteriores, o aprendizado supervisionado a partir de máscaras 2D pode gerar rótulos ruidosos quando projetados para o espaço 3D. Uma estratégia para mitigar esse problema é a propagação de informações entre elementos vizinhos conectados diretamente, utilizando grafos. Nesse contexto, esta seção revisa três tópicos fundamentais: Redes Neurais em Grafos (GNNs), as arquiteturas específicas GCN (\textit{Graph Convolutional Networks}) e GAT (\textit{Graph Attention Networks}), e o aprendizado contrastivo, que combinados podem levar a melhores resultados se tratando de segmentação de instâncias.
+
+Existem muitos problemas a respeito da relação entre os dados nas áreas de visão computacional, química molecular e reconhecimento de padrões. Pensando nesses desafios, as \textit{Graph Neural Networks} (GNNs)\cite{scarselli2008graph} surgiram com a ideia de estender o uso de redes neurais em dados que podem ser representados através de diversos tipos de grafos (acíclicos, cíclicos, direcionados e não direcionados). O modelo proposto implementa uma função que mapeia um grafo e seus nós para um espaço latente, aprendendo representações que incorporam a estrutura relacional dos dados. Isso possibilita o uso de GNNs em diversas aplicações que queiram estruturar e entender os dados espaciais, e como eles se relacionam.
+
+O uso de diferentes tipos de redes neurais pode ser usado para a montagem de um grafo neural. Destaca-se entre elas as \textit{Graph Convolutional Networks} (GCN)\cite{kipf2016semi}, que utilizam convolução espectral em grafos. Elas são responsáveis por aprender representações em diversas camadas que codificam tanto a estrutura local quanto as informações de cada nó. Relacionadas à visão computacional, as GCNs têm sido aplicadas com sucesso em problemas de segmentação de nuvens de pontos 3D, onde cada ponto é modelado como um nó e as arestas representam sua vizinhança. A GCN propaga informações entre pontos próximos, refinando a classificação de cada ponto com base no contexto local.
+
+Outra rede neural em grafos que recebe grande destaque por seu desempenho é a \textit{Graph Attention Networks} (GAT)\cite{velivckovic2017graph}, que utiliza um mecanismo de atenção de múltiplas cabeças (\textit{multi-head attention}), em que a importância de cada vizinho é aprendida durante o treinamento. Em vez de usar pesos fixos, a GAT calcula coeficientes de atenção entre um nó e seus vizinhos, permitindo que o modelo foque nas conexões mais relevantes para a tarefa. Essa característica faz com que consigam resultados promissores em redes em grafo para várias tarefas, pois ela consegue distinguir o quanto cada nó pode influenciar seus vizinhos de forma positiva ou negativa, tornando as relações do grafo mais complexas.
+
+Após revisar as GNNs como base geral para processamento de grafos e as GCNs e GATs como arquiteturas para propagação de informações entre nós vizinhos, devemos questionar como garantir que os \textit{embeddings} aprendidos por elas sejam significativos. É aí onde o aprendizado contrastivo se torna relevante.
+
+A \emph{loss} InfoNCE\cite{oord2018representation} introduz um mecanismo para estruturar o espaço de representações: amostras similares (exemplo positivo) devem ficar próximas, enquanto amostras diferentes (exemplos negativos) devem ficar distantes. Uma variação dessa ideia utiliza protótipos, ou centroides, no lugar de amostras individuais: cada classe é representada pela média das representações de seus elementos, e cada amostra é aproximada do centroide da sua própria classe e afastada dos centroides das demais\cite{snell2017prototypical,li2021prototypical}. Combinada com a GCN ou a GAT, que produzem \textit{embeddings} que carregam informações de contexto, essa formulação permite comparar cada nó do grafo com os centroides de todos os rótulos da cena, e não apenas com os seus vizinhos.
+
+A combinação dessas áreas, GNNs, GCNs, GATs e aprendizado contrastivo, fornece a base metodológica para a segmentação de instâncias em \emph{splats} 3D. No contexto deste trabalho, as \emph{splats} são modeladas como nós de um grafo, onde as arestas conectam \emph{splats} vizinhas que estão próximas no espaço 3D e possuem cores similares. As GCNs propagam informações entre os nós, gerando \textit{embeddings} que incorporam o contexto local. Já as GATs conseguem desempenhar muito bem em tarefas que ponderam o quanto uma informação é relevante à outra, devido a sua arquitetura \textit{multi-head attention}. Ambas as arquiteturas conseguem realizar segmentação de instâncias em cenas 3D, e o desempenho das duas é comparado no Experimento 3 deste trabalho.
+
+A \emph{loss} contrastiva utilizada neste trabalho, por sua vez, atua sobre esses \textit{embeddings} em duas escalas. Localmente, aproxima as \emph{splats} conectadas que compartilham o mesmo rótulo fraco (projetado das máscaras do SAM\cite{kirillov2023segment}) e afasta aquelas com rótulos distintos. Globalmente, utiliza a InfoNCE\cite{oord2018representation} para aproximar cada \emph{splat} do centroide do seu rótulo e afastá-la dos centroides dos demais rótulos. Dessa forma, as arquiteturas de redes neurais em grafos GCN e GAT aprendem a refinar rótulos ruidosos propagando informação entre vizinhos, enquanto a \emph{loss} contrastiva garante coerência no espaço latente. Ao final do treinamento, os \textit{embeddings} refinados são submetidos ao algoritmo HDBSCAN (\textit{Hierarchical Density-Based Spatial Clustering of Applications with Noise})\cite{campello2015hierarchical}, produzindo a segmentação final das instâncias na cena 3D.
+
+% ============================================================
+% CAPÍTULO 3: METODOLOGIA
+% ============================================================
+\chapter{METODOLOGIA}
+
+A metodologia proposta para segmentação de instâncias em cenas representadas por \textit{3D Gaussian Splatting}\cite{kerbl20233d} é organizada em duas etapas, ilustradas na Figura~\ref{fig:pipeline_metodo}. Na primeira, a cena é reconstruída e as \emph{splats} recebem seus rótulos iniciais. Dado um \textit{dataset} composto por imagens representando uma cena e as respectivas poses de câmera obtidas pelo algoritmo COLMAP\cite{Schonberger_2016_CVPR}, realiza-se o treinamento das \emph{splats}. Para isso, utiliza-se o repositório oficial do \textit{Gaussian Grouping}\cite{ye2024gaussian}, que estende o \textit{3D Gaussian Splatting} original ao adicionar a capacidade de aprendizado de \textit{embeddings} semânticos associados a cada \emph{splat}. Em paralelo, as imagens são segmentadas pelo SAM e feito \textit{tracking} pelo DEVA, e as máscaras resultantes são transferidas para as \emph{splats} por votação entre as vistas. Na segunda etapa, as \emph{splats} rotuladas são filtradas e conectadas em um grafo, sobre o qual a GAT ou a GCN é treinada com uma \emph{loss} contrastiva. Os \textit{embeddings} resultantes são agrupados pelo HDBSCAN, e as \emph{splats} classificadas como ruído recebem rótulos no pós-processamento por propagação KNN, gerando a segmentação 3D e as máscaras 2D renderizadas. Cada um desses passos é detalhado nas seções a seguir.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/pipeline_metodo.png}
+    \caption{Visão geral do método proposto. Na Etapa 1, a cena é reconstruída com \textit{3D Gaussian Splatting} e as máscaras 2D do SAM, com identidades mantidas pelo DEVA, são projetadas nas \emph{splats} para definir seus rótulos iniciais. Na Etapa 2, as \emph{splats} filtradas formam um grafo, a GAT ou a GCN é treinada com a \emph{loss} contrastiva, e os \textit{embeddings} resultantes são agrupados pelo HDBSCAN, gerando a segmentação 3D e as máscaras 2D renderizadas.}
+    \label{fig:pipeline_metodo}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+
+\section{Obtenção de Rótulos Iniciais a Partir de Máscaras 2D}
+
+Uma vez que o treinamento é realizado, o próximo passo consiste em obter \textit{labels} únicas para cada \emph{splat} usando supervisão a partir das imagens 2D. Para isso, aplica-se o modelo SAM\cite{kirillov2023segment} a cada imagem do \textit{dataset}, extraindo máscaras de segmentação 2D que delimitam os objetos presentes. Em seguida, com o intuito de garantir a consistência temporal dos rótulos ao longo de diferentes imagens, uma vez que um mesmo objeto pode receber identificadores distintos, utiliza-se o DEVA\cite{cheng2023tracking}, que realiza o \textit{tracking} de objetos ao longo da sequência de fotos, atribuindo um identificador único e consistente para cada instância. Esse processo gera, para cada imagem, uma máscara em tons de cinza, em que cada objeto recebe um valor de \textit{pixel} distinto.
+
+Por fim, esses identificadores são transferidos para as \emph{splats} por meio de uma votação entre as vistas. Para cada câmera de treinamento, o centro de cada \emph{splat} é projetado no plano da imagem, utilizando a mesma projeção empregada pelo rasterizador do \textit{3D Gaussian Splatting}. Como várias \emph{splats} podem ser projetadas no mesmo \textit{pixel}, é necessário descartar aquelas que estão ocultas atrás de uma superfície. Caso contrário, uma \emph{splat} localizada atrás de uma parede, por exemplo, receberia o rótulo da parede. Para isso, utiliza-se um \textit{z-buffer} por \textit{pixel}: dentre as \emph{splats} projetadas em um mesmo \textit{pixel}, votam somente aquelas cuja profundidade não ultrapassa a da \emph{splat} mais próxima da câmera por mais de 0,05 unidades da cena. Cada \emph{splat} registra então um voto para a \textit{label} da máscara no \textit{pixel} em que foi projetada.
+
+Após percorrer todas as imagens, cada \emph{splat} recebe a \textit{label} que acumulou mais votos, desde que ela tenha recebido pelo menos 10 votos. O fundo das máscaras (\textit{pixels} sem nenhum objeto) também participa da votação como um candidato: quando o fundo é o mais votado, a \emph{splat} fica sem rótulo, em vez de herdar o objeto que ficou em segundo lugar. Da mesma forma, as \emph{splats} cujo identificador vencedor não atinge o mínimo de votos permanecem sem rótulo. Esse critério evita que \emph{splats} vistas poucas vezes, ou que coincidem com o fundo na maioria das imagens, recebam rótulos pouco confiáveis.
+
+\section{Filtragem das \emph{Splats}}
+
+Antes da construção do grafo, o conjunto de \emph{splats} é reduzido por uma etapa de filtragem, com dois objetivos: descartar primitivas que não representam bem a superfície dos objetos, como \emph{splats} muito grandes, pouco opacas ou isoladas no espaço, e limitar o número de nós do grafo à memória disponível na GPU. A filtragem é composta pelos seguintes passos, aplicados em sequência:
+
+\begin{itemize}
+    \item \textbf{Rótulo válido:} somente as \emph{splats} que receberam rótulo na votação descrita na seção anterior seguem para os passos seguintes.
+
+    \item \textbf{Recorte da cena:} nos experimentos em que a cena é limitada aos objetos anotados no \textit{ground truth}, são mantidas apenas as \emph{splats} contidas em uma caixa delimitadora que envolve esses objetos. Nos demais experimentos, este passo não é aplicado.
+
+    \item \textbf{Escala e opacidade:} descartam-se as \emph{splats} cujo maior eixo está entre os 1\% maiores do conjunto, que em geral correspondem a artefatos flutuantes (\textit{floaters}) ou a primitivas espalhadas pelo fundo. Dentre as restantes, são selecionadas as de maior opacidade até atingir o número máximo de \emph{splats} definido para o experimento. Quando há menos \emph{splats} disponíveis que esse máximo, todas são mantidas.
+
+    \item \textbf{Remoção de \textit{outliers} espaciais:} para cada \emph{splat} restante, calcula-se a distância média até os seus 16 vizinhos mais próximos, e são removidas aquelas cuja distância média ultrapassa a média do conjunto da cena em mais de 2 desvios padrão. Esse passo elimina \emph{splats} isoladas no espaço, que podem passar pelos critérios anteriores mesmo sem pertencer a nenhuma instância.
+\end{itemize}
+
+ As \emph{splats} descartadas não participam da construção do grafo, do treinamento nem da clusterização, e também não são incluídas na renderização das máscaras 2D de segmentação.
+
+\section{Construção da Rede Neural em Grafo}
+
+Para a construção do grafo, cada \emph{splat} é representada como um nó. O grafo é não direcionado e construído com base no algoritmo \textit{k-nearest neighbors} (KNN) no espaço 3D, sendo o mesmo grafo utilizado pelas duas arquiteturas avaliadas neste trabalho, a GAT e a GCN. A estrutura resultante é definida como $G = (V, E)$, em que $V$ representa o conjunto de nós (\emph{splats}) e $E$ o conjunto de arestas.
+
+A montagem da vizinhança de cada nó considera dois critérios: a distância Euclidiana entre as posições das primitivas no espaço 3D e a diferença entre suas cores. Para isso, a cor de cada \emph{splat} é antes convertida do espaço RGB para o espaço CIELAB\cite{cie2004colorimetry}, no qual a distância entre duas cores se aproxima da diferença percebida pelo olho humano. Para cada \emph{splat} $i$ e cada um dos seus $k = 6$ vizinhos mais próximos $j$, uma aresta é adicionada somente se as duas condições a seguir forem satisfeitas:
+
+\begin{itemize}
+    \item \textbf{Proximidade espacial:} a distância Euclidiana $d_{ij}$ entre as posições $\mathbf{x}_i$ e $\mathbf{x}_j$ não ultrapassa o limiar local $\sqrt{\sigma_i \sigma_j}$, em que $\sigma_i$ é a distância da \emph{splat} $i$ ao seu $k$-ésimo vizinho mais próximo\cite{zelnik2004self};
+    \item \textbf{Similaridade de cor:} a diferença de cor $\Delta E_{ij}$ entre $i$ e $j$, calculada pela fórmula CIEDE2000\cite{sharma2005ciede2000}, não ultrapassa o limiar $\tau_{\text{cor}} = 10$.
+\end{itemize}
+
+O limiar espacial é calculado para cada par de \emph{splats}, e não para a cena inteira, porque a densidade de primitivas varia bastante em uma cena reconstruída por \textit{3D Gaussian Splatting}: superfícies com muita textura concentram muitas \emph{splats} próximas, enquanto o fundo fica esparso, e um limiar único aceitaria quase todos os vizinhos nas regiões densas e quase nenhum nas esparsas. Cada aresta aceita recebe um peso que combina a afinidade espacial e a afinidade de cor entre as duas \emph{splats}:
+
+\[
+w_{ij} = 0{,}4 \exp\left(-\frac{d_{ij}^2}{\sigma_i \sigma_j}\right) + 1{,}2 \exp\left(-\frac{\Delta E_{ij}^2}{2\sigma_{\text{cor}}^2}\right)
+\]
+
+onde $\sigma_{\text{cor}} = 6$. Por fim, cada aresta é inserida nos dois sentidos, tornando o grafo não direcionado.
+
+A combinação dos critérios de distância e de cor garante que o grafo capture tanto a estrutura geométrica da cena quanto a consistência visual dos objetos: duas primitivas só são conectadas quando estão próximas e possuem cores semelhantes, o que evita que a informação seja propagada através da fronteira entre objetos vizinhos de cores distintas. Isso produz um grafo representativo, utilizado tanto no aprendizado da GAT quanto no da GCN.
+
+\section{Arquiteturas das Redes Neurais em Grafo}
+
+Neste trabalho foram avaliadas duas arquiteturas de redes neurais em grafo para propagar informação entre \emph{splats} vizinhas: a \textit{Graph Attention Network} (GAT)\cite{velivckovic2017graph} e a \textit{Graph Convolutional Network} (GCN)\cite{kipf2016semi}. A diferença central entre elas está na forma como cada nó agrega a informação dos seus vizinhos. Na GCN, a contribuição de cada vizinho é ponderada pelo peso fixo $w_{ij}$ da aresta, definido na construção do grafo. Na GAT, o mecanismo de \textit{multi-head attention} aprende durante o treinamento a importância de cada vizinho, o que permite reduzir a influência de vizinhos que não fazem parte da mesma instância. A Figura~\ref{fig:arquiteturas_gnn} ilustra as duas arquiteturas.
+
+Cada nó $i$ recebe um vetor de características $\mathbf{h}_i^{(0)} \in \mathbb{R}^{D_{\text{in}}}$, construído pela concatenação das coordenadas espaciais $\mathbf{x}_i$ e da cor no espaço CIELAB, totalizando $D_{\text{in}} = 6$ dimensões de entrada. Nas duas arquiteturas, a saída final é um \textit{embedding} de $D_{\text{out}} = 32$ dimensões.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figuras/arquiteturas_gnn.png}
+    \caption{Arquiteturas de redes neurais em grafo utilizadas neste trabalho: (a) GAT com 4 cabeças de atenção na primeira camada; (b) GCN com 2 camadas convolucionais e conexão residual. O símbolo $+$ indica a soma residual, em que a saída da primeira camada é projetada linearmente para 128 dimensões antes de ser somada. $N$ é o número de \emph{splats} da cena.}
+    \label{fig:arquiteturas_gnn}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\subsection{\textit{Graph Attention Network} (GAT)}
+
+A GAT\cite{velivckovic2017graph} atualiza a representação de cada nó a partir das representações dos seus vizinhos no grafo, mas, em vez de tratar todos os vizinhos da mesma forma, atribui a cada um deles um grau de importância diferente. Esse grau de importância é chamado de coeficiente de atenção e é calculado para cada aresta a partir das \textit{features} dos nós que ela conecta. A rede compara a representação do nó com a de cada vizinho e produz uma pontuação, e essas pontuações são normalizadas para que somem 1 entre todos os vizinhos do nó. A nova representação do nó é então obtida pela soma das representações dos vizinhos, ponderada por esses coeficientes, de modo que vizinhos com coeficiente alto influenciam mais o resultado. O próprio nó também participa dessa soma, o que garante que a sua informação original não seja perdida.
+
+Os coeficientes de atenção não são definidos manualmente: os parâmetros usados para calculá-los são aprendidos durante o treinamento, junto com os demais pesos da rede. Assim, a GAT pode aprender, por exemplo, a dar pouca importância a um vizinho que está próximo no espaço, mas pertence a outro objeto. Por esse motivo, os pesos $w_{ij}$ das arestas, definidos na construção do grafo, não são utilizados na propagação da GAT: a rede usa apenas a informação de quais nós estão conectados e decide por conta própria o quanto cada vizinho deve contribuir.
+
+Para tornar esse processo mais estável, a GAT utiliza várias cabeças de atenção (\textit{multi-head attention}). Cada cabeça calcula seus próprios coeficientes de atenção de forma independente, podendo focar em aspectos diferentes da vizinhança, e as saídas de todas as cabeças são concatenadas ao final da camada. Com isso, uma camada com $H$ cabeças que produz 32 dimensões por cabeça gera uma saída de $32 \times H$ dimensões.
+
+A GAT utilizada possui duas camadas de atenção (Figura~\ref{fig:arquiteturas_gnn}a):
+
+\begin{itemize}
+    \item \textbf{Primeira camada GAT:} transforma as \textit{features} de entrada ($D_{\text{in}} = 6$) em um espaço de 32 dimensões por cabeça de atenção. Utilizando $H$ cabeças de atenção, a saída desta camada possui $32 \times H$ dimensões, seguida por uma normalização \textit{BatchNorm}\cite{ioffe2015batch}. A ativação utilizada é ELU (\textit{Exponential Linear Unit})\cite{clevert2016fast}, seguida por um \textit{dropout}\cite{srivastava2014dropout} (taxa de $0{,}1$). 
+
+    \item \textbf{Segunda camada GAT:} transforma as $32 \times H$ dimensões de entrada em 64 dimensões por cabeça, com 2 cabeças, resultando em 128 dimensões. Aplica-se novamente \textit{BatchNorm}, ELU e \textit{dropout}.
+
+    \item \textbf{Camada linear final:} projeta as 128 dimensões para um \textit{embedding} final de $D_{\text{out}} = 32$ dimensões.
+\end{itemize}
+
+Nas duas camadas de atenção, um \textit{dropout} com taxa de $0{,}1$ também é aplicado sobre os coeficientes de atenção durante o treinamento, descartando aleatoriamente parte das conexões a cada época para evitar que a rede dependa demais de vizinhos específicos.
+
+\subsection{\textit{Graph Convolutional Network} (GCN)}
+
+A GCN\cite{kipf2016semi} também atualiza a representação de cada nó a partir das representações dos seus vizinhos no grafo, mas, diferentemente da GAT, não aprende a importância de cada vizinho. Em cada camada convolucional, as representações dos vizinhos passam por uma mesma transformação aprendida e são somadas, e a contribuição de cada vizinho nessa soma é proporcional ao peso $w_{ij}$ da aresta que o conecta ao nó, definido na construção do grafo. Antes do treinamento, esses pesos são normalizados para o intervalo entre 0 e 1, com base no menor e no maior peso entre todas as arestas do grafo. Dessa forma, vizinhos mais próximos e com cores mais parecidas contribuem mais para a representação do nó.
+
+Além disso, a soma é normalizada pelo grau do nó e de cada vizinho, isto é, pela soma dos pesos das arestas ligadas a cada um deles. Sem essa normalização, nós com muitos vizinhos ou com arestas de peso alto acumulariam valores muito maiores que nós com poucas conexões, e as representações ficariam em escalas diferentes ao longo da cena.
+
+Diferentemente da formulação original da GCN, não são adicionadas auto-conexões (\textit{self-loops}) ao grafo, isto é, arestas que ligam cada nó a si mesmo. Essas arestas receberiam um peso próprio e alterariam a proporção entre os pesos definidos na construção do grafo, que se buscou preservar. Assim, ao contrário da GAT, a importância de cada vizinho na GCN é fixa e definida antes do treinamento.
+
+A GCN utilizada possui duas camadas convolucionais (Figura~\ref{fig:arquiteturas_gnn}b):
+
+\begin{itemize}
+    \item \textbf{Primeira camada GCN:} transforma as \textit{features} de entrada ($D_{\text{in}} = 6$) em um espaço de 64 dimensões, seguida por uma normalização \textit{LayerNorm}\cite{ba2016layer}, ativação ELU e \textit{dropout} (taxa de $0{,}1$).
+
+    \item \textbf{Segunda camada GCN:} transforma as 64 dimensões em 128, seguida por \textit{LayerNorm}. A saída da primeira camada é projetada linearmente para 128 dimensões e somada à saída da segunda (conexão residual\cite{he2016deep}), e o resultado passa por ELU e \textit{dropout}.
+
+    \item \textbf{Camada linear final:} projeta as 128 dimensões para um \textit{embedding} final de $D_{\text{out}} = 32$ dimensões.
+\end{itemize}
+
+Também foi avaliada uma variante mais profunda, com 4 camadas convolucionais ($64 \rightarrow 64$, $64 \rightarrow 64$, $64 \rightarrow 128$ e $128 \rightarrow 128$), precedidas por uma camada linear que projeta a entrada para 32 dimensões. Nessa variante, cada camada é seguida por \textit{LayerNorm}, por uma conexão residual que soma a entrada da camada à sua saída (com projeção linear na camada em que a dimensão muda), por ELU e por \textit{dropout}.
+
+Posteriormente, o \textit{embedding} resultante, de qualquer uma das arquiteturas, será passado por um algoritmo de clusterização, que definirá cada instância da cena.
+
+
+\section{Treinamento com \emph{Loss} Contrastiva InfoNCE}
+
+Para que \emph{splats} de um mesmo objeto tenham vetores latentes semelhantes e \emph{splats} de objetos distintos tenham \textit{embeddings} distantes, é aplicada uma função de perda contrastiva que combina restrições de margem sobre as arestas do grafo\cite{hadsell2006dimensionality} com a InfoNCE\cite{oord2018representation} calculada contra os centroides de cada rótulo. A mesma função de perda é utilizada no treinamento da GAT e da GCN. A perda total é composta por quatro termos:
+
+\[
+\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{pos}} + \mathcal{L}_{\text{neg}} + \mathcal{L}_{\text{NCE}} + \lambda_{\text{rep}}\,\mathcal{L}_{\text{rep}}
+\]
+
+em que $\lambda_{\text{rep}} = 0{,}3$ é o peso do termo de repulsão entre centroides. Todos os termos operam sobre os \textit{embeddings} com normalização L2, de modo que o produto escalar entre dois deles corresponde à similaridade de cosseno $\text{sim}(\cdot, \cdot)$.
+
+\noindent\textbf{Termo positivo ($\mathcal{L}_{\text{pos}}$).} Atrai \textit{embeddings} de nós conectados que compartilham o mesmo rótulo, utilizando uma margem de similaridade. A similaridade de cosseno entre os \textit{embeddings} deve ser superior a $1 - m_{\text{pos}}$, onde $m_{\text{pos}} = 0{,}2$, e cada violação é ponderada pelo peso $w_{ij}$ da aresta:
+
+\[
+\mathcal{L}_{\text{pos}} = \frac{1}{|E^{+}|} \sum_{(i,j) \in E^{+}} w_{ij} \max\left(0,\; 1 - \text{sim}(\mathbf{z}_i, \mathbf{z}_j) - m_{\text{pos}}\right)
+\]
+
+onde $E^{+}$ é o conjunto de arestas que ligam \emph{splats} com o mesmo rótulo.
+
+\noindent\textbf{Termo negativo ($\mathcal{L}_{\text{neg}}$).} Afasta \textit{embeddings} de nós conectados que possuem rótulos diferentes, penalizando similaridades de cosseno que excedam a margem $m_{\text{neg}} = 0{,}1$, também ponderadas pelo peso da aresta:
+
+\[
+\mathcal{L}_{\text{neg}} = \frac{1}{|E^{-}|} \sum_{(i,j) \in E^{-}} w_{ij} \max\left(0,\; \text{sim}(\mathbf{z}_i, \mathbf{z}_j) - m_{\text{neg}}\right)
+\]
+
+onde $E^{-}$ é o conjunto de arestas que ligam \emph{splats} com rótulos diferentes. 
+
+\noindent\textbf{Termo NCE ($\mathcal{L}_{\text{NCE}}$).} Enquanto os dois termos anteriores atuam apenas entre vizinhos no grafo, o termo NCE atua sobre a cena inteira. Para cada rótulo $k$, calcula-se um centroide $\mathbf{c}_k$ a partir da média dos \textit{embeddings} das \emph{splats} que possuem esse rótulo:
+
+\[
+\mathbf{c}_k = \frac{\bar{\mathbf{z}}_k}{\left\Vert \bar{\mathbf{z}}_k \right\Vert}, \qquad \bar{\mathbf{z}}_k = \frac{1}{|V_k|} \sum_{i \in V_k} \mathbf{z}_i
+\]
+
+em que $V_k$ é o conjunto de \emph{splats} com o rótulo $k$. Cada \emph{splat} é então comparada com todos os $K$ centroides da cena: o centroide do seu próprio rótulo funciona como exemplo positivo, e os centroides dos demais rótulos como exemplos negativos\cite{snell2017prototypical,li2021prototypical}. Por usar a média de muitas \emph{splats}, o centroide é pouco afetado pelas \emph{splats} que receberam rótulos incorretos a partir das máscaras 2D. A perda NCE é então calculada como:
+
+\[
+\mathcal{L}_{\text{NCE}} = \frac{1}{K} \sum_{k=1}^{K} \frac{1}{|V_k|} \sum_{i \in V_k} -\log \frac{\exp\left(\text{sim}(\mathbf{z}_i, \mathbf{c}_k)/\tau\right)}{\sum_{k'=1}^{K} \exp\left(\text{sim}(\mathbf{z}_i, \mathbf{c}_{k'})/\tau\right)}
+\]
+
+onde $\tau = 0{,}05$ é uma temperatura que controla a suavidade da distribuição de probabilidades. A média é feita primeiro dentro de cada rótulo e depois entre os rótulos, para que cada objeto tenha o mesmo peso na perda independentemente do seu número de \emph{splats}. Neste termo, os centroides são tratados como constantes, sem propagação de gradiente através deles, de modo que a perda só diminui aproximando cada \textit{embedding} do centroide do seu rótulo, e não deslocando o centroide em direção ao próprio \textit{embedding}.
+
+\noindent\textbf{Termo de repulsão ($\mathcal{L}_{\text{rep}}$).} O termo NCE afasta cada \emph{splat} dos centroides dos outros rótulos, mas não afasta os centroides entre si. O termo de repulsão faz isso diretamente, penalizando pares de centroides cuja similaridade de cosseno exceda a mesma margem $m_{\text{neg}}$:
+
+\[
+\mathcal{L}_{\text{rep}} = \frac{1}{K(K-1)} \sum_{k=1}^{K} \sum_{k' \neq k} \max\left(0,\; \text{sim}(\mathbf{c}_k, \mathbf{c}_{k'}) - m_{\text{neg}}\right)
+\]
+
+Diferentemente do termo NCE, aqui o gradiente é propagado através dos centroides, o que espalha os objetos pelo espaço de \textit{embeddings}.
+
+O treinamento é realizado com o grafo inteiro a cada época (\textit{full-batch}), utilizando o otimizador Adam\cite{kingma2015adam} com taxa de aprendizagem $1 \times 10^{-3}$, por no máximo 800 épocas. É utilizada parada antecipada (\textit{early stopping})\cite{prechelt1998early}: o treinamento é interrompido quando a perda total não diminui ao menos $10^{-4}$ por 20 épocas consecutivas, e os pesos da época com a menor perda são restaurados. Ao final do treinamento, os \textit{embeddings} finais $\mathbf{z}_i$ são obtidos aplicando normalização L2 à saída da rede.
+
+\section{Clusterização final com HDBSCAN}
+
+Após o treinamento da rede, os \textit{embeddings} obtidos são submetidos ao algoritmo HDBSCAN (\textit{Hierarchical Density-Based Spatial Clustering of Applications with Noise})\cite{campello2015hierarchical} para a segmentação por instância final. A clusterização é feita sobre os \textit{embeddings} de 32 dimensões produzidos pela GAT ou pela GCN, e não sobre as coordenadas 3D das \emph{splats}. Assim, duas \emph{splats} são agrupadas quando a rede as representou de forma parecida, e cada \textit{cluster} encontrado corresponde a uma instância da cena. 
+
+O funcionamento do HDBSCAN pode ser resumido em três etapas. Na primeira, estima-se a densidade ao redor de cada ponto a partir da distância até os seus vizinhos mais próximos: pontos em regiões densas têm vizinhos próximos, enquanto pontos em regiões esparsas têm vizinhos distantes. Na segunda, o algoritmo constrói uma hierarquia de agrupamentos, observando como os pontos se dividem em grupos à medida que o critério de densidade se torna mais exigente. Nessa hierarquia, grupos com menos \emph{splats} que um tamanho mínimo não são considerados \textit{clusters}, e seus pontos passam a ser tratados apenas como pontos que se desprendem do grupo maior. Na terceira etapa, o algoritmo escolhe, dentre todos os grupos da hierarquia, aqueles que serão os \textit{clusters} finais. Com o método \textit{eom} (\textit{excess of mass}), são escolhidos os grupos que permanecem estáveis por mais tempo ao longo da hierarquia, o que tende a favorecer \textit{clusters} maiores e mais consistentes, em vez de dividir um mesmo objeto em várias partes pequenas.
+
+Três parâmetros controlam esse processo e foram definidos da seguinte forma neste trabalho:
+
+\begin{itemize}
+    \item \textbf{\texttt{min\_cluster\_size} = 500:} número mínimo de \emph{splats} para que uma região seja aceita como \textit{cluster}. Valores menores permitem encontrar objetos pequenos, mas tendem a fragmentar objetos maiores em várias partes; valores maiores fazem com que objetos pequenos sejam absorvidos por objetos vizinhos ou classificados como ruído.
+
+    \item \textbf{\texttt{min\_samples} = 3:} número de vizinhos considerados na estimativa de densidade de cada ponto. Quanto maior o valor, mais conservador é o algoritmo ao aceitar uma região esparsa como \textit{cluster}, e mais pontos são classificados como ruído.
+
+    \item \textbf{\texttt{cluster\_selection\_method} = \textit{eom}:} critério de escolha dos \textit{clusters} finais descrito acima. A alternativa, \textit{leaf}, seleciona os grupos das pontas da hierarquia e produz \textit{clusters} menores e mais numerosos.
+\end{itemize}
+
+Esses valores formam a configuração de referência adotada ao longo dos experimentos, e a sensibilidade do método a cada um deles é avaliada no Experimento 1. Como resultado da clusterização, cada \emph{splat} recebe o identificador do \textit{cluster} ao qual pertence, o que corresponde à segmentação de um objeto na nuvem de pontos 3D. As \emph{splats} que o HDBSCAN não atribui a nenhum \textit{cluster} recebem o tratamento descrito na seção seguinte.
+
+\section{Propagação KNN para vizinhos sem labels após HDBSCAN}
+
+Por ser um algoritmo baseado em densidade, o HDBSCAN\cite{campello2015hierarchical} não obriga que todos os pontos pertençam a algum \textit{cluster}. As \emph{splats} cujos \textit{embeddings} estão em regiões de baixa densidade do espaço latente, geralmente localizadas nas fronteiras entre objetos ou em partes da cena pouco observadas nas imagens, são classificadas como ruído e ficam sem rótulo. Se permanecessem assim, essas \emph{splats} não pertenceriam a nenhuma instância, gerando lacunas nos objetos segmentados, tanto na nuvem de pontos 3D quanto nas máscaras 2D renderizadas. Para contornar esse problema, aplica-se uma etapa de propagação de rótulos por \textit{k-nearest neighbors} (KNN) logo após a clusterização.
+
+O primeiro passo é separar as \emph{splats} em dois grupos: as que receberam um \textit{cluster} do HDBSCAN e as que foram classificadas como ruído. O índice KNN é construído apenas com as \emph{splats} do primeiro grupo, de modo que somente pontos com rótulo válido possam servir de referência. Em seguida, para cada \emph{splat} de ruído, buscam-se as 25 \emph{splats} rotuladas mais próximas a ela. Essa busca não é feita sobre as coordenadas 3D, e sim no mesmo espaço em que a clusterização acontece, ou seja, sobre os \textit{embeddings} de 32 dimensões produzidos pela rede. Assim, a vizinhança usada na propagação é coerente com a que definiu os \textit{clusters}: duas \emph{splats} são consideradas vizinhas quando a rede as representou de forma parecida, e não apenas quando estão próximas na cena.
+
+Com os vizinhos encontrados, é feita uma votação: cada vizinho vota no \textit{cluster} ao qual pertence, e o \textit{cluster} mais votado é o candidato a rótulo da \emph{splat} de ruído. Esse rótulo, porém, só é aceito quando há um consenso forte entre os vizinhos, sendo necessário que pelo menos 80\% deles pertençam ao mesmo \textit{cluster}. Caso contrário, a \emph{splat} continua sem rótulo. Esse critério evita que \emph{splats} situadas na fronteira entre dois objetos sejam atribuídas arbitrariamente a um deles.
+
+Por fim, a propagação é feita em uma única passada: todas as \emph{splats} de ruído são processadas ao mesmo tempo, consultando apenas as \emph{splats} que já estavam rotuladas pelo HDBSCAN, e os rótulos recém-atribuídos não são usados como referência para as demais. Isso impede que um erro de atribuição se espalhe em cascata pela cena.
+
+% ============================================================
+% CAPÍTULO 4: RESULTADOS E CONCLUSÕES PARCIAIS
+% ============================================================
+\chapter{METODOLOGIA DE AVALIAÇÃO EXPERIMENTAL}
+
+Este capítulo apresenta a descrição dos \textit{datasets} utilizados, das métricas de avaliação adotadas, abrangendo tanto a segmentação 3D quanto a projeção 2D, e do ambiente em que os experimentos foram executados. Um componente essencial da metodologia de avaliação é a uniformização das máscaras de segmentação 2D, descrita na Seção~\ref{sec:uniformizacao_mascaras}. Em vez de inferir a instância de cada \textit{pixel} a partir da cor resultante da composição das \emph{splats}, calcula-se a fração do \textit{pixel} ocupada por cada objeto, e o \textit{pixel} recebe a instância de maior cobertura. Esse procedimento é fundamental para que cada instância tenha uma cor única e uniforme, eliminando as variações de cor provenientes da renderização por \textit{alpha blending}, e viabiliza a avaliação precisa das métricas 2D, como IoU, precisão, \textit{recall} e \textit{Panoptic Quality}.
+
+\section{Configuração Experimental}
+\subsection{Conjunto de Dados}
+Para avaliar o método proposto, utilizamos o dataset \textit{LERF-OVS}\cite{Qin_2024_CVPR}, que consiste em cenas do mundo real capturadas em alta resolução, originalmente introduzidas no trabalho \textit{LERF (Language Embedded Radiance Fields)}\cite{kerr2023lerf} para tarefas de busca semântica por texto em representações 3D. As cenas foram capturadas pelos autores do LERF em ambientes diversos, incluindo espaços internos e externos, com objetos de diferentes escalas, texturas e condições de iluminação.
+
+O conjunto de dados foi posteriormente processado e expandido pelos autores do \textit{LangSplat}\cite{Qin_2024_CVPR}, que disponibilizaram:
+
+\begin{itemize}
+    \item \textbf{Reconstruções COLMAP}: poses de câmera e nuvens de pontos esparsas pré-processadas no formato compatível com o pipeline de \textit{3D Gaussian Splatting}\cite{kerbl20233d};
+    \item \textbf{Anotações de ground truth}: máscaras de segmentação 2D geradas e refinadas para permitir a avaliação quantitativa de métodos de segmentação de vocabulário aberto (\textit{Open-Vocabulary Segmentation});
+    \item \textbf{Estrutura padronizada}: organização de arquivos e \textit{splits} de imagens, facilitando a reprodutibilidade por outros pesquisadores.
+\end{itemize}
+
+Para os experimentos realizados neste trabalho, foram utilizadas as quatro cenas disponibilizadas pelo \textit{dataset} LERF-OVS. A seguir, descrevemos cada uma das cenas em detalhe.
+
+\subsubsection{Ramen}
+
+A cena \textit{Ramen} (Figura~\ref{fig:ramen_dataset}) consiste em um ambiente interno contendo uma mesa com diversos objetos alimentícios, incluindo uma tigela com alimentos, \textit{hashi}, embalagens, uma garrafa e um copo. As fotos foram tiradas em diferentes ângulos, com foco na mesa principal.
+
+A cena contém 131 imagens de treinamento com resolução de 989 × 731 \textit{pixels}, capturadas em diferentes ângulos ao redor da mesa.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/ramen_dataset.png}
+    \caption{Exemplos de imagens do \textit{dataset} \textit{Ramen}. As quatro imagens ilustram diferentes ângulos de um ambiente interno, destacando a diversidade de objetos alimentícios presentes na mesa, incluindo tigela com alimentos, \textit{hashi} (palitos), embalagens, garrafa e copo.}
+    \label{fig:ramen_dataset}
+    \fonte{Adaptado de \citeauthor{Qin_2024_CVPR}.}
+\end{figure}
+
+\subsubsection{\textit{Figurines}}
+
+A cena \textit{Figurines} (Figura~\ref{fig:figurines_dataset}) consiste em um ambiente interno contendo uma mesa com diversos objetos distintos, que estão dispostos sobre uma mesa redonda branca posicionada ao lado de uma parede envidraçada/janela, com vista para uma área urbana.
+
+O \textit{dataset} contém 299 imagens de treinamento com resolução de 986 × 728 \textit{pixels}, capturadas em diferentes ângulos ao redor da mesa.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/figurines_dataset.png}
+    \caption{Exemplos de imagens do \textit{dataset} \textit{Figurines}. As quatro imagens ilustram diferentes ângulos de captura de um cenário com uma mesa com vários objetos em cima, que na maioria são brinquedos de animações.}
+    \label{fig:figurines_dataset}
+    \fonte{Adaptado de \citeauthor{Qin_2024_CVPR}.}
+\end{figure}
+
+\subsubsection{\textit{Waldo Kitchen}}
+
+A cena \textit{Waldo Kitchen} (Figura~\ref{fig:waldo_kitchen_dataset}) consiste em uma cozinha residencial repleta de materiais heterogêneos. O cenário é dominado por uma bancada de cor amarela integrada e armários brancos, contendo uma pia com louças, utensílios de limpeza, escorredor e pequenos eletrodomésticos como torradeira e chaleira. Ao lado da bancada, há uma geladeira branca coberta por fotografias. Ao lado da geladeira, há um painel onde se encontram suspensos diversos utensílios metálicos e plásticos.
+
+O \textit{dataset} contém 187 imagens de treinamento com resolução de 985 × 725 \textit{pixels}, capturadas em diferentes ângulos no ambiente.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/waldo_kitchen_dataset.png}
+    \caption{Exemplos de imagens do \textit{dataset} \textit{Waldo Kitchen}. As quatro imagens ilustram diferentes ângulos de captura de uma cozinha, destacando a diversidade de objetos presentes, incluindo bancada amarela com pia e utensílios, armários brancos, torradeira, chaleira, geladeira com fotografias, e painel com utensílios metálicos e plásticos suspensos.}
+    \label{fig:waldo_kitchen_dataset}
+    \fonte{Adaptado de \citeauthor{Qin_2024_CVPR}.}
+\end{figure}
+
+\subsubsection{\textit{Teatime}}
+
+A cena \textit{Teatime} (Figura~\ref{fig:teatime_dataset}) é protagonizada por dois bichos de pelúcia de grande porte sentados em cadeiras opostas: um urso de pelúcia marrom e uma ovelha de pelúcia branca. Sobre a mesa, encontram-se diversos alimentos e utensílios de cozinha, incluindo um prato quadrado branco contendo biscoitos, um saco de papel, um copo de vidro com bebida, uma xícara branca, uma maçã, guardanapos e pequenos sachês.
+
+O \textit{dataset} contém 177 imagens de treinamento com resolução de 988 × 730 \textit{pixels}, capturadas em diferentes ângulos no ambiente.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/teatime_dataset.png}
+    \caption{Exemplos de imagens do \textit{dataset} \textit{Teatime}. As quatro imagens ilustram diferentes ângulos de captura de um ambiente espaçoso, com dois bichos de pelúcia de grande porte sentados em cadeiras opostas, e uma mesa com utensílios de cozinha e alimentos.}
+    \label{fig:teatime_dataset}
+    \fonte{Adaptado de \citeauthor{Qin_2024_CVPR}.}
+\end{figure}
+
+
+\section{Métricas de Avaliação}
+
+Para avaliar a qualidade da segmentação de instâncias obtida pelo método proposto, foi utilizado um conjunto abrangente de métricas, que abrangem tanto a avaliação no espaço 3D quanto a avaliação das projeções 2D. As métricas foram selecionadas para capturar diferentes aspectos da qualidade da segmentação, incluindo a concordância com rótulos de referência, a coesão intrínseca dos clusters formados e a precisão das segmentações projetadas para o espaço 2D.
+
+\subsection{Métricas de Avaliação 3D}
+
+As métricas 3D avaliam a qualidade da clusterização das \emph{splats} no espaço tridimensional e a semelhança com os rótulos iniciais. Como as cenas não possuem anotações 3D de referência, as métricas ARI e NMI não medem a relação das instâncias a uma anotação real: elas indicam o quanto a clusterização final concorda com os rótulos iniciais provindos do SAM/DEVA. Assim, um valor alto indica que o método preservou a partição fornecida pela supervisão fraca, enquanto um valor mais baixo indica que houve uma maior mudança dos \textit{clusters} finais comparado aos rótulos iniciais.
+
+\subsubsection{Adjusted Rand Index (ARI)}
+
+O \textit{Adjusted Rand Index} (ARI)\cite{hubert1985comparing} é uma métrica estatística que mede a similaridade entre dois agrupamentos, corrigindo o acaso. Dado um conjunto de $N$ elementos, o ARI é calculado com base na contagem de pares de elementos que são atribuídos ao mesmo cluster ou a clusters diferentes em ambos os agrupamentos. A formulação matemática é dada por:
+
+\[
+ARI = \frac{RI - \mathbb{E}[RI]}{\max(RI) - \mathbb{E}[RI]}
+\]
+
+onde:
+\begin{itemize}
+    \item $RI$ é o \textit{Rand Index} original, que mede a proporção de pares de elementos que são agrupados ou separados em duas partições;
+
+    \item $\mathbb{E}[RI]$ é o valor esperado do \textit{Rand Index} sob uma atribuição aleatória de clusters, representando a concordância que seria obtida apenas pelo acaso;
+
+    \item $\max(RI)$ é o valor máximo possível do \textit{Rand Index}, atingido quando as duas partições comparadas são idênticas.
+\end{itemize}
+
+
+Os valores do ARI são interpretados como:
+\begin{itemize}
+    \item $ARI = 1$ indica concordância perfeita entre os agrupamentos;
+    \item $ARI = 0$ indica concordância aleatória (equivalente ao acaso);
+    \item $ARI < 0$ indica concordância pior que o acaso.
+\end{itemize}
+
+\subsubsection{Normalized Mutual Information (NMI)}
+
+A \textit{Normalized Mutual Information} (NMI)\cite{strehl2002cluster} quantifica a informação mútua entre dois agrupamentos, normalizada para o intervalo $[0, 1]$. A informação mútua $I(Y_{true}; Y_{pred})$ mede o quanto conhecer a atribuição em um agrupamento reduz a incerteza sobre a atribuição no outro agrupamento:
+
+\[
+NMI = \frac{I(Y_{true}; Y_{pred})}{(H(Y_{true}) + H(Y_{pred}))/2}
+\]
+
+onde:
+\begin{itemize}
+\item $I(Y_{true}; Y_{pred})$ é a informação mútua entre os agrupamentos verdadeiro e predito, que quantifica o ganho de informação compartilhado entre as duas partições;
+
+\item $H(Y)$ é a entropia do agrupamento $Y$ que mede o grau de incerteza ou desordem associado à distribuição dos elementos nos clusters.
+\end{itemize}
+
+Os valores da NMI são interpretados como:
+\begin{itemize}
+\item $NMI = 1$ indica concordância perfeita entre os agrupamentos (as partições são idênticas);
+\item $NMI = 0$ indica independência total entre os agrupamentos (não há informação compartilhada).
+\end{itemize}
+
+\subsubsection{Silhouette Score}
+
+O \textit{Silhouette Score}\cite{rousseeuw1987silhouettes} é uma métrica intrínseca que avalia a qualidade dos clusters sem necessidade de \textit{ground truth}. Ela mede o quão próximo cada ponto de um cluster está dos pontos do seu próprio grupo em comparação com os clusters vizinhos. Para cada ponto $i$, define-se:
+
+\[
+s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
+\]
+
+onde:
+\begin{itemize}
+    \item $a(i)$ é a distância média do ponto $i$ aos demais pontos do mesmo cluster (coesão);
+    \item $b(i)$ é a distância média do ponto $i$ aos pontos do cluster mais próximo (separação).
+\end{itemize}
+
+O Silhouette Score global é a média de $s(i)$ sobre todos os pontos, variando no intervalo $[-1, 1]$:
+\begin{itemize}
+    \item $s(i) \approx 1$: ponto bem agrupado (alta coesão e alta separação);
+    \item $s(i) \approx 0$: ponto na fronteira entre clusters;
+    \item $s(i) \approx -1$: ponto mal agrupado (provavelmente atribuído ao cluster errado).
+\end{itemize}
+
+Diferente das métricas ARI e NMI, o Silhouette Score não depende de dados rotulados para ser avaliado. Além disso, é uma métrica que consegue medir a qualidade de cada agrupamento após a clusterização. Por isso, é uma métrica útil na avaliação da coesão no espaço 3D.
+
+
+\subsection{Métricas de Avaliação 2D}
+
+Para avaliar a qualidade da segmentação da projeção das \emph{splats} no espaço 2D, são utilizadas métricas baseadas em sobreposição de máscaras de cores sólidas. Estas métricas comparam as máscaras de segmentação renderizadas com as máscaras de \textit{ground truth} disponíveis no dataset LERF-OVS.
+
+\subsubsection{Intersection over Union (IoU)}
+
+A \textit{Intersection over Union} (IoU)\cite{everingham2010pascal} é a métrica mais fundamental para avaliação de segmentações. Para duas máscaras binárias $A$ (predita) e $B$ (\textit{ground truth}), o IoU é definido como:
+
+\[
+IoU = \frac{|A \cap B|}{|A \cup B|}
+\]
+
+onde $|A \cap B|$ é a área de interseção (pixels onde ambas as máscaras são positivas) e $|A \cup B|$ é a área de união (pixels onde pelo menos uma das máscaras é positiva). O IoU varia no intervalo $[0, 1]$, onde $IoU = 1$ indica sobreposição perfeita.
+
+Para a avaliação geral, é calculado o \textit{mean IoU} (mIoU), a média do IoU entre as instâncias do \textit{ground truth} e as instâncias preditas associadas a elas pelo algoritmo de matching Húngaro\cite{kuhn1955hungarian}, que estabelece a correspondência ótima entre instâncias. As instâncias do \textit{ground truth} que não recebem nenhuma correspondência entram na média com IoU igual a 0, para que a métrica não seja inflada quando o método encontra menos objetos do que os anotados.
+
+\subsubsection{Precisão e \textit{Recall}}
+
+A precisão e o \textit{recall} avaliam a segmentação no nível das instâncias, contando quantos objetos foram encontrados corretamente, e não a qualidade da sobreposição de cada máscara. Ambas são calculadas a partir das contagens de verdadeiros positivos (TP), falsos positivos (FP) e falsos negativos (FN), obtidas após o procedimento de \textit{matching} descrito na Seção~\ref{sec:matching}:
+
+\[
+\text{Precisão} = \frac{|TP|}{|TP| + |FP|}, \qquad \text{Recall} = \frac{|TP|}{|TP| + |FN|}
+\]
+
+A precisão indica a fração das instâncias preditas que correspondem a um objeto do \textit{ground truth}, e diminui quando o método gera instâncias em excesso, como na super-segmentação. O \textit{recall} indica a fração dos objetos do \textit{ground truth} que foram encontrados pelo método, e diminui quando objetos são fundidos entre si ou deixam de ser segmentados. Neste trabalho, as duas métricas são reportadas com o limiar de IoU de 0,5 (Precisão@0,5 e Recall@0,5).
+
+
+\subsubsection{Panoptic Quality (PQ)}
+
+A \textit{Panoptic Quality} (PQ)\cite{kirillov2019panoptic} é uma métrica unificada para segmentação panóptica, que combina a qualidade de segmentação (SQ) e a qualidade de reconhecimento (RQ):
+
+\[
+PQ = SQ \cdot RQ
+\]
+
+onde:
+\begin{itemize}
+    \item $SQ$ (\textit{Segmentation Quality}) mede a precisão da delimitação das bordas. É a média do IoU apenas para os segmentos correspondidos corretamente;
+    \item $RQ$ (\textit{Recognition Quality}) é a razão entre o número de pares correspondentes e o número total de instâncias (verdadeiras + preditas).
+\end{itemize}
+
+Formulada como:
+
+\[
+SQ = \frac{\sum_{(p,g) \in TP} IoU(p,g)}{|TP|}
+\]
+
+\[
+RQ = \frac{|TP|}{|TP| + \frac{1}{2}|FP| + \frac{1}{2}|FN|}
+\]
+
+A PQ é uma métrica abrangente que captura tanto a precisão da segmentação quanto a capacidade de reconhecer e contar corretamente as instâncias. Neste trabalho, a PQ, a SQ e a RQ são reportadas com o limiar de IoU de 0,5 (PQ@0,5, SQ@0,5 e RQ@0,5).
+
+\subsection{Procedimento de Matching}
+\label{sec:matching}
+
+Para estabelecer a correspondência entre as instâncias preditas e as instâncias do \textit{ground truth}, utilizamos o algoritmo de matching Húngaro\cite{kuhn1955hungarian} sobre a matriz de IoU entre todas as máscaras. Esse algoritmo encontra a atribuição que maximiza a soma dos IoU entre as instâncias, garantindo que cada instância do \textit{ground truth} seja associada a no máximo uma instância predita.
+
+Após o matching, cada par de instâncias com IoU $\geq 0{,}5$ é considerado um verdadeiro positivo (\textit{True Positive}, TP). As instâncias preditas que não formam um TP, seja por não terem correspondência ou por formarem um par com IoU abaixo do limiar, são consideradas falsos positivos (\textit{False Positives}, FP), e as instâncias do \textit{ground truth} na mesma situação são consideradas falsos negativos (\textit{False Negatives}, FN). Essas contagens são utilizadas no cálculo da precisão, do \textit{recall} e da PQ. Todas as métricas 2D são calculadas separadamente para cada imagem anotada e, em seguida, é feita a média entre as imagens.
+
+\subsection{Resumo das Métricas}
+
+A Tabela \ref{tab:metrics_summary} apresenta um resumo das métricas utilizadas, suas indicações de valores e o critério de avaliação.
+
+\begin{table}[H]
+\centering
+\caption{Resumo das métricas de avaliação utilizadas}
+\label{tab:metrics_summary}
+\begin{tabular}{|l|c|c|p{6cm}|}
+\hline
+\textbf{Métrica} & \textbf{Intervalo} & \textbf{Ótimo} & \textbf{Critério de Avaliação} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Métricas 3D}} \\
+\hline
+ARI & $[-1, 1]$ & $1$ & Concordância com os rótulos iniciais do SAM/DEVA \\
+NMI & $[0, 1]$ & $1$ & Informação mútua com os rótulos iniciais do SAM/DEVA \\
+Silhouette & $[-1, 1]$ & $1$ & Coesão e separação intrínseca dos clusters \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Métricas 2D}} \\
+\hline
+mIoU & $[0, 1]$ & $1$ & Sobreposição média entre as máscaras preditas e as do \textit{ground truth} \\
+Precisão@0,5 & $[0, 1]$ & $1$ & Fração das instâncias preditas que correspondem a um objeto do \textit{ground truth} \\
+Recall@0,5 & $[0, 1]$ & $1$ & Fração dos objetos do \textit{ground truth} encontrados pelo método \\
+SQ@0,5 & $[0, 1]$ & $1$ & IoU médio das instâncias corretamente correspondidas \\
+RQ@0,5 & $[0, 1]$ & $1$ & Capacidade de reconhecer e contar corretamente as instâncias \\
+PQ@0,5 & $[0, 1]$ & $1$ & Qualidade panóptica, dada por SQ $\times$ RQ \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\section{Configuração do Ambiente de Execução dos Experimentos}
+Para a execução dos experimentos e desenvolvimento deste trabalho, foi utilizado um computador \textit{desktop} com as seguintes especificações técnicas:
+
+\subsection{Especificações de \textit{Hardware}}
+O computador possui uma placa-mãe Gigabyte H610M H DDR4, processador Intel Core i5-12400F de 12ª geração, com 6 núcleos e 12 \textit{threads} de processamento e frequência máxima de 4,4 GHz, memória RAM disponível de 16 GB e armazenamento interno de 1 TB SSD. Para processamento gráfico, foi utilizada uma placa de vídeo NVIDIA GeForce RTX 4060, com suporte a CUDA e bibliotecas de aprendizado de máquina.
+
+\subsection{Especificações de \textit{Software}}
+O dispositivo utilizado utiliza o sistema operacional Ubuntu 24.04.4 LTS, na versão de 64 bits, com o ambiente gráfico GNOME 46. O firmware da placa-mãe estava atualizado na versão F6, e o núcleo do sistema operacional é o Linux 7.0.0-30-generic. A placa de vídeo operou com o \textit{driver} NVIDIA na versão 580.173.02.
+
+A implementação do método foi desenvolvida em Python 3.8. O treinamento das redes neurais em grafo utilizou a biblioteca PyTorch\cite{paszke2019pytorch}, na versão 2.0.1 com CUDA 11.8, e a PyTorch Geometric\cite{fey2019fast}, na versão 2.6.1, da qual foram utilizadas as camadas de atenção (GATConv) e convolucionais (GCNConv). A busca de vizinhos mais próximos na construção do grafo e o cálculo das métricas ARI, NMI e \textit{Silhouette Score} foram realizados com a scikit-learn\cite{pedregosa2011scikit}, na versão 1.3.2, e a clusterização final utilizou a biblioteca \texttt{hdbscan}\cite{mcinnes2017hdbscan}, na versão 0.8.40. A conversão das cores para o espaço CIELAB e o cálculo da diferença de cor CIEDE2000 foram feitos com a scikit-image\cite{van2014scikit}, na versão 0.21.0. Na avaliação 2D, o \textit{matching} Húngaro entre as instâncias preditas e as do \textit{ground truth} foi calculado com a SciPy\cite{virtanen2020scipy}, na versão 1.10.0. Por fim, o treinamento das \emph{splats} e a renderização das segmentações foram implementados a partir do código do repositório oficial do \textit{Gaussian Grouping}\cite{ye2024gaussian}.
+
+Todos os testes foram executados apenas nesse ambiente, sem utilização de outros dispositivos auxiliares ou processamento em nuvem.
+
+\section{Uniformização das Máscaras de Segmentação}
+\label{sec:uniformizacao_mascaras}
+Para a avaliação das métricas, foi necessária a normalização das cores dos \textit{pixels} das renderizações das segmentações. As \emph{splats}, quando rasterizadas, formam uma imagem 2D com cores distintas para cada objeto segmentado. Porém, quando analisados os \textit{pixels} de cada cor da segmentação, há pequenas variações que impossibilitam o aferimento das métricas avaliativas 2D, já que para mensurá-las, é necessário que cada objeto da cena tenha uma cor única e uniforme.
+
+Para produzir uma máscara de segmentação com uma cor uniforme para cada objeto, foi
+implementada uma estratégia de renderização diferente do trabalho base do Gaussian Splatting. Em vez de atribuir uma cor RGB fixa a cada objeto segmentado e inferir sua classe a partir da cor resultante na imagem renderizada pelo método de \textit{alpha blending} convencional, renderiza-se diretamente, para cada objeto, um mapa de \textit{cobertura}: um indicador associado a cada
+\emph{splat}, que assume valor 1 caso a
+\emph{splat} pertença ao objeto em questão e 0 caso contrário.
+
+O rasterizador do \textit{Gaussian Splatting} compõe o valor final de um
+\textit{pixel} por meio de \textit{alpha blending} da projeção de um raio nas \emph{splats},
+somando a contribuição de cada \emph{splat} ponderada por sua opacidade
+projetada $\alpha_i$ e pela transmitância acumulada $T_i$ das \emph{splats} pelo ``caminho'':
+\begin{equation}
+    C(\text{pixel}) = \sum_{i} c_i \, \alpha_i \, T_i, \qquad
+    T_i = \prod_{j<i} (1 - \alpha_j).
+\end{equation}
+Ao substituir a cor $c_i$ pelo indicador binário de pertencimento ao objeto
+$k$, a mesma operação de composição produz, para cada \textit{pixel}, a
+fração do peso óptico do raio ocupada pelas \emph{splats} daquele objeto
+específico:
+\begin{equation}
+    \text{cobertura}_k(\text{pixel}) = \sum_{i \,\in\, \text{objeto } k} \alpha_i \, T_i \;\in\; [0,1].
+\end{equation}
+Essa grandeza é bem definida mesmo em regiões de sobreposição entre objetos e
+em bordas de segmentação, onde múltiplas \emph{splats} de instâncias distintas
+contribuem para o mesmo \textit{pixel}.
+
+Repetindo esse processo para os $K$ objetos da cena, obtém-se, para cada
+\textit{pixel}, um vetor de $K$ valores de cobertura. A classe atribuída ao
+\textit{pixel} é então definida pelo argumento máximo (argmax) desse vetor, com uma
+classe adicional de fundo definida como o complemento da soma das coberturas,
+$\text{cobertura}_{\text{fundo}} = 1 - \sum_k \text{cobertura}_k$,
+representando a fração do raio não ocupada por nenhum objeto. Como a
+atribuição de classe ocorre \textit{após} a composição, e não por comparação
+de cor, a máscara resultante é discreta e uniforme na própria projeção.
+
+Como o rasterizador processa os três canais de cor de forma independente, a
+implementação empacota até três objetos por passada de renderização, um por
+canal (R, G, B), reduzindo o número de rasterizações necessárias de $K$
+para $\lceil K/3 \rceil$ por câmera. Ao final, as imagens da renderização são salvas,
+servindo para o cálculo das métricas de segmentação 2D. A Figura \ref{fig:uniformizacao_renderizacao} compara lado a lado a renderização com \textit{alpha blending} e a renderização uniformizada.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/uniformizacao_renderizacao.png}
+    \caption{Exemplo da uniformização das renderizações das segmentações das instâncias. A imagem à esquerda exemplifica uma renderização com \textit{alpha blending}, e nota-se como cada pixel composto pelo mesmo objeto é diferente. A imagem à direita é um exemplo de renderização uniformizada, com pixels de cores fixas para cada instância. O \textit{teatime} foi utilizado para a imagem em questão.}
+    \label{fig:uniformizacao_renderizacao}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+
+% ============================================================
+% CAPÍTULO 5: RESULTADOS E EXPERIMENTOS
+% ============================================================
+\chapter{RESULTADOS E EXPERIMENTOS}
+
+Neste capítulo são apresentados os cinco experimentos conduzidos para avaliar o método proposto. O primeiro mede a sensibilidade às escolhas de parâmetros do HDBSCAN, algoritmo responsável pela clusterização final dos \textit{embeddings} produzidos pela rede, analisando seu impacto na formação e na qualidade dos \textit{clusters} finais. O segundo mede a sensibilidade dos hiperparâmetros da \textit{loss} contrastiva, que são, no caso, as margens positiva e negativa, a temperatura do InfoNCE e o peso do termo de repulsão de centroides, que juntos definem como os \textit{embeddings} serão agrupados. O terceiro compara arquiteturas de rede neural em grafo, medindo o desempenho da GAT, que aprende os pesos de atenção, com a GCN, que passa as informações do grafo por agregação. O quarto compara o método proposto com o \textit{Gaussian Grouping}\cite{ye2024gaussian} nas quatro cenas do \textit{dataset} LERF-OVS, utilizadas neste trabalho, incluindo resultados qualitativos em outras vistas das cenas. O quinto mede a contribuição do próprio treinamento da rede, comparando a clusterização dos \textit{embeddings} treinados com a clusterização direta das \textit{features} de entrada e com um estágio intermediário do treino. Em todos são discutidos os resultados quantitativos, das métricas de clusterização 3D e de segmentação de instâncias 2D.
+
+Cada teste dos experimentos foi executado 5 vezes, pois, ao longo da implementação do método, notou-se que os resultados mudam ligeiramente a cada execução. Embora essa variação tenha sido baixa na maioria dos testes, \textit{embeddings} ligeiramente diferentes levam a resultados que não são idênticos entre as rodadas, e algumas delas podem apresentar métricas de segmentação 2D um pouco piores que as demais. Por isso, os valores reportados nas tabelas e citados no texto deste capítulo correspondem à média das 5 execuções de cada teste, arredondada para três casas decimais, o que representa melhor o desempenho do método do que uma rodada isolada.
+
+As métricas de segmentação de instâncias 2D foram calculadas sobre todos os \textit{frames} anotados no \textit{ground truth} do \textit{dataset} LERF-OVS: 6 na cena \textit{Teatime}, 7 em \textit{Ramen}, 4 em \textit{Figurines} e 5 em \textit{Waldo Kitchen}. Todos esses \textit{frames} possuem pose de câmera registrada pelo COLMAP e, portanto, uma imagem renderizada correspondente, tanto no método proposto quanto no \textit{Gaussian Grouping}.
+
+\section{Experimento 1: Sensibilidade do HDBSCAN}
+
+Nesse experimento, a arquitetura foi fixada em uma rede GAT com 8 cabeças de atenção, com a \textit{loss} contrastiva na sua configuração padrão (temperatura 0,05, margem positiva 0,2, margem negativa 0,1 e peso de repulsão do centroide dos clusters 0,3), mantendo o mesmo \textit{dataset Teatime} com a cena limitada aos objetos presentes no \textit{ground truth}, ou seja, outros objetos secundários não participam do treino da rede. O treinamento foi limitado a 800 épocas com parada antecipada por não evolução da \textit{loss}, acionada na época 252 em todas as rodadas. A única mudança entre elas está nos hiperparâmetros do HDBSCAN aplicado sobre os \textit{embeddings} já treinados: \texttt{min\_cluster\_size} (número mínimo de \emph{splats} para que uma região seja aceita como \textit{cluster}), \texttt{min\_samples} (quão conservador o algoritmo é ao classificar uma região esparsa como \textit{cluster} em vez de ruído) e \texttt{cluster\_selection\_method} (\textit{eom}, que tende a escolher \textit{clusters} maiores e mais estáveis na árvore, ou \textit{leaf}, que seleciona os nós das pontas da árvore). A configuração \textit{padrão} usa os valores de \texttt{min\_cluster\_size} 500 e \texttt{min\_samples} 3, e foram adotados como referência ao longo deste trabalho. A Tabela~\ref{tab:config_experimento1} resume as cinco configurações avaliadas.
+
+
+\begin{table}[h]
+\centering
+\caption{Configurações do HDBSCAN avaliadas no Experimento 1}
+\label{tab:config_experimento1}
+\begin{tabular}{lccc}
+\hline
+\textbf{Configuração} & \textbf{min\_cluster\_size} & \textbf{min\_samples} & \textbf{cluster\_selection\_method} \\
+\hline
+Padrão (\textit{baseline}) & 500 & 3 & eom \\
+Baixo \textit{min\_cluster\_size} & 100 & 3 & eom \\
+Alto \textit{min\_cluster\_size} & 1000 & 3 & eom \\
+Alto \textit{min\_samples} & 500 & 15 & eom \\
+Algoritmo \textit{leaf} & 500 & 3 & leaf \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\subsection{Métricas de Clusterização 3D}
+
+A Tabela~\ref{tab:metricas_3d_experimento1} apresenta os valores de ARI, NMI e \textit{Silhouette Score} obtidos para as cinco configurações de HDBSCAN avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de clusterização 3D para cada configuração de HDBSCAN (média de 5 execuções)}
+\label{tab:metricas_3d_experimento1}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Configuração} & \textbf{ARI} & \textbf{NMI} & \textbf{Silhouette Score} & \textbf{Clusters Finais} \\
+\hline
+Padrão (\textit{baseline}) & 0{,}309 & 0{,}606 & 0{,}153 & 18{,}2 \\
+Baixo \textit{min\_cluster\_size} & 0{,}182 & 0{,}583 & 0{,}204 & 95{,}2 \\
+Alto \textit{min\_cluster\_size} & 0{,}356 & 0{,}597 & 0{,}214 & 10{,}2 \\
+Alto \textit{min\_samples} & 0{,}278 & 0{,}572 & 0{,}187 & 14{,}6 \\
+Algoritmo \textit{leaf} & 0{,}214 & 0{,}598 & 0{,}328 & 30{,}0 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+O parâmetro com maior impacto sobre a clusterização 3D foi o \texttt{min\_cluster\_size}. Reduzi-lo de 500 para 100 multiplica por mais de cinco vezes o número de \textit{clusters} finais (de 18,2 para 95,2) e derruba o ARI de 0,309 para 0,182, uma queda muito alta e o pior valor entre as cinco configurações, o que caracteriza forte super-segmentação: cada objeto real passa a ser quebrado em vários fragmentos que não têm correspondência ao SAM/DEVA. Na direção oposta, dobrar o \texttt{min\_cluster\_size} para 1000 reduz os \textit{clusters} finais para 10,2 e eleva o ARI para 0,356, o maior valor do experimento. Isso sugere que a segmentação de referência do SAM/DEVA fica em bom patamar para valores altos de \texttt{min\_cluster\_size}, mas valores mais baixos sugerem fragmentação da cena.
+
+O \texttt{min\_samples} alto (15, mantendo os demais parâmetros na configuração padrão) reduz moderadamente a quantidade de agrupamentos (14,6 contra 18,2 da configuração padrão), o ARI (0,278 contra 0,309) e o NMI (0,572 contra 0,606), mas houve um pequeno aumento do \textit{Silhouette Score} (0,187 contra 0,153). Ou seja, isso demonstra que um valor de \texttt{min\_samples} alto consegue fazer com que cada \textit{cluster} fique mais compacto e coeso, ao exigir mais vizinhos densos para que um ponto seja aceito como núcleo e empurrar as regiões de borda dos objetos para o ruído.
+
+Já o método \textit{leaf} (mantendo \texttt{min\_cluster\_size} 500 e \texttt{min\_samples} 3, como na configuração padrão) eleva os \textit{clusters} finais de 18,2 para 30,0 e reduz o ARI para 0,214, ao mesmo tempo em que obtém o maior \textit{Silhouette Score} de todas as cinco configurações (0,328). Por selecionar os nós das pontas da árvore, o \textit{leaf} devolve pedaços pequenos e internamente muito coesos, o que agrega valor ao \textit{Silhouette Score}, que mede apenas coesão e separação no espaço de \textit{embeddings}, enquanto o ARI, que compara a partição com a referência do SAM/DEVA, penaliza justamente essa fragmentação de objetos inteiros em várias partes. Vale notar que a configuração padrão obteve o pior \textit{Silhouette Score} do experimento e ainda assim, como mostra a subseção seguinte, está entre as que produzem a melhor segmentação 2D. O NMI, por sua vez, manteve-se praticamente constante entre as cinco configurações (de 0,572 a 0,606) demostrando que apesar de haver fragmentação excessiva dos clusters, a informação primordial ainda é conservada ao final do treinamento.
+
+A Figura~\ref{fig:exp1_hdbscan_leaf} ilustra o resultado da clusterização utilizando o algoritmo \textit{leaf} do HDBSCAN. É possível observar a grande fragmentação dos \textit{clusters}, gerando muitas instâncias para um objeto que deveria ser totalmente segmentado, como a ovelha e o urso.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp1_hdbscan_leaf.png}
+    \caption{Exemplo da segmentação 3D obtida com o método de seleção \textit{leaf} do HDBSCAN, evidenciando a fragmentação dos \textit{clusters}. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp1_hdbscan_leaf}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\subsection{Métricas de Segmentação 2D}
+
+As Tabelas~\ref{tab:metricas_2d_experimento1} e~\ref{tab:instancias_experimento1} apresentam, respectivamente, as métricas de segmentação de instâncias 2D e o número médio de instâncias preditas por imagem para as cinco configurações de HDBSCAN avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de segmentação de instância 2D para cada configuração do HDBSCAN (IoU $\geq 0{,}5$; média de 5 execuções)}
+\label{tab:metricas_2d_experimento1}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Configuração} & \textbf{mIoU} & \textbf{Precisão@0,5} & \textbf{Recall@0,5} & \textbf{SQ@0,5} & \textbf{RQ@0,5} & \textbf{PQ@0,5} \\
+\hline
+Padrão (\textit{baseline}) & 0{,}656 & 0{,}588 & 0{,}755 & 0{,}819 & 0{,}657 & 0{,}538 \\
+Baixo \textit{min\_cluster\_size} & 0{,}569 & 0{,}138 & 0{,}615 & 0{,}789 & 0{,}223 & 0{,}176 \\
+Alto \textit{min\_cluster\_size} & 0{,}456 & 0{,}592 & 0{,}502 & 0{,}809 & 0{,}542 & 0{,}437 \\
+Alto \textit{min\_samples} & 0{,}577 & 0{,}644 & 0{,}704 & 0{,}773 & 0{,}668 & 0{,}516 \\
+Algoritmo \textit{leaf} & 0{,}497 & 0{,}218 & 0{,}486 & 0{,}734 & 0{,}300 & 0{,}220 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Número médio de instâncias por imagem, preditas por cada configuração de HDBSCAN, comparado ao \textit{ground truth} (média de 5 execuções)}
+\label{tab:instancias_experimento1}
+\begin{tabular}{lc}
+\hline
+\textbf{Configuração} & \textbf{Instâncias preditas (média/imagem)} \\
+\hline
+\textit{Ground truth} & 10{,}3 \\
+\hline
+Padrão (\textit{baseline}) & 13{,}3 \\
+Baixo \textit{min\_cluster\_size} & 47{,}7 \\
+Alto \textit{min\_cluster\_size} & 8{,}7 \\
+Alto \textit{min\_samples} & 11{,}2 \\
+Algoritmo \textit{leaf} & 22{,}9 \\
+\hline
+\end{tabular}
+\end{table}
+
+Na segmentação 2D, duas configurações se destacam das demais: a padrão, com PQ@0,5 de 0,538, e a de \texttt{min\_samples} alto, com 0,516. Elas chegam a esse resultado por caminhos diferentes. A configuração padrão obtém o maior mIoU (0,656), o maior SQ@0,5 (0,819) e o maior \textit{recall} (0,755), ou seja, delineia melhor cada objeto e deixa menos instâncias sem serem detectadas. Já o \texttt{min\_samples} alto obtém a maior precisão (0,644) e o maior RQ@0,5 (0,668) do experimento, com a contagem de instâncias por imagem mais próxima do \textit{ground truth} entre as cinco configurações (11,2 contra as 10,3 anotadas), porém com SQ@0,5 inferior ao da configuração padrão (0,773 contra 0,819).
+
+O \texttt{min\_cluster\_size} pequeno (100) é o pior caso: a contagem de instâncias por imagem sobe para 47,7, mais de quatro vezes as 10,3 do \textit{ground truth}, a precisão cai de 0,588 para 0,138 e o PQ@0,5 cai de 0,538 para 0,176. O SQ@0,5 permanece razoável (0,789), o que mostra que o problema não está na qualidade das máscaras que casam, e sim na quantidade de máscaras fragmentadas, exatamente o que o RQ e a precisão capturam e o mIoU, que é normalizado pelo número de instâncias do \textit{ground truth}, não revela.
+
+Já o \texttt{min\_cluster\_size} grande (1000) acaba produzindo uma sub-segmentação. Essa configuração obtém precisão comparável à da configuração padrão (0,592 contra 0,588), mas a contagem de instâncias cai para 8,7 por imagem, abaixo das 10,3 do \textit{ground truth}, e o \textit{recall} cai para 0,502. Metade das instâncias anotadas deixa de ser detectada, porque objetos vizinhos são fundidos num único \textit{cluster}. O reflexo mais direto disso é o menor mIoU do experimento (0,456), resultado de dois efeitos somados: as instâncias não detectadas entram na média com IoU zero, e a máscara de um \textit{cluster} que funde dois objetos cobre bem mais do que a instância anotada com a qual é casada. É importante notar que essa foi justamente a configuração de maior ARI na análise 3D (0,356), havendo maior similaridade com os clusters de referência.
+
+O método \textit{leaf} reproduz em 2D o mesmo padrão de fragmentação observado em 3D, de forma menos extrema que o \texttt{min\_cluster\_size} pequeno. A contagem de instâncias sobe para 22,9 por imagem, a precisão cai para 0,218 e o PQ@0,5 para 0,220. Diferentemente do \texttt{min\_cluster\_size} pequeno, aqui também o SQ@0,5 é afetado, sendo o menor do experimento (0,734). Além de criar máscaras a mais, o \textit{leaf} piora a sobreposição das máscaras que efetivamente casam, porque cada objeto anotado passa a ser coberto por apenas um de seus pedaços. O contraste com o seu \textit{Silhouette Score}, o melhor entre as cinco configurações, é a evidência mais direta de que a coesão interna dos \textit{clusters} no espaço de \textit{embeddings} não se traduz em qualidade de segmentação renderizada.
+
+Em conjunto, os cinco resultados mostram que o \texttt{min\_cluster\_size} é o parâmetro de maior impacto, tanto na clusterização 3D quanto na segmentação 2D. Reduzi-lo de 500 para 100 acaba gerando um grande número de clusters e derruba a concordância com os rótulos do SAM/DEVA, derrubando o ARI para 0,182, além de derrubar métricas de segmentação 2D como a precisão e RQ@0,5 e PQ@0,5. No caso reverso, um \texttt{min\_cluster\_size} alto garante mais similaridade à referência, obtendo o valor ARI mais alto (0,356), mas ainda assim, com métricas 2D não sendo tão boas, com o mIoU sendo o pior das 5 configurações (0,456). A configuração padrão foi a que se saiu melhor para o \textit{dataset Teatime}. A Figura~\ref{fig:exp1_hdbscan_comparacao} mostra os resultados da segmentação 2D para todas as configurações propostas do HDBSCAN.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp1_hdbscan_comparacao.png}
+    \caption{Exemplo da segmentação 2D obtida pelos testes feitos neste experimento. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp1_hdbscan_comparacao}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\section{Experimento 2: Análise da Função de Perda Contrastiva}
+
+Nesse experimento, a arquitetura foi fixada em uma GAT com 8 cabeças de atenção e o HDBSCAN foi mantido na configuração de referência (\texttt{min\_cluster\_size} 500, \texttt{min\_samples} 3 e seleção \textit{eom}), utilizando também o \textit{dataset Teatime} com a cena limitada aos objetos presentes no \textit{ground truth}. A única mudança entre as quatro rodadas está nos hiperparâmetros da \textit{loss} contrastiva: a temperatura do InfoNCE, que controla o quão decisiva é a atribuição de cada \emph{splat} ao centroide do seu rótulo; a margem positiva, que define o quão próximos devem ficar os \textit{embeddings} de vizinhos de mesmo rótulo; a margem negativa, que define o quão distantes devem ficar os de rótulos diferentes; e o peso do termo de repulsão de centroides, que afasta os centroides de cada \textit{cluster} entre si. Vale registrar que a margem negativa é usada em dois lugares na implementação, tanto no termo de arestas negativas quanto como limiar da repulsão de centroides, o que significa que as configurações que alteram essa margem também deslocam juntas o limiar da repulsão. A parada antecipada da \textit{loss} foi acionada entre as épocas 163 e 252, conforme a configuração. Assim como no experimento anterior, cada configuração foi executada cinco vezes, e as tabelas reportam a média dessas execuções; a linha padrão é a mesma configuração de referência do Experimento 1 e repete os seus valores. A Tabela~\ref{tab:config_experimento2} resume as quatro configurações avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Configurações da função de perda avaliadas no Experimento 2}
+\label{tab:config_experimento2}
+\begin{tabular}{lcccc}
+\hline
+\textbf{Configuração} & \textbf{Temperatura} & \textbf{Margem +} & \textbf{Margem -} & \textbf{Peso da repulsão} \\
+\hline
+Padrão (\textit{baseline}) & 0{,}05 & 0{,}2 & 0{,}1 & 0{,}3 \\
+Margens apertadas & 0{,}04 & 0{,}05 & 0{,}05 & 0{,}3 \\
+Margens relaxadas & 0{,}07 & 0{,}5 & 0{,}5 & 0{,}3 \\
+Repulsão alta de centroides & 0{,}05 & 0{,}2 & 0{,}1 & 1{,}0 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\subsection{Métricas de Clusterização 3D}
+
+A Tabela~\ref{tab:metricas_3d_experimento2} apresenta os valores de ARI, NMI e \textit{Silhouette Score} obtidos para as quatro configurações de função de perda avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de clusterização 3D para cada configuração de perda (média de 5 execuções)}
+\label{tab:metricas_3d_experimento2}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Configuração} & \textbf{ARI} & \textbf{NMI} & \textbf{Silhouette Score} & \textbf{Clusters Finais} \\
+\hline
+Padrão (\textit{baseline}) & 0{,}309 & 0{,}606 & 0{,}153 & 18{,}2 \\
+Margens apertadas & 0{,}334 & 0{,}608 & 0{,}182 & 17{,}0 \\
+Margens relaxadas & 0{,}277 & 0{,}598 & 0{,}236 & 21{,}0 \\
+Repulsão alta de centroides & 0{,}268 & 0{,}593 & 0{,}195 & 21{,}0 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+Apertar as margens foi a única alteração que melhorou a concordância com a partição de referência do SAM/DEVA: o ARI sobe de 0,309 para 0,334, o maior valor do experimento, com o número de \textit{clusters} finais praticamente inalterado (17,0 contra 18,2). Exigir cosseno acima de 0,95 entre vizinhos de mesmo rótulo, em vez dos 0,80 da configuração padrão, e abaixo de 0,05 entre vizinhos de rótulos diferentes produz um espaço de \textit{embeddings} em que as fronteiras entre objetos ficam mais nítidas, sem que isso fragmente a partição. Essa também foi a rodada que convergiu mais cedo: a parada antecipada foi acionada na época 163, contra 223 a 252 das demais, o que sugere que a exigência mais rígida leva a \textit{loss} a estabilizar antes.
+
+Relaxar as margens produz o efeito oposto na concordância, mas o melhor resultado no \textit{Silhouette Score}. Com margem positiva de 0,5 e negativa de 0,5, os \textit{clusters} finais sobem de 18,2 para 21,0 e o ARI cai para 0,277, enquanto o \textit{Silhouette Score} atinge 0,236, o maior das quatro configurações. Ao afrouxar a exigência de separação, a rede não é mais forçada a manter juntos os \textit{embeddings} de um mesmo objeto, e o HDBSCAN passa a encontrar grupos menores e internamente mais homogêneos.
+
+Aumentar o peso da repulsão de centroides de 0,3 para 1,0 foi a alteração com o pior desempenho na clusterização 3D, com o menor ARI (0,268) e o menor NMI (0,593) do experimento, que manteve-se praticamente constante entre as quatro configurações. Isso sugere que um alto peso na repulsão de centroides acaba distanciando os \textit{embeddings} finais dos rótulos do SAM/DEVA, sendo um comportamento esperado. A Figura \ref{fig:exp1_losses_weight_center} mostra a segmentação 3D para o teste com foco na \textit{loss} com repulsão alta de centroides.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp1_losses_weight_center.png}
+    \caption{Exemplo da segmentação 3D obtida com a \textit{loss} com foco na repulsão alta entre centroides. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp1_losses_weight_center}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\subsection{Métricas de Segmentação 2D}
+
+As Tabelas~\ref{tab:metricas_2d_experimento2} e~\ref{tab:instancias_experimento2} apresentam, respectivamente, as métricas de segmentação de instâncias 2D e o número médio de instâncias preditas por imagem para as quatro configurações de função de perda avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de segmentação de instância 2D para cada configuração de perda (IoU $\geq 0{,}5$; média de 5 execuções)}
+\label{tab:metricas_2d_experimento2}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Configuração} & \textbf{mIoU} & \textbf{Precisão@0,5} & \textbf{Recall@0,5} & \textbf{SQ@0,5} & \textbf{RQ@0,5} & \textbf{PQ@0,5} \\
+\hline
+Padrão (\textit{baseline}) & 0{,}656 & 0{,}588 & 0{,}755 & 0{,}819 & 0{,}657 & 0{,}538 \\
+Margens apertadas & 0{,}650 & 0{,}643 & 0{,}774 & 0{,}792 & 0{,}697 & 0{,}551 \\
+Margens relaxadas & 0{,}663 & 0{,}526 & 0{,}768 & 0{,}794 & 0{,}618 & 0{,}490 \\
+Repulsão alta de centroides & 0{,}642 & 0{,}499 & 0{,}728 & 0{,}793 & 0{,}585 & 0{,}463 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Número médio de instâncias por imagem, preditas por cada configuração de perda, comparado ao \textit{ground truth} (média de 5 execuções)}
+\label{tab:instancias_experimento2}
+\begin{tabular}{lc}
+\hline
+\textbf{Configuração} & \textbf{Instâncias preditas (média/imagem)} \\
+\hline
+\textit{Ground truth} & 10{,}3 \\
+\hline
+Padrão (\textit{baseline}) & 13{,}3 \\
+Margens apertadas & 12{,}5 \\
+Margens relaxadas & 15{,}7 \\
+Repulsão alta de centroides & 15{,}7 \\
+\hline
+\end{tabular}
+\end{table}
+
+Na segmentação 2D, comparado com a configuração padrão, as margens apertadas obtêm a maior precisão (0,643 contra 0,588), o maior RQ@0,5 (0,697 contra 0,657) e o maior \textit{recall} (0,774 contra 0,755) do experimento, com a contagem de instâncias por imagem mais próxima do \textit{ground truth} entre as quatro (12,5 contra as 10,3 anotadas). Em compensação, é a configuração com o menor SQ@0,5 (0,792 contra 0,819 da padrão), ou seja, os pares que ela acerta apresentam sobreposição espacial um pouco pior. O aperto das margens, portanto, troca qualidade de máscara por qualidade de detecção. 
+
+Relaxar as margens degrada a segmentação de forma clara: a contagem de instâncias sobe para 15,7 por imagem, a precisão cai de 0,588 para 0,526 e o PQ@0,5 cai para 0,490, sugerindo maior fragmentação. Vale notar que o mIoU dessa configuração foi o mais alto do experimento.
+
+A repulsão alta de centroides é a pior das quatro configurações em quase todas as métricas 2D, com a menor precisão (0,499), o menor \textit{recall} (0,728), o menor mIoU (0,642) e o menor PQ@0,5 (0,463). Esse é o resultado mais informativo do experimento, pois como o valor 0,3 já vinha sendo usado como referência, o teste mostra que reforçar esse termo não melhora a separação das instâncias, e sim a degrada.
+
+Em conjunto, os quatro resultados indicam que a geometria imposta pela \textit{loss} controla principalmente a fragmentação das segmentações finais, e não a sua qualidade: as quatro configurações mantêm o mIoU numa faixa parecida (0,642 a 0,663) e o SQ@0,5 praticamente constante (0,792 a 0,819), enquanto a contagem de instâncias por imagem varia de 12,5 a 15,7 e a precisão, de 0,499 a 0,643. Ou seja, a \textit{loss} não altera muito o quão bem cada objeto é delineado, e sim em quantas partes a cena é dividida. Dentro da faixa testada, apertar as margens foi a única direção com ganho consistente, por reduzir os falsos positivos e elevar tanto a precisão quanto o RQ, enquanto afrouxá-las ou reforçar a repulsão de centroides degrada o resultado. A Figura \ref{fig:exp2_loss_comparacao} apresenta as segmentações 2D deste experimento.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp2_loss_comparacao.png}
+    \caption{Exemplo da segmentação 2D obtida pelos testes realizados com a variação dos parâmetros da \textit{loss} contrastiva. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp2_loss_comparacao}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+
+\section{Experimento 3: Comparação entre Arquiteturas}
+
+Nesse experimento, todos os demais componentes do método foram mantidos fixos e apenas a arquitetura da rede neural em grafo foi variada. A \textit{loss} contrastiva permaneceu na configuração padrão (temperatura 0,05, margem positiva 0,2, margem negativa 0,1, peso de repulsão de centroides 0,3), o HDBSCAN foi mantido na configuração padrão com (\texttt{min\_cluster\_size} 500, \texttt{min\_samples} 3 e algoritmo \textit{eom}) e o \textit{dataset Teatime} continuou com a cena limitada aos objetos presentes no \textit{ground truth}. Foram avaliadas quatro arquiteturas: a GAT com 8 cabeças de atenção, adotada como referência ao longo deste trabalho, a GAT com 4 cabeças, e duas variantes de GCN, uma com 2 camadas e outra com 4 camadas com conexões residuais. Assim como nos experimentos anteriores, cada configuração foi executada cinco vezes e as tabelas reportam a média dessas execuções.
+
+Uma diferença de implementação entre as duas famílias precisa ser registrada, porque afeta a interpretação dos resultados. Nas GCNs, o peso calculado para cada aresta do grafo, que combina a proximidade espacial e a semelhança de cor entre as duas \emph{splats}, entra diretamente na propagação de mensagens, ponderando a contribuição de cada vizinho. Já a camada de atenção da GAT aprende os próprios coeficientes de atenção a partir das \textit{features} dos nós e não recebe esse peso como entrada. As GCNs, portanto, dependem de uma ponderação fixa e definida a priori, enquanto as GATs decidem por conta própria de quais vizinhos extrair informação. A topologia do grafo, definida pelos limiares de distância e de cor, é idêntica nas quatro configurações.
+
+\subsection{Métricas de Clusterização 3D}
+
+A Tabela~\ref{tab:metricas_3d_experimento3} apresenta os valores de ARI, NMI e \textit{Silhouette Score} obtidos para as quatro arquiteturas avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de clusterização 3D para cada arquitetura (média de 5 execuções)}
+\label{tab:metricas_3d_experimento3}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Configuração} & \textbf{ARI} & \textbf{NMI} & \textbf{Silhouette Score} & \textbf{Clusters Finais} \\
+\hline
+GAT (4 cabeças) & 0{,}303 & 0{,}597 & 0{,}189 & 17{,}2 \\
+GAT (8 cabeças, \textit{baseline}) & 0{,}309 & 0{,}606 & 0{,}153 & 18{,}2 \\
+GCN (2 camadas) & 0{,}127 & 0{,}400 & 0{,}448 & 15{,}0 \\
+GCN (4 camadas) & 0{,}152 & 0{,}472 & 0{,}145 & 18{,}0 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+A diferença entre as duas famílias de arquiteturas é a maior observada em todo este capítulo. As duas variantes de GAT ficam empatadas entre si, com ARI de 0,309 e 0,303, enquanto as duas GCNs caem para 0,127 e 0,152, cerca de metade do valor obtido pelas GATs. O NMI acompanha esse recuo de forma ainda mais acentuada, passando de cerca de 0,60 nas GATs para 0,400 e 0,472 nas GCNs, e é a única métrica deste capítulo em que uma configuração se afasta tanto das demais. O número de \textit{clusters} finais, por outro lado, permanece na mesma faixa nas quatro arquiteturas, entre 15,0 e 18,2, o que indica que apesar de formar a mesma quantidade de agrupamentos, a GCN acaba compartilhando o mesmo \textit{label} para diferentes objetos.
+
+O comportamento do \textit{Silhouette Score} nesta tabela é o exemplo mais extremo da divergência entre as métricas 3D já discutida nos experimentos anteriores. A GCN de 2 camadas obtém 0,448, quase três vezes o valor da GAT de 8 cabeças (0,153) e o maior valor registrado em todo o capítulo, ao mesmo tempo em que apresenta o pior ARI do experimento. Ou seja, ela produz agrupamentos extremamente coesos e bem separados no espaço de \textit{embeddings}, mas que não correspondem aos objetos da cena. A GCN de 4 camadas, por sua vez, obtém o menor \textit{Silhouette Score} do experimento (0,145) acompanhado de um ARI baixo, o que é compatível com o efeito de \textit{over-smoothing} típico de redes convolucionais em grafo mais profundas\cite{li2018deeper}, em que os \textit{embeddings} de nós vizinhos vão se homogeneizando camada após camada e a separabilidade entre instâncias se perde.
+
+Chama atenção, por fim, que as duas GCNs produziram praticamente os mesmos resultados nas cinco execuções, enquanto nas GATs o ARI de cada execução se afasta da média em cerca de 0,02. As GCNs deste trabalho, portanto, são reprodutíveis entre execuções, ao passo que as GATs não são, o que se soma às demais diferenças entre as duas famílias e deve ser levado em conta ao comparar rodadas isoladas.
+
+A Figura~\ref{fig:exp3_GCN_4camadas} representa a nuvem de pontos que a rede GCN com 4 camadas formou ao final do treinamento.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp3_GCN_4camadas.png}
+    \caption{Exemplo da segmentação 3D obtida com a GCN de 4 camadas ao final do treinamento. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp3_GCN_4camadas}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+
+\subsection{Métricas de Segmentação 2D}
+
+As Tabelas~\ref{tab:metricas_2d_experimento3} e~\ref{tab:instancias_experimento3} apresentam, respectivamente, as métricas de segmentação de instâncias 2D e o número médio de instâncias preditas por imagem para as quatro arquiteturas avaliadas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de segmentação de instância 2D para cada arquitetura (IoU $\geq 0{,}5$; média de 5 execuções)}
+\label{tab:metricas_2d_experimento3}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Configuração} & \textbf{mIoU} & \textbf{Precisão@0,5} & \textbf{Recall@0,5} & \textbf{SQ@0,5} & \textbf{RQ@0,5} & \textbf{PQ@0,5} \\
+\hline
+GAT (8 cabeças, \textit{baseline}) & 0{,}656 & 0{,}588 & 0{,}755 & 0{,}819 & 0{,}657 & 0{,}538 \\
+GAT (4 cabeças) & 0{,}618 & 0{,}584 & 0{,}702 & 0{,}796 & 0{,}630 & 0{,}501 \\
+GCN (2 camadas) & 0{,}451 & 0{,}401 & 0{,}482 & 0{,}794 & 0{,}437 & 0{,}346 \\
+GCN (4 camadas) & 0{,}465 & 0{,}362 & 0{,}475 & 0{,}754 & 0{,}408 & 0{,}307 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Número médio de instâncias por imagem, preditas por cada arquitetura, comparado ao \textit{ground truth} (média de 5 execuções)}
+\label{tab:instancias_experimento3}
+\begin{tabular}{lc}
+\hline
+\textbf{Configuração} & \textbf{Instâncias preditas (média/imagem)} \\
+\hline
+\textit{Ground truth} & 10{,}3 \\
+\hline
+GAT (4 cabeças) & 12{,}8 \\
+GAT (8 cabeças, \textit{baseline}) & 13{,}3 \\
+GCN (2 camadas) & 12{,}3 \\
+GCN (4 camadas) & 13{,}8 \\
+\hline
+\end{tabular}
+\end{table}
+
+A segmentação 2D confirma o que foi constatado na 3D, com uma separação ainda mais nítida entre os dois tipos de rede. A GAT de 8 cabeças obtém o melhor resultado em todas as seis métricas, seguida da GAT de 4 cabeças e as duas GCNs ficam bem atrás.
+
+Entre as duas variantes de GAT, o aumento de 4 para 8 cabeças de atenção produz um ganho consistente, mas concentrado na cobertura das máscaras: o \textit{recall} sobe de 0,702 para 0,755 e o mIoU de 0,618 para 0,656, enquanto a precisão fica praticamente igual (0,584 contra 0,588). Isso indica que as cabeças adicionais ajudam a rede a detectar objetos que a variante menor perde, sem que isso venha acompanhado de mais máscaras erradas. 
+
+As duas GCNs falham por mecanismos distintos, apesar de chegarem a valores de PQ próximos. A de 2 camadas mantém um SQ@0,5 razoável (0,794), comparável ao das GATs, mas tem \textit{recall} de apenas 0,482: quando ela acerta uma instância, a máscara é de boa qualidade, mas ela simplesmente não encontra a maior parte dos objetos. Já a de 4 camadas apresenta o menor SQ@0,5 do experimento (0,754) junto da menor precisão (0,362), o que é consistente com o \textit{over-smoothing} discutido na análise 3D: os \textit{clusters} remanescentes misturam \emph{splats} de objetos diferentes, e as máscaras resultantes não se sobrepõem bem a nenhuma instância do \textit{ground truth}. A Figura~\ref{fig:exp3_arquiteturas_comparacao} mostra os resultados das segmentações 2D obtidas por cada rede.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp3_arquiteturas_comparacao.png}
+    \caption{Exemplo da segmentação 2D obtida por cada uma das quatro arquiteturas avaliadas. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp3_arquiteturas_comparacao}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\subsection{Custo Computacional}
+
+Como as quatro arquiteturas diferem em número de parâmetros, foram aferidos também o pico de VRAM durante o treinamento, medido com a biblioteca NVML no momento em que as \emph{splats}, o grafo e a rede estão carregados em memória, e o tempo de treinamento. A Tabela~\ref{tab:custo_experimento3} apresenta os valores médios das cinco execuções.
+
+\begin{table}[h]
+\centering
+\caption{Custo computacional de cada arquitetura (médias de 5 execuções)}
+\label{tab:custo_experimento3}
+\begin{tabular}{lccc}
+\hline
+\textbf{Configuração} & \textbf{VRAM (GB)} & \textbf{Tempo de treino (s)} & \textbf{Épocas até a parada} \\
+\hline
+GAT (4 cabeças) & 1{,}57 & 9{,}0 & 214 \\
+GAT (8 cabeças, \textit{baseline}) & 2{,}53 & 15{,}2 & 252 \\
+GCN (2 camadas) & 0{,}83 & 1{,}5 & 62 \\
+GCN (4 camadas) & 1{,}11 & 13{,}2 & 333 \\
+\hline
+\end{tabular}
+\end{table}
+
+O custo acompanha a qualidade obtida. A GAT de 8 cabeças é a mais cara em memória, com 2,53 GB, três vezes o consumo da GCN de 2 camadas, e reduzir para 4 cabeças corta a VRAM para 1,57 GB e o tempo de treino de 15,2 para 9,0 segundos. Como todos os tempos ficam abaixo de vinte segundos numa GPU de uso comum, e o treinamento da rede é apenas uma etapa de um pipeline que inclui a construção do grafo e a renderização, essa economia não é determinante para a escolha da arquitetura neste trabalho, mas a variante de 4 cabeças é uma alternativa razoável em cenários com restrição de memória.
+
+Vale notar que a GCN de 2 camadas atinge a parada antecipada já na época 62, contra 252 da GAT de referência, o que explica o seu tempo de treino de apenas 1,5 segundo. Isso não é um sinal de eficiência, e sim de estagnação precoce: a rede converge rapidamente para uma solução de baixa qualidade e a \textit{loss} deixa de melhorar. A GCN de 4 camadas, no extremo oposto, treina por 333 épocas sem que isso se traduza em desempenho, o que reforça o diagnóstico de \textit{over-smoothing}.
+
+Em conjunto, o experimento indica que a atenção é o componente decisivo da arquitetura para esta tarefa. Isso justifica a escolha da GAT com 8 cabeças de atenção como configuração de referência nos demais experimentos deste trabalho. Vale lembrar que esses valores foram obtidos limitando o cenário aos objetos anotados pelo \textit{ground truth}, e também limita o número de \emph{splats}. Para cenários inteiros (com 300.000 \emph{splats} ou mais), não era possível usar uma rede GAT com 8 cabeças de atenção sem limitar o número de \emph{splats}, pois o consumo de memória VRAM excedia o disponível. Por isso, no Experimento 4, que utiliza as cenas inteiras, o número de \emph{splats} foi limitado pela etapa de filtragem descrita na metodologia.
+
+
+
+\section{Experimento 4: Comparação com o \textit{Gaussian Grouping}}
+
+Nesse experimento, o método proposto foi comparado com o \textit{Gaussian Grouping}\cite{ye2024gaussian}, referência na área de segmentação de instâncias em cenas representadas por \textit{3D Gaussian Splatting}, nas quatro cenas do \textit{dataset} LERF-OVS utilizadas neste trabalho (\textit{Teatime}, \textit{Ramen}, \textit{Figurines} e \textit{Waldo Kitchen}). Para todas as cenas, foi reaproveitada a configuração de referência dos Experimentos 1 a 3 (GAT com 8 cabeças de atenção, \textit{loss} contrastiva padrão, HDBSCAN com \texttt{min\_samples} 3 e seleção \textit{eom}), com uma exceção: os hiperparâmetros da \textit{loss} contrastiva foram ajustados em \textit{Ramen}. Diferentemente dos Experimentos 1 a 3, que recortavam a cena \textit{Teatime} pela caixa delimitadora do \textit{ground truth}, neste experimento as quatro cenas foram avaliadas sobre a cena inteira, sem nenhum recorte, para que o tratamento fosse idêntico nas quatro comparações com o \textit{Gaussian Grouping}. Sem o recorte, o número de \emph{splats} de cada cena é limitado pela etapa de filtragem, o que permitiu utilizar a GAT com 8 cabeças de atenção dentro da memória disponível na GPU: o número máximo foi fixado em 250.000 \emph{splats} nas cenas \textit{Teatime}, \textit{Figurines} e \textit{Waldo Kitchen}, e em 100.000 na cena \textit{Ramen}. Assim como nos experimentos anteriores, cada configuração foi executada cinco vezes e as tabelas reportam a média dessas execuções.
+
+\subsection{A Exceção: \textit{Ramen}}
+
+Em \textit{Teatime}, \textit{Figurines} e \textit{Waldo Kitchen} foi usado o mesmo \texttt{min\_cluster\_size} de referência (500) e a mesma \textit{loss} contrastiva padrão (temperatura 0,05, margem positiva 0,2, margem negativa 0,1) dos experimentos anteriores. Em \textit{Ramen}, no entanto, um desses parâmetros precisou ser alterado.
+
+Em \textit{Ramen}, com a \textit{loss} contrastiva padrão, o HDBSCAN, mesmo no \texttt{min\_cluster\_size} de referência (500), reduz toda a cena a um único \textit{cluster} gigante, contendo quase 100\% das \emph{splats} válidas. Reduzir o \texttt{min\_cluster\_size} para 60, na tentativa de evitar esse colapso, faz com que a cena seja fragmentada em torno de 250 \textit{clusters} (237 a 258), muito acima dos 29 segmentos iniciais do SAM/DEVA.
+
+
+A solução para esse problema foi apertar as margens da \textit{loss} contrastiva, igual feito no Experimento 2 (margem positiva 0,05, margem negativa 0,05, temperatura 0,04), mantendo o \texttt{min\_cluster\_size} em 500. Com fronteiras mais nítidas no espaço de \textit{embeddings} por conta das margens reduzidas, o HDBSCAN deixa de colapsar a cena, e as cinco execuções produzem entre 18 e 21 \textit{clusters} finais, muito mais próximo dos 29 segmentos iniciais do SAM/DEVA.
+
+\subsection{Métricas de Clusterização 3D}
+
+A Tabela~\ref{tab:metricas_3d_experimento4} apresenta os valores de ARI, NMI e \textit{Silhouette Score} do nosso método nas quatro cenas.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de clusterização 3D do nosso método por cena (média de 5 execuções)}
+\label{tab:metricas_3d_experimento4}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Cena} & \textbf{ARI} & \textbf{NMI} & \textbf{Silhouette Score} & \textbf{Clusters Finais} \\
+\hline
+Teatime & 0{,}422 & 0{,}655 & 0{,}220 & 29{,}2 \\
+Ramen & 0{,}263 & 0{,}448 & 0{,}048 & 19{,}2 \\
+Figurines & 0{,}167 & 0{,}632 & 0{,}169 & 81{,}4 \\
+Waldo Kitchen & 0{,}334 & 0{,}715 & 0{,}221 & 79{,}8 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+Sem o recorte, o \textit{Teatime} passa a ter o maior ARI das quatro cenas (0,422), bem acima até mesmo do valor de referência obtido com o recorte nos Experimentos 1 a 3 (por volta de 0,29 a 0,31). Isso indica que incluir mais contexto da cena não prejudica a concordância entre os \textit{clusters} e os rótulos do SAM/DEVA, pois os objetos adicionais (paredes, chão, mobília ao fundo) têm identidade visual e espacial suficientemente distinta para não se confundirem com os objetos da mesa. 
+
+Já para o \textit{dataset Figurines}, o ARI despenca para 0,167. Isso deve ocorrer por conta de que essa cena possui muitos outros objetos envolvidos, como paredes, vidros, vista externa, e mobílias, o que introduz uma quantidade de ambiguidade visual e espacial que a rede tem mais dificuldade para resolver. Vale notar que foram formados 81,4 \textit{clusters}, por conta justamente da grande quantidade de objetos presentes na cena, e na alta magnitude na nuvem de pontos.
+
+O \textit{dataset Ramen} teve a maior discordância em relação às \textit{labels} de segmentação do SAM/DEVA, com o menor NMI das quatro cenas (0,448), mostrando que, mesmo com a \textit{loss} na configuração de margens apertadas, os \textit{clusters} finais se afastaram da partição fornecida pela supervisão fraca. Outro detalhe é que o \textit{Silhouette Score} também foi o mais baixo de todos, mostrando que os \textit{clusters} foram pouco compactados.
+
+Por último, o \textit{dataset Waldo Kitchen} teve um resultado um pouco mais inesperado. Ele obteve 79,8 \textit{clusters} finais, próximo dos 81,4 de \textit{Figurines}, e ainda assim, não obteve o valor mais baixo de ARI (0,334), e obteve o maior valor de NMI (0,715), mostrando que apesar da grande fragmentação de objetos na cena, a informação primordial ainda foi mantida. O \textit{Silhouette Score} (0,221) ficou praticamente empatado com o de \textit{Teatime} como o maior deste experimento, mostrando que apesar da alta fragmentação, os \textit{clusters} mantiveram-se homogêneos.
+
+\subsection{Métricas de Segmentação 2D}
+
+As Tabelas~\ref{tab:metricas_2d_experimento4} e~\ref{tab:instancias_experimento4} apresentam, respectivamente, as métricas de segmentação de instâncias 2D e o número médio de instâncias preditas por imagem do nosso método e do \textit{Gaussian Grouping} nas quatro cenas.
+
+\begin{table}[H]
+\centering
+\caption{Métricas de segmentação de instância 2D: nosso método \textit{versus} \textit{Gaussian Grouping}, nas 4 cenas do LERF-OVS (IoU $\geq 0{,}5$; nosso método em média de 5 execuções, \textit{Gaussian Grouping} com uma única medição)}
+\label{tab:metricas_2d_experimento4}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{llcccccc}
+\hline
+\textbf{Cena} & \textbf{Método} & \textbf{mIoU} & \textbf{Precisão@0,5} & \textbf{Recall@0,5} & \textbf{SQ@0,5} & \textbf{RQ@0,5} & \textbf{PQ@0,5} \\
+\hline
+\multirow{2}{*}{Teatime}       & Nosso método      & 0{,}444 & 0{,}376 & 0{,}490 & 0{,}829 & 0{,}419 & 0{,}346 \\
+                                & Gaussian Grouping & 0{,}354 & 0{,}170 & 0{,}353 & 0{,}822 & 0{,}221 & 0{,}177 \\
+\hline
+\multirow{2}{*}{Ramen}         & Nosso método      & 0{,}193 & 0{,}138 & 0{,}168 & 0{,}770 & 0{,}149 & 0{,}111 \\
+                                & Gaussian Grouping & 0{,}249 & 0{,}235 & 0{,}253 & 0{,}822 & 0{,}239 & 0{,}194 \\
+\hline
+\multirow{2}{*}{Figurines}     & Nosso método      & 0{,}456 & 0{,}232 & 0{,}521 & 0{,}746 & 0{,}319 & 0{,}238 \\
+                                & Gaussian Grouping & 0{,}578 & 0{,}313 & 0{,}668 & 0{,}781 & 0{,}425 & 0{,}332 \\
+\hline
+\multirow{2}{*}{Waldo Kitchen} & Nosso método      & 0{,}266 & 0{,}098 & 0{,}262 & 0{,}660 & 0{,}142 & 0{,}093 \\
+                                & Gaussian Grouping & 0{,}279 & 0{,}142 & 0{,}295 & 0{,}634 & 0{,}182 & 0{,}143 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Número médio de instâncias por imagem, preditas por cada método, comparado ao \textit{ground truth}, nas 4 cenas (nosso método em média de 5 execuções, e também contagem do \textit{Gaussian Grouping})}
+\label{tab:instancias_experimento4}
+\begin{tabular}{lccc}
+\hline
+\textbf{Cena} & \textbf{Ground truth} & \textbf{Nosso método} & \textbf{Gaussian Grouping} \\
+\hline
+Teatime & 10{,}3 & 14{,}1 & 26{,}0 \\
+Ramen & 11{,}4 & 13{,}2 & 12{,}9 \\
+Figurines & 14{,}2 & 32{,}3 & 30{,}2 \\
+Waldo Kitchen & 5{,}8 & 17{,}6 & 10{,}8 \\
+\hline
+\end{tabular}
+\end{table}
+
+Com as quatro cenas avaliadas sob o mesmo tratamento, sem nenhum recorte, o nosso método só supera o \textit{Gaussian Grouping} de forma clara em \textit{Teatime} (mIoU 0,444 contra 0,354; PQ@0,5 0,346 contra 0,177). Nas outras três cenas, o \textit{Gaussian Grouping} supera o nosso método em praticamente todas as métricas.
+
+
+Em \textit{Waldo Kitchen}, o \textit{Gaussian Grouping} obtém PQ@0,5 de 0,143, contra 0,093 do nosso método. A contagem de instâncias por imagem chega a 17,6, acima das 10,8 do \textit{Gaussian Grouping} e cerca de três vezes as 5,8 anotadas, o que caracteriza super-segmentação. O \textit{recall} também foi abaixo do obtido pelo \textit{Gaussian Grouping} (0,262 contra 0,295), mostrando que nosso método desempenhou mal em segmentar corretamente as máscaras anotadas. Nessa cena, o nosso método obteve SQ@0,5 maior (0,660 contra 0,634), mas a precisão de 0,098, contra 0,142 do \textit{Gaussian Grouping}, reflete o excesso de instâncias preditas.
+
+Em \textit{Figurines}, a cena é muito mais complexa e há muitas \emph{splats} em volta da região de interesse, o que faz nosso método desempenhar um pouco pior, apesar de não ter métricas tão ruins comparadas ao \textit{Gaussian Grouping}. O mIoU obtido foi de 0,456, contra 0,578, uma diferença até que considerável, e o \textit{recall} 0,521 contra 0,668, mostrando que o \textit{Gaussian Grouping} conseguiu encontrar mais objetos anotados que o nosso método. As máscaras casadas do \textit{Gaussian Grouping} também tiveram melhor sobreposição (SQ@0,5 de 0,781 contra 0,746). A respeito do número de instâncias, tanto o nosso método quanto o \textit{Gaussian Grouping} obtiveram um número consideravelmente maior de instâncias segmentadas (32,3 e 30,2), comparado ao \textit{ground truth} de 14,2, o que é esperado para essa cena já que há muitos objetos diferentes e em diferentes regiões. 
+
+Já as métricas do \textit{dataset Ramen} demonstram que nem nosso método nem o \textit{Gaussian Grouping} operaram bem na segmentação, com valores baixos de mIoU comparados aos outros experimentos (0,193 e 0,249), e também com valores de PQ@0,5 menores (0,111 e 0,194), mas ainda assim, nosso método opera em desvantagem nessa cena. Em número de instâncias, ambos os métodos obtiveram resultados parecidos, 13,2 e 12,9, e não divergiram quando comparado ao \textit{ground truth}, com 11,4 objetos.
+
+Em conjunto, os quatro resultados mostram que a vantagem do nosso método sobre o \textit{Gaussian Grouping} não generaliza para cenas completas e mais complexas. Das quatro cenas, apenas \textit{Teatime} obteve um resultado melhor. O SQ@0,5 dos dois métodos fica em faixas parecidas nas quatro cenas (0,63 a 0,82 no \textit{Gaussian Grouping} e 0,66 a 0,83 no nosso método), ambos com o menor valor em \textit{Waldo Kitchen}. A métrica PQ@0,5 também foi consistentemente maior no \textit{Gaussian Grouping} para a maioria dos \textit{datasets}, exceto em \textit{Teatime}, em que nosso método conseguiu melhores resultados. Em geral, o \textit{Gaussian Grouping} manteve suas segmentações muito bem pareadas com as máscaras do SAM/DEVA, sem muitas mudanças, o que faz sentido com seu método de treinamento, usando perda de renderização de identidade (\textit{loss} 2D). Nosso método conseguiu extrair maior entendimento das cenas e também destacar pequenos objetos no cenário, como por exemplo o \textit{Waldo Kitchen}, em que as segmentações de pequenos detalhes foram muito mais detalhadas comparado ao \textit{Gaussian Grouping}, em que as segmentações pareciam ser menos detalhadas. Isso mostra que nosso método opera de diferentes modos, principalmente dos parâmetros vindos do HDBSCAN, em que o \texttt{min\_cluster\_size} dita o quanto de detalhe será retirado dos \textit{embeddings} ao final do treinamento.
+
+
+Vale ressaltar que essa comparação foi conduzida sobre amostras pequenas por cena (4 a 7 \textit{frames} anotados), o que limita a significância estatística das diferenças observadas individualmente, ainda que a consistência da vantagem do \textit{Gaussian Grouping} em três das quatro cenas reforce que o resultado favorável obtido em \textit{Teatime} não deve ser generalizado sem ressalvas para cenas com características distintas.
+
+
+As Figuras~\ref{fig:comparacao_teatime_frame_00002}, \ref{fig:comparacao_ramen_frame_00006}, \ref{fig:comparacao_figurines_frame_00041} e \ref{fig:comparacao_waldo_kitchen_frame_00053} ilustram a imagem original, a segmentação obtida pelo nosso método e a segmentação obtida pelo \textit{Gaussian Grouping}, lado a lado, para um \textit{frame} anotado de cada cena. Em \textit{Teatime}, a segmentação final acaba fundindo alguns objetos, e deixa de detectar os \textit{cookies} comparado ao experimento com a limitação da cena. Em \textit{Figurines}, apesar de as métricas do nosso método não terem sido melhores que o \textit{Gaussian Grouping}, ainda assim, visualmente, cada objeto da mesa parece ser bem segmentado, e toda a cena da mesa parece ter uma atribuição, diferente dos fundos pretos observados no outro método. Em \textit{Ramen}, visualmente o \textit{Gaussian Grouping} obteve um desempenho muito melhor, separando muito bem os objetos presentes na cena, diferente do nosso método, que não conseguiu distinguir perfeitamente cada classe ao final do treinamento, obtendo segmentações confusas e fragmentadas. Em \textit{Waldo Kitchen}, o nosso método consegue isolar muitos objetos pequenos (utensílios sobre a bancada), mas a segmentação da cena como um todo aparece bem mais fragmentada que a do \textit{Gaussian Grouping}.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/comparacao_teatime_frame_00002.png}
+    \caption{Comparação de segmentação na cena \textit{Teatime}, sem recorte. Da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:comparacao_teatime_frame_00002}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/comparacao_ramen_frame_00006.png}
+    \caption{Comparação de segmentação na cena \textit{Ramen}, sem recorte. Da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:comparacao_ramen_frame_00006}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/comparacao_figurines_frame_00041.png}
+    \caption{Comparação de segmentação na cena \textit{Figurines}, sem recorte. Da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:comparacao_figurines_frame_00041}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/comparacao_waldo_kitchen_frame_00053.png}
+    \caption{Comparação de segmentação na cena \textit{Waldo Kitchen}, sem recorte. Da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:comparacao_waldo_kitchen_frame_00053}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+\subsection{Resultados Qualitativos em Outras Vistas}
+
+As métricas 2D deste experimento se restringem aos \textit{frames} anotados no \textit{ground truth}, mas os dois métodos produzem uma segmentação para todas as câmeras de treino de cada cena. As Figuras~\ref{fig:multivistas_teatime}, \ref{fig:multivistas_ramen}, \ref{fig:multivistas_figurines} e \ref{fig:multivistas_waldo_kitchen} apresentam cinco dessas vistas por cena, lado a lado com a imagem original. As vistas foram escolhidas automaticamente entre as câmeras voltadas para a região central da cena. Por não haver anotação para essas imagens, os resultados desta subseção são apenas qualitativos.
+
+Em \textit{Teatime} (Figura~\ref{fig:multivistas_teatime}), os dois bichos de pelúcia, a mesa, o prato e os copos mantêm a mesma instância nas cinco vistas no nosso método, enquanto o \textit{Gaussian Grouping} fragmenta mais o urso e atribui instâncias diferentes à ovelha conforme o ponto de vista.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figuras/multivistas_teatime.png}
+    \caption{Segmentação da cena \textit{Teatime} em cinco vistas próximas ao centro (\textit{frames} 7, 18, 108, 158 e 174). Em cada linha, da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:multivistas_teatime}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+Em \textit{Ramen} (Figura~\ref{fig:multivistas_ramen}), a tigela e a mesa são segmentadas de forma estável pelos dois métodos, mas o nosso método mistura mais as regiões do fundo e deixa manchas no interior da tigela, enquanto o \textit{Gaussian Grouping} produz máscaras mais limpas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figuras/multivistas_ramen.png}
+    \caption{Segmentação da cena \textit{Ramen} em cinco vistas próximas ao centro (\textit{frames} 22, 30, 67, 77 e 113). Em cada linha, da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:multivistas_ramen}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+Em \textit{Figurines} (Figura~\ref{fig:multivistas_figurines}), os objetos sobre a mesa são bem separados pelos dois métodos, e as diferenças se concentram nas paredes e janelas ao fundo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figuras/multivistas_figurines.png}
+    \caption{Segmentação da cena \textit{Figurines} em cinco vistas próximas ao centro (\textit{frames} 35, 65, 80, 189 e 261). Em cada linha, da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:multivistas_figurines}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+Em \textit{Waldo Kitchen} (Figura~\ref{fig:multivistas_waldo_kitchen}), o nosso método atribui instâncias a muito mais objetos, como prateleiras, temperos e utensílios, ainda que de forma fragmentada, enquanto o \textit{Gaussian Grouping} deixa grande parte da cena sem instância em algumas vistas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figuras/multivistas_waldo_kitchen.png}
+    \caption{Segmentação da cena \textit{Waldo Kitchen} em cinco vistas próximas ao centro (\textit{frames} 9, 27, 44, 48 e 187). Em cada linha, da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:multivistas_waldo_kitchen}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+Essas vistas também evidenciam uma diferença entre os dois métodos que as métricas por imagem não capturam: a estabilidade da segmentação quando uma mesma região é observada de pontos de vista diferentes. No \textit{Gaussian Grouping}, a instância de uma região pode mudar de uma vista para outra, e um objeto segmentado em um \textit{frame} pode ser predito como fundo em outro. Isso decorre da forma como o \textit{Gaussian Grouping} atribui as instâncias: cada \emph{splat} carrega um vetor de identidade, esses vetores são combinados por \textit{alpha blending} em cada \textit{pixel} da imagem renderizada, e um classificador aplicado sobre essa combinação escolhe a instância do \textit{pixel}. Como a combinação depende da oclusão, da transparência das \emph{splats} e da distância da câmera, ela muda com o ponto de vista, e a mesma região pode ser classificada como um objeto em uma vista e como outro objeto, ou como fundo, em outra. No nosso método, cada \emph{splat} recebe um rótulo permanente após a clusterização no espaço 3D, e a renderização apenas projeta esse rótulo nas imagens, de modo que a instância de uma região não depende do ponto de vista.
+
+A Figura~\ref{fig:consistencia_multivista_teatime} ilustra esse efeito na cena \textit{Teatime}: a maçã é segmentada pelo \textit{Gaussian Grouping} nos \textit{frames} 8 e 63, mas é predita como fundo nos \textit{frames} 106 e 139, enquanto o nosso método a mantém com a mesma instância nas quatro vistas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figuras/consistencia_multivista_teatime.png}
+    \caption{Exemplo de mudança de rótulo entre vistas na cena \textit{Teatime}. O retângulo amarelo marca a maçã em quatro vistas. O \textit{Gaussian Grouping} a segmenta nos \textit{frames} 8 e 63 e a prediz como fundo (preto) nos \textit{frames} 106 e 139, enquanto o nosso método mantém a mesma instância nas quatro vistas. Em cada linha, da esquerda para a direita: imagem original, segmentação do nosso método e segmentação do \textit{Gaussian Grouping}.}
+    \label{fig:consistencia_multivista_teatime}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+
+\FloatBarrier
+\section{Experimento 5: Contribuição do Treinamento da Rede}
+
+Os quatro experimentos anteriores variaram os parâmetros do nosso método mantendo a rede sempre treinada até a parada antecipada, o que deixa em aberto uma pergunta: quanto do resultado final vem de fato do aprendizado da GAT e quanto já estaria disponível nas \textit{features} de entrada somadas ao HDBSCAN. Este experimento responde a essa pergunta comparando três pontos da mesma \textit{pipeline}, alterando apenas o quanto a rede foi treinada antes da clusterização.
+
+Na primeira configuração, a rede é descartada por completo e o HDBSCAN é aplicado diretamente sobre as \textit{features} de entrada dos nós, que são as coordenadas espaciais e a cor normalizadas que alimentariam a primeira camada da GAT. Na segunda, o treinamento é interrompido na época 20, ou seja, bem antes da convergência, e o \textit{embedding} produzido nesse estágio é levado ao HDBSCAN. Na terceira, que é a configuração padrão adotada ao longo do trabalho, o treinamento segue até a parada antecipada, acionada na época 252. Todo o restante permanece fixo, com a arquitetura GAT com 8 cabeças de atenção, a \textit{loss} contrastiva na configuração padrão (temperatura 0,05, margem positiva 0,2, margem negativa 0,1 e peso de repulsão de centroides 0,3), o HDBSCAN na configuração de referência (\texttt{min\_cluster\_size} 500, \texttt{min\_samples} 3 e seleção \textit{eom}) e o \textit{dataset} continua sendo o \textit{Teatime} com a cena limitada aos objetos presentes no \textit{ground truth}. Assim como nos experimentos anteriores, cada configuração foi executada cinco vezes e as tabelas reportam a média dessas execuções. A Tabela~\ref{tab:config_experimento5} resume as três configurações avaliadas.
+\begin{table}[h]
+\centering
+\caption{Configurações avaliadas no Experimento 5}
+\label{tab:config_experimento5}
+\begin{tabular}{lcc}
+\hline
+\textbf{Configuração} & \textbf{Rede utilizada} & \textbf{Épocas de treino} \\
+\hline
+HDBSCAN nas \textit{features} de entrada & Nenhuma & 0 \\
+GAT com 20 épocas & GAT (8 cabeças) & 20 \\
+Padrão (treino completo) & GAT (8 cabeças) & 252 \\
+\hline
+\end{tabular}
+\end{table}
+
+Vale registrar desde já uma particularidade da primeira configuração: por não haver treinamento, não existe nenhum componente estocástico entre a leitura das \emph{splats} e a clusterização, e as cinco execuções produziram resultados idênticos até a terceira casa decimal.
+
+\subsection{Métricas de Clusterização 3D}
+
+A Tabela~\ref{tab:metricas_3d_experimento5} apresenta os valores de ARI, NMI e \textit{Silhouette Score} obtidos nos três estágios de treinamento avaliados.
+
+\begin{table}[H]
+\centering
+\caption{Métricas de clusterização 3D em função do estágio de treinamento da GNN (média de 5 execuções)}
+\label{tab:metricas_3d_experimento5}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Configuração} & \textbf{ARI} & \textbf{NMI} & \textbf{Silhouette Score} & \textbf{Clusters Finais} \\
+\hline
+HDBSCAN nas \textit{features} de entrada & 0{,}231 & 0{,}455 & 0{,}220 & 12{,}0 \\
+GAT com 20 épocas & 0{,}245 & 0{,}539 & 0{,}284 & 18{,}0 \\
+Padrão (treino completo) & 0{,}309 & 0{,}606 & 0{,}153 & 18{,}2 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+O ARI e o NMI crescem de forma monótona com o avanço do treinamento. O ARI sobe de 0,231 sem rede nenhuma para 0,245 na época 20 e para 0,309 no treino completo, e o NMI acompanha o mesmo sentido, de 0,455 para 0,539 e depois para 0,606. Uma observação curiosa é que o NMI aumentou 0,084 pontos em 20 épocas, e apenas 0,067 pontos da época 20 até a 252. Isso indica que a informação de identidade de instância é incorporada aos \textit{embeddings} logo no início do treinamento, e que as épocas seguintes refinam uma estrutura que já foi bem formada logo no começo do treinamento. O \textit{Silhouette Score} é a única métrica que não acompanha o treinamento, e sua trajetória é inclusive invertida: parte de 0,220 sem rede, atinge o maior valor do experimento na época 20 (0,284) e cai para o menor valor (0,153) justamente na configuração que produz a melhor segmentação. 
+
+O número de \textit{clusters} finais separa a primeira configuração das outras duas. Sem rede, o HDBSCAN encontra 12,0 agrupamentos, contra 18,0 na época 20 e 18,2 no treino completo. Ou seja, clusterizar diretamente posição e cor faz com que objetos que foram fragmentados pelo SAM/DEVA passem a ser agrupados em um único \textit{cluster}, principalmente por conta do atributo de cor, que aproxima regiões vizinhas de aparência semelhante.
+
+\subsection{Métricas de Segmentação 2D}
+
+As Tabelas~\ref{tab:metricas_2d_experimento5} e~\ref{tab:instancias_experimento5} apresentam, respectivamente, as métricas de segmentação de instâncias 2D e o número médio de instâncias preditas por imagem nos três estágios de treinamento avaliados.
+
+\begin{table}[h]
+\centering
+\caption{Métricas de segmentação de instância 2D em função do estágio de treinamento da GNN (IoU $\geq 0{,}5$; média de 5 execuções)}
+\label{tab:metricas_2d_experimento5}
+\resizebox{\ifdim\width>\textwidth\textwidth\else\width\fi}{!}{%
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Configuração} & \textbf{mIoU} & \textbf{Precisão@0,5} & \textbf{Recall@0,5} & \textbf{SQ@0,5} & \textbf{RQ@0,5} & \textbf{PQ@0,5} \\
+\hline
+HDBSCAN nas \textit{features} de entrada & 0{,}453 & 0{,}464 & 0{,}459 & 0{,}841 & 0{,}458 & 0{,}384 \\
+GAT com 20 épocas & 0{,}532 & 0{,}433 & 0{,}590 & 0{,}767 & 0{,}498 & 0{,}381 \\
+Padrão (treino completo) & 0{,}656 & 0{,}588 & 0{,}755 & 0{,}819 & 0{,}657 & 0{,}538 \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Número médio de instâncias por imagem, preditas em cada estágio de treinamento, comparado ao \textit{ground truth} (média de 5 execuções)}
+\label{tab:instancias_experimento5}
+\begin{tabular}{lc}
+\hline
+\textbf{Configuração} & \textbf{Instâncias preditas (média/imagem)} \\
+\hline
+\textit{Ground truth} & 10{,}3 \\
+\hline
+HDBSCAN nas \textit{features} de entrada & 10{,}2 \\
+GAT com 20 épocas & 14{,}2 \\
+Padrão (treino completo) & 13{,}3 \\
+\hline
+\end{tabular}
+\end{table}
+
+O mIoU é a métrica que mais refletiria o quanto a rede agrega à segmentação, e ela cresce ao decorrer do treinamento: 0,453 sem rede, 0,532 na época 20 e 0,656 no treino completo. A diferença entre os dois extremos é de 0,203, ou seja, o treinamento da GAT responde por cerca de 45\% de aumento sobre o que as \textit{features} de entrada e o HDBSCAN entregam sozinhos. Isso indica que utilizar a rede fez com que houvesse maior casamento entre as máscaras entre o \textit{ground truth} e os resultados ao final do treinamento.
+
+O PQ@0,5, por outro lado, revela que esse ganho não é distribuído uniformemente ao longo do treinamento. Ele permanece praticamente parado entre a primeira configuração e a época 20 (0,384 contra 0,381) e só então salta para 0,538 no treino completo. A razão aparece ao decompor a métrica: entre não treinar e treinar 20 épocas, o \textit{recall} sobe de 0,459 para 0,590, mas a precisão cai de 0,464 para 0,433, e os dois efeitos se cancelam no RQ e, por consequência, no PQ. Esse aumento de \textit{recall} acompanhado de queda de precisão é explicado pela contagem de instâncias, que salta de 10,2 para 14,2 por imagem: na época 20 a rede já quebrou aglomerados que antes estavam fundidos, passando a detectar objetos que a configuração sem rede não encontrava. Só o treino completo consegue elevar as duas métricas ao mesmo tempo, alcançando precisão 0,588 e \textit{recall} 0,755, com a contagem de instâncias recuando para 13,3 por imagem.
+
+Já o SQ@0,5 tem um cenário diferente: o maior valor do experimento é o da configuração sem rede (0,841), acima inclusive do treino completo (0,819). Isso significa que, entre as poucas máscaras que a primeira configuração consegue casar com o \textit{ground truth}, a sobreposição é boa. O problema dela não é a qualidade das máscaras casadas, e sim o número de objetos que deixam de ser encontrados, que é o que o \textit{recall} de 0,459 evidencia. O menor SQ@0,5 aparece na época 20 (0,767), estágio em que a rede já fragmentou a cena mas ainda não ajustou as fronteiras entre os objetos.
+
+
+Em termos de contagem de instâncias, a configuração sem rede é a que mais se aproxima do \textit{ground truth}, com 10,2 instâncias por imagem contra as 10,3 anotadas, uma proximidade maior do que a das duas configurações treinadas, e ainda assim é a pior nas métricas de segmentação 2D. Já o treino com parada na época 20 fragmenta a cena, elevando o número de instâncias para 14,2. Ao final, com o treinamento até a parada antecipada, o número de instâncias cai, alcançando 13,3 segmentações.
+
+
+A Figura~\ref{fig:exp5_treino_comparacao} mostra a segmentação obtida nos três testes para um mesmo \textit{frame} anotado da cena. Sem treinamento, pode-se observar que grande parte das máscaras dos objetos são formadas respeitando principalmente o atributo de cor, com pequenos vazamentos de instâncias para outros objetos. No treino com 20 épocas, a qualidade da segmentação já é muito boa, mas ainda com pequeno compartilhamento de instâncias entre objetos, e também já é possível ver o fenômeno de fragmentação de partes do mesmo objeto, observado pelo urso da cena. Já para o treino completo, é possível notar que quase não há vazamento de instâncias, e há um grande refinamento nas máscaras, chegando a um ponto de qualidade de segmentação muito bom.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figuras/exp5_treino_comparacao.png}
+    \caption{Segmentação 2D obtida em cada estágio de treinamento da rede. Da esquerda para a direita e de cima para baixo: imagem original, HDBSCAN aplicado diretamente às \textit{features} de entrada, GAT treinada por 20 épocas e configuração padrão com o treino completo. Essa cena é referente ao \textit{dataset Teatime}.}
+    \label{fig:exp5_treino_comparacao}
+    \fonte{Elaborado pelo autor.}
+\end{figure}
+
+
+% ============================================================
+% CAPÍTULO 6: CONCLUSÃO
+% ============================================================
+\chapter{CONCLUSÃO}
+
+Este trabalho investigou o uso de redes neurais em grafo para a segmentação de instâncias em cenas representadas por \textit{3D Gaussian Splatting}. O método proposto transfere as máscaras 2D do SAM, com identidades mantidas entre as imagens pelo DEVA, para as \emph{splats} por meio de uma votação entre as vistas, conecta as \emph{splats} filtradas em um grafo construído a partir da proximidade espacial e da similaridade de cor, e treina uma GAT ou uma GCN com uma \emph{loss} contrastiva que combina margens sobre as arestas, a InfoNCE calculada contra os centroides de cada rótulo e a repulsão entre centroides. Os \textit{embeddings} resultantes são agrupados pelo HDBSCAN, e as \emph{splats} classificadas como ruído recebem rótulos por propagação KNN, produzindo a segmentação das instâncias em 3D e as máscaras 2D renderizadas.
+
+Os experimentos permitiram identificar quais componentes são determinantes para o desempenho do método. A comparação entre arquiteturas mostrou que o mecanismo de atenção é o componente decisivo: a GAT com 8 cabeças obteve PQ@0,5 de 0,538 na cena \textit{Teatime} limitada aos objetos anotados, enquanto as GCNs de 2 e 4 camadas ficaram em 0,346 e 0,307, com ARI de cerca de metade do obtido pelas GATs. O Experimento 5 mostrou que o treinamento da rede contribui de fato para o resultado, e não apenas as \textit{features} de entrada: o mIoU sobe de 0,453, quando o HDBSCAN é aplicado diretamente sobre a posição e a cor das \emph{splats}, para 0,656 com o treinamento completo, e o PQ@0,5 sobe de 0,384 para 0,538.
+
+Entre os hiperparâmetros, o \texttt{min\_cluster\_size} do HDBSCAN foi o de maior impacto. Valores baixos fragmentam a cena, levando o PQ@0,5 a 0,176, e valores altos fundem objetos vizinhos, reduzindo o \textit{recall} para 0,502. Na função de perda, apertar as margens foi a única alteração com ganho consistente, elevando a precisão para 0,643 e o PQ@0,5 para 0,551, enquanto relaxar as margens ou reforçar a repulsão entre centroides degradou a segmentação. Os experimentos também mostraram que o \textit{Silhouette Score} não acompanha a qualidade da segmentação: as configurações com os maiores valores dessa métrica, como a seleção \textit{leaf} do HDBSCAN e a GCN de 2 camadas, estão entre as de pior desempenho nas métricas 2D, o que indica que a coesão dos \textit{clusters} no espaço de \textit{embeddings} não garante a correspondência com os objetos da cena.
+
+Na comparação com o \textit{Gaussian Grouping} sobre as cenas inteiras do \textit{dataset} LERF-OVS, o método proposto obteve melhor desempenho na cena \textit{Teatime}, com mIoU de 0,444 contra 0,354 e PQ@0,5 de 0,346 contra 0,177, mas foi superado em PQ@0,5 nas outras três cenas, com a maior diferença relativa em \textit{Ramen} (PQ@0,5 de 0,111 contra 0,194) e PQ@0,5 de 0,093 contra 0,143 em \textit{Waldo Kitchen}. A qualidade das máscaras correspondidas ficou em faixas parecidas nos dois métodos, com SQ@0,5 entre 0,63 e 0,82 no \textit{Gaussian Grouping} e entre 0,66 e 0,83 no método proposto. Por outro lado, a análise de outras vistas das cenas mostrou que o método proposto mantém a mesma instância para uma região em todos os pontos de vista, o que não ocorre no \textit{Gaussian Grouping}, em que um objeto segmentado em uma vista pode mudar de rótulo ou ser predito como fundo em outra. Essa consistência entre vistas decorre da atribuição de um rótulo discreto a cada \emph{splat} no espaço 3D, em vez da classificação de cada \textit{pixel} após a renderização, como no \textit{Gaussian Grouping}. Qualitativamente, o método proposto conseguiu isolar objetos pequenos, como os utensílios de \textit{Waldo Kitchen}, mas tendeu a fragmentar as cenas mais complexas. Esses resultados indicam que a abordagem baseada em redes neurais em grafo é viável e competitiva em cenas mais controladas, mas que a sua vantagem ainda não se generaliza para cenas completas e com muitos objetos.
+
+Algumas limitações devem ser consideradas na interpretação desses resultados. As métricas 2D foram calculadas sobre poucos \textit{frames} anotados por cena, entre 4 e 7, o que restringe a significância estatística das diferenças observadas. Os Experimentos 1, 2, 3 e 5 foram conduzidos apenas na cena \textit{Teatime} recortada, e os hiperparâmetros da \emph{loss} precisaram ser ajustados individualmente para \textit{Ramen}, o que mostra que a configuração de referência não é igualmente adequada a todas as cenas. Porém, com a análise da cena, observando-se se há muitos objetos pequenos e distintos, ou se é uma cena com pouca variância, é possível obter segmentações melhores conforme o usuário indique parâmetros adequados à \emph{loss} contrastiva e ao HDBSCAN.
+
+
+% ============================================================
+% CAPÍTULO 7: TRABALHOS FUTUROS
+% ============================================================
+\chapter{TRABALHOS FUTUROS}
+
+A partir dos resultados e das limitações discutidos, algumas direções podem ser exploradas para dar continuidade a este trabalho:
+
+\begin{itemize}
+     \item \textbf{Propagação de semântica nas \emph{splats}:} além do identificador de instância, as \emph{splats} podem receber \textit{features} semânticas extraídas de modelos de linguagem e visão, como o CLIP\cite{radford2021learning}, de forma semelhante ao que é feito pelo \textit{LangSplat}\cite{Qin_2024_CVPR}. Essas \textit{features} poderiam ser incorporadas ao treinamento da rede em grafo, tanto como atributos adicionais dos nós quanto como um termo adicional da \emph{loss}, aproximando \emph{splats} semanticamente semelhantes. Ao final, cada instância segmentada passaria a ter uma descrição semântica associada, o que permitiria identificar qual objeto ela representa e realizar buscas textuais na cena, como localizar todas as \emph{splats} correspondentes a ``uma xícara'' ou ``um urso de pelúcia''.
+
+    \item \textbf{Ajuste automático de hiperparâmetros por cena:} como as margens da \emph{loss} precisaram ser ajustadas manualmente na cena \textit{Ramen}, e o \texttt{min\_cluster\_size} controla diretamente a fragmentação das cenas, uma direção importante é definir esses hiperparâmetros automaticamente, por exemplo a partir do número de segmentos iniciais do SAM/DEVA ou da estabilidade dos \textit{clusters} obtidos pelo HDBSCAN.
+
+    \item \textbf{Novos atributos dos nós:} os nós do grafo podem receber outros atributos das \emph{splats}, como a covariância, a opacidade e os coeficientes de harmônicos esféricos, que não foram utilizados neste trabalho. Isso poderia fazer a rede entender melhor as relações entre as \emph{splats}, gerando melhores segmentações.
+
+    \item \textbf{Escalabilidade para cenas inteiras:} treinar a rede sobre subgrafos amostrados da cena, em vez do grafo completo a cada época, reduzindo o consumo de memória e permitindo processar cenas inteiras sem limitar o número de \emph{splats}.
+
+    \item \textbf{Refinamento iterativo dos rótulos:} utilizar os \textit{clusters} obtidos ao final do treinamento como novos rótulos para um segundo ciclo de treinamento, corrigindo gradualmente os erros herdados das máscaras 2D do SAM/DEVA.
+
+    \item \textbf{Avaliação mais abrangente:} avaliar o método em outros \textit{datasets}, preferencialmente com anotações 3D de instâncias, que permitiriam medir a qualidade da segmentação diretamente no espaço tridimensional, e com um número maior de \textit{frames} anotados por cena, aumentando a significância estatística das comparações.
+\end{itemize}
+
+
+% ============================================================
+% REFERÊNCIAS
+% ============================================================
+\bibliographystyle{abntex2-num}
+\bibliography{tese}
+
+
+
+
+\end{document}
